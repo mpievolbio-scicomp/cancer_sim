@@ -347,7 +347,7 @@ def tumourGrowth(pool, time_step, div_probability, death_probability):
             print('1', bulk_vaf[0:10])
             return bulk_vaf
 
-def main():
+def main(arguments):
     """ TODO: Add a short documentation of this function.
 
     :param <+variable name+>: <+variable doc+>
@@ -356,22 +356,6 @@ def main():
     """
     ### Consider using a class
 
-    # Setup the command line parser.
-    parser = ArgumentParser()
-
-    # Parameters argument.
-    #parser.add_argument("parameters",
-                        #default='params',
-                        #help="Python module that contains the parameters for this run."
-                        #)
-
-    # Seed parameter.
-    parser.add_argument("seed",
-                        help="The prng seed.",
-                        )
-
-    # Parse the arguments.
-    arguments = parser.parse_args()
 
     # Load parameters from specified module.
     #exec("import {} as params".format(arguments.parameters))
@@ -446,5 +430,22 @@ def main():
 
 if __name__ == "__main__":
     # Entry point
-    main()
+    # Setup the command line parser.
+    parser = ArgumentParser()
+
+    # Parameters argument.
+    #parser.add_argument("parameters",
+                        #default='params',
+                        #help="Python module that contains the parameters for this run."
+                        #)
+
+    # Seed parameter.
+    parser.add_argument("seed",
+                        help="The prng seed.",
+                        )
+
+    # Parse the arguments.
+    arguments = parser.parse_args()
+
+    main(arguments)
 
