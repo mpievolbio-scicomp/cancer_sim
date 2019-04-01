@@ -4,8 +4,6 @@ __author__ = 'Luka Opasic, MD'
 __email__ = 'opasic@evolbio.mpg.de'
 __version__ = '0.0.1'
 
-# LICENSE??
-
 from argparse import ArgumentParser
 from fractions import gcd
 from matplotlib.lines import Line2D
@@ -143,6 +141,7 @@ def bulk_seq(DNA, step, benefitial, sampling_or_fullTumour):
 
     reduced=list(itertools.chain(*[j for j in DNA]))  #flatten the list of mutations
 
+    # NOTE: np.hist?
     for i in set(reduced): #count number of unique mutations in whole tumour at time step
         vaf_bulk.append((i, float(reduced.count(i))))
 
@@ -181,23 +180,24 @@ def mutation_reconstruction(cellToUntangle):
     return mut_prof[::-1]
 
 def neighbours(rndNode):
-    """ TODO: Add a short documentation of this function.
+    """ Returns the nearest-neighbor cells around the given node.
 
-    :param <+variable name+>: <+variable doc+>
-    :type  <+variable name+>: <+type of variable+>
+    :param rndNode: The node for which to calculate the neighbors.
+    :type  rndNode: tuple (i,j) of cell indices.
 
     """
-#make list of all surrounding nodes
-    neighboursList=[(rndNode[0]-1,rndNode[1]+1), \
-    (rndNode[0],rndNode[1]+1), \
-    (rndNode[0]+1,rndNode[1]+1), \
-    (rndNode[0]-1,rndNode[1]), \
-    (rndNode[0]+1,rndNode[1]), \
-    (rndNode[0]-1,rndNode[1]-1), \
-    (rndNode[0],rndNode[1]-1), \
-    (rndNode[0]+1,rndNode[1]-1)]
+    # make list of all surrounding nodes
+    neighboursList=[
+            (rndNode[0]-1, rndNode[1]+1),
+            (rndNode[0]  , rndNode[1]+1),
+            (rndNode[0]+1, rndNode[1]+1),
+            (rndNode[0]-1, rndNode[1]  ),
+            (rndNode[0]+1, rndNode[1]  ),
+            (rndNode[0]-1, rndNode[1]-1),
+            (rndNode[0]  , rndNode[1]-1),
+            (rndNode[0]+1, rndNode[1]-1)]
 
-#return nodes that are not cancerous, do not contain mutation index
+    # return nodes that are not cancerous, do not contain mutation index
     return [y for y in neighboursList if mtx[y]==0]
 
 def place_to_divide():
@@ -223,122 +223,153 @@ def place_to_divide():
 
         return a, b
 
-def tumourGrowth(pool, time_step, div_probability, death_probability):
+def tumourGrowth(pool, n_time_steps, div_probability, death_probability):
     """ TODO: Add a short documentation of this function.
 
-    :param <+variable name+>: <+variable doc+>
-    :type  <+variable name+>: <+type of variable+>
+    :param pool: The pool of cancer cells.
+    :type  pool: list
+
+    :param n_time_steps: The number of time steps to simulate.
+    :type  n_time_steps: int
+
+    :param div_probability: The probability of cell division in each timestep.
+    :type  div_probability: float (0 <= div_probability <= 1).
+
+    :param death_probability: The cell death probability per timestep.
+    :type  death_probability: float (0 <= death_probability <= 1).
 
     """
 
+    # setup a counter to keep track of number of mutations that occur in this run.
     mutCounter=1
 
-    #list of mutations with positive fitness effect
+    # setup a list of mutations with positive fitness effect. empty in the beginning.
     benefitial_mut=[]
 
-    for step in range(time_step):    #for every timestep
+    # Loop over time steps.
+    for step in range(n_time_steps):
         print(mtx.todense())
         print(' ')
         print('>>>>>>>>>>>>>>>>>>>>>>>>')
         print(' ')
         print('step in cancer growth', step)
 
-        #bulk_vaf=bulk_seq([mutation_reconstruction(mtx[i]) for i in pool], step, benefitial_mut)
+        # bulk_vaf=bulk_seq([mutation_reconstruction(mtx[i]) for i in pool], step, benefitial_mut)
 
+        # setup a temporary list to store the mutated cells in this iteration.
         temp_pool=[]
-        shuffle(pool) #reshuffle the order of pool to avoid that cells with low number divide always first
+
+        # reshuffle the order of pool to avoid that cells with low number divide always first.
+        shuffle(pool)
+
         print('list of cancer cells', pool)
         #print('mut_container_', mut_container)
 
-        for cell in pool:   #for each cell in the pool
+        # Loop over all cells in the pool.
+        for cell in pool:
             print(' ')
             print('________')
 
             print('cell to divide ', cell)
             print(' ')
-            rndNode=cell  #renamed randomNode to fit with resto of the code, need to change that
 
-            neigh=neighbours(cell) #check if it has neighbours
+            #renamed randomNode to fit with rest of the code, need to change that.
+            rndNode=cell
 
-            #placeToDivide=place_to_divide()
+            # Get the existing neighboring cells.
+            neigh=neighbours(cell)
 
+            # placeToDivide=place_to_divide()
 
-            if neigh:             ###first condition, if available neighbors
-                if mtx[cell] in benefitial_mut:      ##if cell has benefitial mutaton
-                    if prng.random()<params.fittnes_advantage_div_prob: #cell divides with greater probability
+            if neigh:
+            # first condition: if available neighbors
+
+                # if cell has benefitial mutation.
+                if mtx[cell] in benefitial_mut:
+
+                    # cell divides with greater probability.
+                    if prng.random()<params.fittnes_advantage_div_prob:
                         placeToDivide=prng.choice(neigh)
                         temp_pool.append(placeToDivide)
-                        ###daughter cells mutates
+
+                        # daughter cells mutates
                         if prng.random()<mut_rate:
-                            #print('new mutation will occur', mutCounter+1)
-
-
-                            mtx[placeToDivide]=len(mut_container)    #new cell gets the index number of largest number of mutation
-                        #    print((mut_container[mtx[rndNode]][1], mutCounter+1))
-                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter+1))
+                            # print('new mutation will occur', mutCounter+1)
 
                             mutCounter=mutCounter+1
-                            benefitial_mut.append(int(mtx[placeToDivide]))  #add the index to the list of the benefitial ones
-                        ##mother cell mutates
+                            # New cell gets the index number of largest number of mutation
+                            mtx[placeToDivide]=len(mut_container)
+                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter))
 
-                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter+1))
+                            # print((mut_container[mtx[rndNode]][1], mutCounter+1))
+                            # add the index to the list of the benefitial ones
+                            benefitial_mut.append(int(mtx[placeToDivide]))
+
+                            # mother cell mutates
+                            mutCounter=mutCounter+1
+                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter))
 
                             mtx[cell]=len(mut_container)-1
-                            mutCounter=mutCounter+1
 
-
-
-                        else: #if tere is no new mutation just copy the index from mother cell
+                        else:
+                        # if there is no new mutation just copy the index from mother cell
                             mtx[placeToDivide]=mtx[rndNode]
 
-                else:            #second condontion...if it is not on the list of cells with advantage, use normal division probability
-
+                # second condition...if it is not on the list of cells with advantage, use normal division probability
+                else:
                     if prng.random()<div_probability:
                         placeToDivide=prng.choice(neigh)
                         print('index of the mother cell', mtx[cell])
                         print('random neighbor to divide', placeToDivide)
-                        temp_pool.append(placeToDivide) #temp_pool will be update to pool of cancer cells after all cells attempt to divide, this prevents that new cells divide in the same turn
 
+                        # temp_pool will be updated to pool of cancer cells
+                        # after all cells attempt to divide, this prevents
+                        # that new cells divide in the same turn.
+                        ### NOTE: But you're updating mtx during the step.
+                        temp_pool.append(placeToDivide)
 
-####here is main thing, updating new cells and mutations
+                        # here is main thing, updating new cells and mutations
                         if prng.random()<mut_rate:
-                            mtx[placeToDivide]=len(mut_container)    #new cell gets the index number of largest number of mutation
-                            print('neigh cell got new index', len(mut_container))
-                            print((mut_container[mtx[rndNode]][1], mutCounter+1))
-                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter+1))
-                            print('mut container updated', mut_container)
+                            # new cell gets the index number of largest number of mutation
                             mutCounter=mutCounter+1
+                            mtx[placeToDivide]=len(mut_container)
+                            print('neigh cell got new index', len(mut_container))
+                            print((mut_container[mtx[rndNode]][1], mutCounter))
 
+                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter))
+                            print('mut container updated', mut_container)
 
-
+                            # NOTE: Why the second condition (len(benefitial_mut)==0) ???
                             if prng.random()<params.advantageous_mut_prob and len(benefitial_mut)==0 and step==params.time_of_adv_mut:
-                                print('new benetitial mutation!!!!!!', int(mtx[placeToDivide]))
+                                print('new benefitial mutation!!!!!!', int(mtx[placeToDivide]))
                                 benefitial_mut.append(int(mtx[placeToDivide]))
 
-                        ##mother cell mutates
-
-                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter+1))
-                        #    print('mut container updated second time', mut_container)
-                            mtx[cell]=len(mut_container)-1
-                        #    print('mother cell gets new index', len(mut_container)-1)
+                            # mother cell mutates
                             mutCounter=mutCounter+1
+                            mut_container.append((mut_container[mtx[rndNode]][1], mutCounter))
+
+                            # print('mut container updated second time', mut_container)
+
+                            # update mutation list.
+                            # print('mother cell gets new index', len(mut_container)-1)
+                            mtx[cell]=len(mut_container)-1
 
                         else:
                             print('no new mutation in normal division, inhereting from parent')
                             mtx[placeToDivide]=mtx[rndNode]
                             temp_pool.append(placeToDivide)
 
-                #temp_pool.append(placeToDivide)
-                #pool.remove(cell)
+                # temp_pool.append(placeToDivide)
+                # pool.remove(cell)
 
+            # print('mtx', mtx.toarray())
 
-            #print('mtx', mtx.toarray())
-
-        [pool.append(v) for v in temp_pool]        #  add new cancer cells to a pool of cells available for division next round
+        # add new cancer cells to a pool of cells available for division next round
+        [pool.append(v) for v in temp_pool]
         growth_plot_data.append(len(pool))
 
 
-######## at the end reconstruct mutational frequencies from the whole tumour
+        # at the end reconstruct mutational frequencies from the whole tumour
         if step == params.num_of_generations-1:
 
             bulk_vaf=bulk_seq([mutation_reconstruction(mtx[i]) for i in pool], step, benefitial_mut, sampling_or_fullTumour="Full")
@@ -354,11 +385,6 @@ def main(arguments):
     :type  <+variable name+>: <+type of variable+>
 
     """
-    ### Consider using a class
-
-
-    # Load parameters from specified module.
-    #exec("import {} as params".format(arguments.parameters))
 
     global prop_of_driver
     global mtx
@@ -379,7 +405,8 @@ def main(arguments):
     prng.seed(seed)
 
     # Load single parameter values.
-    matrixSize=params.matrixSize  ##value presents the size of both x and y axis
+    # matrix size (nrows = ncols)
+    matrixSize=params.matrixSize  # value presents the size of both x and y axis
     mut_rate=params.mut_rate
     num_of_generations=params.num_of_generations
     #ctDNA_lifetime=params.ctDNA_lifetime
@@ -388,23 +415,22 @@ def main(arguments):
     div_probability=params.div_probability
     death_probability=params.death_probability
 
-############
-
     #s = np.random.poisson(params.mut_per_division, 100000)
     s = [params.mut_per_division]*100000
 
-    #initiate tumour as lil sparce matrix with integer values
+    # initiate tumour as lil sparce matrix with integer values
     mtx=lil_matrix((matrixSize, matrixSize), dtype=int)
 
-    initLoc=(int(matrixSize/2),int(matrixSize/2))   #introducing cancer cell
+    # introducing cancer cell
+    initLoc=(int(matrixSize/2),int(matrixSize/2))
     print(initLoc)
 
-    #value within matrix represents index of the mutation container
-    #in this case number one point towards (0,1).
+    # value within matrix represents index of the mutation container
+    # in this case number one point towards (0,1).
     mtx[initLoc]=1
     mut_container=[(0, 0), (0, 1)]
 
-    #crate lists used in loops
+    # create lists used in loops
     lq_bipsy=[]
     growth_plot_data=[]
 
@@ -415,10 +441,9 @@ def main(arguments):
     death_list=[]
     prop_of_driver=[]
 
-##############MAIN FUCNTION
-
+    ##############MAIN FUNCTION
     true_vaf=tumourGrowth(pool, num_of_generations, div_probability, death_probability)
-##################
+    ##################
 
     #print(mtx)
     print(mtx.todense())
@@ -427,7 +452,6 @@ def main(arguments):
     print("time", end - start)
 
 #Avoid execution of main if the script is imported ad a module
-
 if __name__ == "__main__":
     # Entry point
     # Setup the command line parser.
