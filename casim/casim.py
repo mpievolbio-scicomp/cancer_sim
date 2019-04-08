@@ -14,6 +14,7 @@ from time import sleep
 from timeit import default_timer as timer
 import gc
 import itertools
+import logging
 import math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,6 +27,8 @@ import seaborn as sns
 import subprocess
 import sys
 
+# Configure logging.
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
 
 class CancerSimulatorParameters():
     """
@@ -209,7 +212,7 @@ class CancerSimulator(object):
         #s = np.random.poisson(self.parameters.mutations_per_division, 100000)
         # introducing cancer cell
         initLoc=(int(matrix_size/2),int(matrix_size/2))
-        print(initLoc)
+        logging.info("First cell at ", initLoc)
 
         # value within matrix represents index of the mutation container
         # in this case number one point towards (0,1).
@@ -222,7 +225,7 @@ class CancerSimulator(object):
 
         self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
 
-        print('Tumour growth in progress...')
+        logging.info('Tumour growth in progress.')
 
         death_list=[]
         prop_of_driver=[]
@@ -234,10 +237,10 @@ class CancerSimulator(object):
 
         true_vaf=self.tumourGrowth()
 
-        print(self.__mtx.todense())
+        logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
 
         end=timer()
-        print("time", end - start)
+        logging.info("Wall time: %f", end - start)
 
 
     def sampling(self, sample):
@@ -502,8 +505,8 @@ class CancerSimulator(object):
         """
 
         place_to_divide=prng.choice(neighbors)
-        print('index of the mother cell', self.__mtx[cell])
-        print('random neighbor to divide', place_to_divide)
+        logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
+        logging.info('random neighbor to divide: %s', str(place_to_divide))
 
         # pool will be updated to pool of cancer cells
         # after all cells attempt to divide, this prevents
@@ -515,17 +518,18 @@ class CancerSimulator(object):
             # new cell gets the index number of largest number of mutation
             mutation_counter=mutation_counter+1
             self.__mtx[place_to_divide]=len(self.__mut_container)
-            print('neighbors cell got new index', len(self.__mut_container))
-            print((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+
+            logging.info('neighbors cell got new index %d', self.__mtx[place_to_divide])
+            logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
 
             self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
-            print('mut container updated', self.__mut_container)
+            logging.info('mut container updated: %s', str(self.__mut_container))
 
             # NOTE: Why the second condition (len(self.__benefitial_mutation)==0) ???
             if prng.random()<self.parameters.advantageous_mutation_probability \
                     and len(self.__benefitial_mutation)==0 \
                     and step==self.parameters.time_of_advantageous_mutation:
-                print('new benefitial mutation!!!!!!', int(self.__mtx[place_to_divide]))
+                logging.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
                 self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # mother cell mutates
@@ -539,7 +543,7 @@ class CancerSimulator(object):
             self.__mtx[cell]=len(self.__mut_container)-1
 
         else:
-            print('no new mutation in normal division, inhereting from parent')
+            logging.info('no new mutation in normal division, inhereting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
             pool.append(place_to_divide)
 
@@ -554,10 +558,7 @@ class CancerSimulator(object):
         # Loop over time steps.
         for step in range(self.parameters.number_of_generations):
             print(self.__mtx.todense())
-            print(' ')
-            print('>>>>>>>>>>>>>>>>>>>>>>>>')
-            print(' ')
-            print('step in cancer growth', step)
+            logging.info('step in cancer growth: %d', step)
 
             # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
 
@@ -567,37 +568,28 @@ class CancerSimulator(object):
             # reshuffle the order of pool to avoid that cells with low number divide always first.
             shuffle(self.__pool)
 
-            print('list of cancer cells', self.__pool)
+            logging.info('list of cancer cells %s', str(self.__pool))
             #print('mut_container_', mut_container)
 
             # Loop over all cells in the pool.
             for cell in self.__pool:
-                print(' ')
-                print('________')
-
-                print('cell to divide ', cell)
-                print(' ')
+                logging.info('cell to divide %s', str(cell))
 
                 # Get the existing neighboring cells.
                 neigh=self.neighbours(cell)
 
-                # place_to_divide=place_to_divide()
-
-                if neigh:
                 # first condition: if available neighbors
-
+                if neigh:
                     # if cell has benefitial mutation.
                     if self.__mtx[cell] in self.__benefitial_mutation:
                         # cell divides with greater probability.
                         if prng.random()<self.parameters.fitness_advantageous_division_probability:
                             mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
 
-                    # second condition...if it is not on the list of cells with advantage, use normal division probability
+                    # cell does not have benefitial mutation -> normal division.
                     else:
                         if prng.random()<self.parameters.division_probability:
                             mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
-
-                # print('self.__mtx', self.__mtx.toarray())
 
             # add new cancer cells to a pool of cells available for division next round
             [self.__pool.append(v) for v in temp_pool]
@@ -610,7 +602,7 @@ class CancerSimulator(object):
                 bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
 
                 bulk_vaf=self.increase_mut_number(bulk_vaf)
-                print('1', bulk_vaf[0:10])
+                logging.info('1 %s', str(bulk_vaf[0:10]))
 
                 return bulk_vaf
 
