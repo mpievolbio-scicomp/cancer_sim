@@ -525,7 +525,6 @@ class CancerSimulator(object):
                             # temp_pool will be updated to pool of cancer cells
                             # after all cells attempt to divide, this prevents
                             # that new cells divide in the same turn.
-                            ### NOTE: But you're updating self.__mtx during the step.
                             temp_pool.append(place_to_divide)
 
                             # here is main thing, updating new cells and mutations
@@ -540,7 +539,9 @@ class CancerSimulator(object):
                                 print('mut container updated', self.__mut_container)
 
                                 # NOTE: Why the second condition (len(benefitial_mut)==0) ???
-                                if prng.random()<self.parameters.advantageous_mutation_probability and len(benefitial_mut)==0 and step==self.parameters.time_of_advantageous_mutation:
+                                if prng.random()<self.parameters.advantageous_mutation_probability \
+                                        and len(benefitial_mut)==0 \
+                                        and step==self.parameters.time_of_advantageous_mutation:
                                     print('new benefitial mutation!!!!!!', int(self.__mtx[place_to_divide]))
                                     benefitial_mut.append(int(self.__mtx[place_to_divide]))
 

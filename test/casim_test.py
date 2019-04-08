@@ -93,14 +93,6 @@ class CancerSimulatorParametersTest(unittest.TestCase):
 
         self.assertRaises(TypeError, check_set_number, numpy.array([1.,2.]), float)
 
-    def test_run(self):
-        """ Test running a simulation. """
-
-        default_parameters = CancerSimulatorParameters()
-
-        cancer_sim = CancerSimulator(default_parameters)
-
-        cancer_sim.run()
 
 class CancerSimulatorTest(unittest.TestCase):
     """ :class: Test class for the CancerSimulator """
@@ -131,9 +123,42 @@ class CancerSimulatorTest(unittest.TestCase):
     def test_default_constructor (self):
         """ Test the construction of the Simulator without arguments. """
 
-        casim = CancerSimulator()
+        # Test that the Simulator cannot be constructed without parameters.
+        with self.assertRaises(ValueError):
+            casim = CancerSimulator()
 
-        self.assertIsInstance(casim, CancerSimulator)
+    def test_run(self):
+        """ Test running a simulation with default parameters and check values. """
+
+        default_parameters = CancerSimulatorParameters()
+
+        cancer_sim = CancerSimulator(default_parameters)
+
+        cancer_sim.run()
+
+        # Get cell matrix and compare to reference result.
+        matrix = cancer_sim._CancerSimulator__mtx
+        reference_matrix = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 6, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 5, 7, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 4, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                                       ]
+                                      )
+
+        self.assertEqual( numpy.linalg.norm(matrix - reference_matrix), 0)
+
+        # Get mutation container and compare to reference result.
+        mutation_container = cancer_sim._CancerSimulator__mut_container
+        reference_mutation_container = [(0, 0), (0, 1), (1, 2), (1, 3), (3, 4), (3, 5), (2, 6)]
+        for r,m in zip(reference_mutation_container, mutation_container):
+            self.assertEqual(r[0], m[0])
+            self.assertEqual(r[1], m[1])
 
 
 class casim_test(unittest.TestCase):
@@ -205,5 +230,5 @@ if __name__ == "__main__":
         #print('---> All tests passed. <---')
         #sys.exit(0)
 
-    sys.exit(1)
+    #sys.exit(1)
 
