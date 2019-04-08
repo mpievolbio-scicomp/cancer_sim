@@ -195,9 +195,9 @@ class CancerSimulator(object):
         self.__xaxis_histogram = None
         self.__death_list = None
         self.__biopsy_timing = None
-        self.__benefitial_mut = []
+        self.__benefitial_mutation = []
         self.__growth_plot_data = None
-        self.__mutCounter = None
+        self.__mutation_counter = None
         self.__s = [self.parameters.mutations_per_division]*100000
 
     def run(self):
@@ -393,23 +393,23 @@ class CancerSimulator(object):
 
         return mut_prof[::-1]
 
-    def neighbours(self, rndNode):
+    def neighbours(self, cell):
         """ Returns the nearest-neighbor cells around the given node.
 
-        :param rndNode: The node for which to calculate the neighbors.
-        :type  rndNode: tuple (i,j) of cell indices.
+        :param cell: The node for which to calculate the neighbors.
+        :type  cell: tuple (i,j) of cell indices.
 
         """
         # make list of all surrounding nodes
         neighboursList=[
-                (rndNode[0]-1, rndNode[1]+1),
-                (rndNode[0]  , rndNode[1]+1),
-                (rndNode[0]+1, rndNode[1]+1),
-                (rndNode[0]-1, rndNode[1]  ),
-                (rndNode[0]+1, rndNode[1]  ),
-                (rndNode[0]-1, rndNode[1]-1),
-                (rndNode[0]  , rndNode[1]-1),
-                (rndNode[0]+1, rndNode[1]-1)]
+                (cell[0]-1, cell[1]+1),
+                (cell[0]  , cell[1]+1),
+                (cell[0]+1, cell[1]+1),
+                (cell[0]-1, cell[1]  ),
+                (cell[0]+1, cell[1]  ),
+                (cell[0]-1, cell[1]-1),
+                (cell[0]  , cell[1]-1),
+                (cell[0]+1, cell[1]-1)]
 
         # return nodes that are not cancerous, do not contain mutation index
         return [y for y in neighboursList if self.__mtx[y]==0]
@@ -437,14 +437,119 @@ class CancerSimulator(object):
 
             return a, b
 
+    def division(self, cell, benefitial, neighbors, step, mutation_counter, pool):
+        """ Perform a cell division.
+
+        :param tuple cell: The mother cell coordinates.
+        :param bool benefitial: Flag to indicate if the cell carries the benefitial mutation.
+        :param list neighbors: The neighboring cells.
+        :param int step: The time step in the simulation
+        :param int mutation_counter: The counter of mutations to be updated
+        :param list pool: The (temporary) pool of cells.
+
+        """
+
+        if benefitial:
+            return self._benefitial_division(cell, neighbors, step, mutation_counter, pool)
+        else:
+            return self._nonbenefitial_division(cell, neighbors, step, mutation_counter, pool)
+
+    def _benefitial_division(self, cell, neighbors, step, mutation_counter, pool):
+        """
+        :param tuple cell: The mother cell coordinates.
+        :param bool benefitial: Flag to indicate if the cell carries the benefitial mutation.
+        :param list neighbors: The neighboring cells.
+        :param int step: The time step in the simulation
+        :param int mutation_counter: The counter of mutations to be updated
+        :param list pool: The (temporary) pool of cells.
+        """
+
+        place_to_divide=prng.choice(neighbors)
+        pool.append(place_to_divide)
+
+        # daughter cells mutates
+        if prng.random()<self.parameters.mutation_rate:
+            # print('new mutation will occur', mutation_counter+1)
+
+            mutation_counter=mutation_counter+1
+            # New cell gets the index number of largest number of mutation
+            self.__mtx[place_to_divide]=len(self.__mut_container)
+            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+
+            # print((self.__mut_container[self.__mtx[cell]][1], mutation_counter+1))
+            # add the index to the list of the benefitial ones
+            self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
+
+            # mother cell mutates
+            mutation_counter=mutation_counter+1
+            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+
+            self.__mtx[cell]=len(self.__mut_container)-1
+
+        else:
+        # if there is no new mutation just copy the index from mother cell
+            self.__mtx[place_to_divide]=self.__mtx[cell]
+
+        return mutation_counter
+
+    def _nonbenefitial_division(self, cell, neighbors, step, mutation_counter, pool):
+        """
+        :param tuple cell: The mother cell coordinates.
+        :param list neighbors: The neighboring cells.
+        :param int step: The time step in the simulation
+        :param int mutation_counter: The counter of mutations to be updated
+        :param list pool: The (temporary) pool of cells.
+        """
+
+        place_to_divide=prng.choice(neighbors)
+        print('index of the mother cell', self.__mtx[cell])
+        print('random neighbor to divide', place_to_divide)
+
+        # pool will be updated to pool of cancer cells
+        # after all cells attempt to divide, this prevents
+        # that new cells divide in the same turn.
+        pool.append(place_to_divide)
+
+        # here is main thing, updating new cells and mutations
+        if prng.random()<self.parameters.mutation_rate:
+            # new cell gets the index number of largest number of mutation
+            mutation_counter=mutation_counter+1
+            self.__mtx[place_to_divide]=len(self.__mut_container)
+            print('neighbors cell got new index', len(self.__mut_container))
+            print((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+
+            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+            print('mut container updated', self.__mut_container)
+
+            # NOTE: Why the second condition (len(self.__benefitial_mutation)==0) ???
+            if prng.random()<self.parameters.advantageous_mutation_probability \
+                    and len(self.__benefitial_mutation)==0 \
+                    and step==self.parameters.time_of_advantageous_mutation:
+                print('new benefitial mutation!!!!!!', int(self.__mtx[place_to_divide]))
+                self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
+
+            # mother cell mutates
+            mutation_counter=mutation_counter+1
+            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
+
+            # print('mut container updated second time', self.__mut_container)
+
+            # update mutation list.
+            # print('mother cell gets new index', len(self.__mut_container)-1)
+            self.__mtx[cell]=len(self.__mut_container)-1
+
+        else:
+            print('no new mutation in normal division, inhereting from parent')
+            self.__mtx[place_to_divide]=self.__mtx[cell]
+            pool.append(place_to_divide)
+
+        return mutation_counter
+
     def tumourGrowth(self):
         """ Run the tumour growth simulation.  """
 
         # setup a counter to keep track of number of mutations that occur in this run.
-        mutCounter=1
-
-        # setup a list of mutations with positive fitness effect. empty in the beginning.
-        benefitial_mut=[]
+        mutation_counter=1
 
         # Loop over time steps.
         for step in range(self.parameters.number_of_generations):
@@ -454,7 +559,7 @@ class CancerSimulator(object):
             print(' ')
             print('step in cancer growth', step)
 
-            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, benefitial_mut)
+            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
 
             # setup a temporary list to store the mutated cells in this iteration.
             temp_pool=[]
@@ -473,9 +578,6 @@ class CancerSimulator(object):
                 print('cell to divide ', cell)
                 print(' ')
 
-                #renamed randomNode to fit with rest of the code, need to change that.
-                rndNode=cell
-
                 # Get the existing neighboring cells.
                 neigh=self.neighbours(cell)
 
@@ -485,83 +587,15 @@ class CancerSimulator(object):
                 # first condition: if available neighbors
 
                     # if cell has benefitial mutation.
-                    if self.__mtx[cell] in benefitial_mut:
-
+                    if self.__mtx[cell] in self.__benefitial_mutation:
                         # cell divides with greater probability.
                         if prng.random()<self.parameters.fitness_advantageous_division_probability:
-                            place_to_divide=prng.choice(neigh)
-                            temp_pool.append(place_to_divide)
-
-                            # daughter cells mutates
-                            if prng.random()<self.parameters.mutation_rate:
-                                # print('new mutation will occur', mutCounter+1)
-
-                                mutCounter=mutCounter+1
-                                # New cell gets the index number of largest number of mutation
-                                self.__mtx[place_to_divide]=len(self.__mut_container)
-                                self.__mut_container.append((self.__mut_container[self.__mtx[rndNode]][1], mutCounter))
-
-                                # print((self.__mut_container[self.__mtx[rndNode]][1], mutCounter+1))
-                                # add the index to the list of the benefitial ones
-                                benefitial_mut.append(int(self.__mtx[place_to_divide]))
-
-                                # mother cell mutates
-                                mutCounter=mutCounter+1
-                                self.__mut_container.append((self.__mut_container[self.__mtx[rndNode]][1], mutCounter))
-
-                                self.__mtx[cell]=len(self.__mut_container)-1
-
-                            else:
-                            # if there is no new mutation just copy the index from mother cell
-                                self.__mtx[place_to_divide]=self.__mtx[rndNode]
+                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
 
                     # second condition...if it is not on the list of cells with advantage, use normal division probability
                     else:
                         if prng.random()<self.parameters.division_probability:
-                            place_to_divide=prng.choice(neigh)
-                            print('index of the mother cell', self.__mtx[cell])
-                            print('random neighbor to divide', place_to_divide)
-
-                            # temp_pool will be updated to pool of cancer cells
-                            # after all cells attempt to divide, this prevents
-                            # that new cells divide in the same turn.
-                            temp_pool.append(place_to_divide)
-
-                            # here is main thing, updating new cells and mutations
-                            if prng.random()<self.parameters.mutation_rate:
-                                # new cell gets the index number of largest number of mutation
-                                mutCounter=mutCounter+1
-                                self.__mtx[place_to_divide]=len(self.__mut_container)
-                                print('neigh cell got new index', len(self.__mut_container))
-                                print((self.__mut_container[self.__mtx[rndNode]][1], mutCounter))
-
-                                self.__mut_container.append((self.__mut_container[self.__mtx[rndNode]][1], mutCounter))
-                                print('mut container updated', self.__mut_container)
-
-                                # NOTE: Why the second condition (len(benefitial_mut)==0) ???
-                                if prng.random()<self.parameters.advantageous_mutation_probability \
-                                        and len(benefitial_mut)==0 \
-                                        and step==self.parameters.time_of_advantageous_mutation:
-                                    print('new benefitial mutation!!!!!!', int(self.__mtx[place_to_divide]))
-                                    benefitial_mut.append(int(self.__mtx[place_to_divide]))
-
-                                # mother cell mutates
-                                mutCounter=mutCounter+1
-                                self.__mut_container.append((self.__mut_container[self.__mtx[rndNode]][1], mutCounter))
-
-                                # print('mut container updated second time', self.__mut_container)
-
-                                # update mutation list.
-                                # print('mother cell gets new index', len(self.__mut_container)-1)
-                                self.__mtx[cell]=len(self.__mut_container)-1
-
-                            else:
-                                print('no new mutation in normal division, inhereting from parent')
-                                self.__mtx[place_to_divide]=self.__mtx[rndNode]
-                                temp_pool.append(place_to_divide)
-
-                    # temp_pool.append(place_to_divide)
-                    # pool.remove(cell)
+                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
 
                 # print('self.__mtx', self.__mtx.toarray())
 
@@ -573,7 +607,7 @@ class CancerSimulator(object):
             # at the end reconstruct mutational frequencies from the whole tumour
             if step == self.parameters.number_of_generations-1:
 
-                bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, benefitial_mut, sampling_or_fullTumour="Full")
+                bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
 
                 bulk_vaf=self.increase_mut_number(bulk_vaf)
                 print('1', bulk_vaf[0:10])

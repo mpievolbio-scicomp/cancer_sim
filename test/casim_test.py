@@ -127,7 +127,7 @@ class CancerSimulatorTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             casim = CancerSimulator()
 
-    def test_run(self):
+    def test_reference_run(self):
         """ Test running a simulation with default parameters and check values. """
 
         default_parameters = CancerSimulatorParameters()
@@ -155,7 +155,14 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Get mutation container and compare to reference result.
         mutation_container = cancer_sim._CancerSimulator__mut_container
-        reference_mutation_container = [(0, 0), (0, 1), (1, 2), (1, 3), (3, 4), (3, 5), (2, 6)]
+        reference_mutation_container = [(0, 0),
+                                        (0, 1),
+                                        (1, 2),
+                                        (1, 3),
+                                        (3, 4),
+                                        (3, 5),
+                                        (2, 6),
+                                       ]
         for r,m in zip(reference_mutation_container, mutation_container):
             self.assertEqual(r[0], m[0])
             self.assertEqual(r[1], m[1])
