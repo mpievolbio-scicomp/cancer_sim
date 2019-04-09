@@ -7,7 +7,9 @@ from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_nu
 from collections import namedtuple
 from test_utilities import _remove_test_files
 from io import StringIO
+import logging
 import numpy
+import re
 import sys
 import unittest
 
@@ -127,7 +129,64 @@ class CancerSimulatorTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             casim = CancerSimulator()
 
-    def test_reference_run(self):
+    def test_reference_run_nondefaults(self):
+        """ Test running a simulation with default parameters and check values. """
+
+        default_parameters = CancerSimulatorParameters(
+                                matrix_size =                           20  ,
+                                number_of_generations =                 10  ,
+                                division_probability =                   0.5,
+                                advantageous_division_probability =      0.8,
+                                death_probability =                      0.1,
+                                fitness_advantage_death_probability =    0.4,
+                                mutation_rate =                          0.2,
+                                advantageous_mutation_probability =      0.8,
+                                mutations_per_division =                10  ,
+                                time_of_advantageous_mutation =      30000  ,
+                                number_of_clonal =                       2  ,
+                               )
+
+
+        cancer_sim = CancerSimulator(default_parameters)
+
+        cancer_sim.run()
+
+        # Get cell matrix and compare to reference result.
+        matrix = cancer_sim._CancerSimulator__mtx
+        reference_matrix = numpy.array(
+                [[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 55, 54,  0,  0,  0,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0, 62,  1, 52,  1,  1, 55,  1,  1,  1,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0, 63, 38, 53,  1, 36,  1,  1,  1,  0, 15,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  1, 46,  1, 39,  1,  1, 37,  1,  1, 15,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0, 12,  1,  1, 47,  1,  1,  1,  1,  1, 15, 22,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0, 28, 12, 12,  1, 35,  1,  1,  1, 15, 22, 15, 42,  0,  0,  0],
+                 [ 0,  0,  0,  0, 28, 28, 12, 10, 12,  4,  1,  1, 15, 23, 43, 42, 48,  0,  0,  0],
+                 [ 0,  0,  0,  0, 56, 12, 28, 12, 10, 13,  5,  1,  1, 25, 18, 49, 18,  0,  0,  0],
+                 [ 0,  0,  0,  0, 50, 57,  6, 29, 27, 11,  1,  3,  2,  1,  1, 18,  1,  1,  0,  0],
+                 [ 0,  0,  0,  0, 31, 51, 31, 26, 16, 17,  1,  1,  2,  2,  2,  1,  1,  1,  0,  0],
+                 [ 0,  0,  0,  0, 31, 31, 30, 26,  1,  1,  1,  1,  1,  2, 33, 41, 40,  0,  0,  0],
+                 [ 0,  0,  0,  0, 30, 30,  1,  1,  1,  1,  1,  9,  1,  1, 32, 61,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0, 45, 45,  1, 20, 21,  1,  8,  9,  1,  1,  0, 60,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0, 44,  1, 20, 21,  1,  8,  1,  8,  1,  1,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  1, 20, 20,  1,  1,  8,  8, 59,  8,  1,  1,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  8,  0, 58,  1,  0,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
+                                      )
+
+        self.assertEqual( numpy.linalg.norm(matrix - reference_matrix), 0)
+
+        # Get mutation container and compare to reference result.
+        mutation_container = cancer_sim._CancerSimulator__mut_container
+        reference_mutation_container = [(0, 0), (0, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (7, 12), (7, 13), (1, 14), (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20), (1, 21), (14, 22), (14, 23), (19, 24), (19, 25), (6, 26), (6, 27), (6, 28), (6, 29), (6, 30), (6, 31), (2, 32), (2, 33), (1, 34), (1, 35), (1, 36), (1, 37), (1, 38), (1, 39), (2, 40), (2, 41), (24, 42), (24, 43), (1, 44), (1, 45), (34, 46), (34, 47), (1, 48), (1, 49), (6, 50), (6, 51), (1, 52), (1, 53), (1, 54), (1, 55), (31, 56), (31, 57), (1, 58), (1, 59), (33, 60), (33, 61), (1, 62)]
+
+        for r,m in zip(reference_mutation_container, mutation_container):
+            self.assertEqual(r[0], m[0])
+            self.assertEqual(r[1], m[1])
+
+    def test_reference_run_defaults(self):
         """ Test running a simulation with default parameters and check values. """
 
         default_parameters = CancerSimulatorParameters()
@@ -195,32 +254,40 @@ class casim_test(unittest.TestCase):
         _remove_test_files(self._test_files)
 
     def test_10x10_seed_1(self):
-        """ Run a test case with 100x100 cells and prng seed 1. """
+        """ Run a test case with 10x10 cells and prng seed 1. """
 
 
         arguments = namedtuple('arguments', ('seed'))
         arguments.seed = 1
 
         # Capture stdout.
-        old_stdout = sys.stdout
         stream = StringIO()
-        sys.stdout = stream
+        log = logging.getLogger()
+        for handler in log.handlers:
+            log.removeHandler(handler)
+        myhandler = logging.StreamHandler(stream)
+        log.addHandler(myhandler)
 
         # Run the simulation.
         casim.main(arguments)
+
+        # Flush log.
+        myhandler.flush()
 
         # Read stdout.
         sim_out = stream.getvalue()
 
         # Reset stdout.
-        sys.stdout = old_stdout
+        log.removeHandler(myhandler)
+        handler.close()
 
-        # Remove last line (timing report).
-        sim_out = sim_out.split("\n")
+        print(sim_out)
 
-        self.assertIn("mut container updated [(0, 0), (0, 1), (1, 2), (1, 3), (3, 4), (3, 5), (2, 6)]", sim_out)
+        mut_container_regex = re.compile(r".*mut container updated: \[\(0, 0\), \(0, 1\), \(1, 2\), \(1, 3\), \(3, 4\), \(3, 5\), \(2, 6\)\]")
+        self.assertRegex(sim_out, mut_container_regex)
 
-        self.assertIn(" [0 0 0 0 0 5 7 0 0 0]", sim_out)
+        matrix_row_regex = re.compile(r" \[0 0 0 0 0 5 7 0 0 0\]")
+        self.assertRegex(sim_out, matrix_row_regex)
 
 if __name__ == "__main__":
 

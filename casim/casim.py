@@ -177,7 +177,7 @@ class CancerSimulator(object):
         :class CancerSimulator: Represents the Monte-Carlo simulation of cancer tumour growth on a 2D(3D) grid.
     """
 
-    def __init__(self, parameters=None):
+    def __init__(self, parameters=None, seed=None):
         """
         Construct a new CancerSimulation.
 
@@ -202,6 +202,8 @@ class CancerSimulator(object):
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = [self.parameters.mutations_per_division]*100000
+
+        self.__seed = seed
 
     def run(self):
         # Setup square matrix.
@@ -232,7 +234,7 @@ class CancerSimulator(object):
 
         start = timer()
 
-        seed=1
+        seed=self.__seed
         prng.seed(seed)
 
         true_vaf=self.tumourGrowth()
@@ -447,24 +449,33 @@ class CancerSimulator(object):
         """
 
         if benefitial:
-            return self._benefitial_division(cell, neighbors, step, mutation_counter, pool)
+
+            # Draw a free neighbor.
+            place_to_divide=prng.choice(neighbors)
+            pool.append(place_to_divide)
+
+            mutation_counter = mutation(self, cell, neighbors, step, mutation_counter, pool, True)
+
+            return mutation_counter
+
         else:
-            return self._nonbenefitial_division(cell, neighbors, step, mutation_counter, pool)
+            # Draw a free neighbor.
+            place_to_divide=prng.choice(neighbors)
+            pool.append(place_to_divide)
 
-    def _benefitial_division(self, cell, neighbors, step, mutation_counter, pool):
-        """ Divide a cell that carries the benefitial mutation.
+            # Log.
+            logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
+            logging.info('random neighbor to divide: %s', str(place_to_divide))
 
-        :param tuple cell: The mother cell coordinates.
-        :param bool benefitial: Flag to indicate if the cell carries the benefitial mutation.
-        :param list neighbors: The neighboring cells.
-        :param int step: The time step in the simulation
-        :param int mutation_counter: The counter of mutations to be updated
-        :param list pool: The (temporary) pool of cells.
-        """
+            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, place_to_divide, False)
 
-        # Draw a free neighbor.
-        place_to_divide=prng.choice(neighbors)
-        pool.append(place_to_divide)
+            return mutation_counter
+
+
+    def mutation(self, *args):
+        """ Perform a mutation. """
+
+        cell, neighbors, step, mutation_counter, pool, place_to_divide, benefitial = args
 
         # Mutation.
         if prng.random()<self.parameters.mutation_rate:
@@ -479,67 +490,18 @@ class CancerSimulator(object):
             # Log
             logging.info('Neighbor cell has new index %d', self.__mtx[place_to_divide])
             logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
-
-            # Add the index to the list of the benefitial ones.
-            self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
-
-            # Mother cell mutates
-            mutation_counter=mutation_counter+1
-            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
-
-            # Update mutation list.
-            self.__mtx[cell]=len(self.__mut_container)-1
-
-        # No new mutation.
-        else:
-            logging.info('No new mutation in normal division, inhereting from parent')
-            self.__mtx[place_to_divide]=self.__mtx[cell]
-
-        return mutation_counter
-
-    def _nonbenefitial_division(self, cell, neighbors, step, mutation_counter, pool):
-        """
-        Divide a normal cell, i.e. one that does not carry the benefitial mutation.
-
-        :param tuple cell: The mother cell coordinates.
-        :param list neighbors: The neighboring cells.
-        :param int step: The time step in the simulation
-        :param int mutation_counter: The counter of mutations to be updated
-        :param list pool: The (temporary) pool of cells.
-
-        """
-
-        # Draw a free neighbor.
-        place_to_divide=prng.choice(neighbors)
-        pool.append(place_to_divide)
-
-        # Log.
-        logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
-        logging.info('random neighbor to divide: %s', str(place_to_divide))
-
-        # Mutation.
-        if prng.random()<self.parameters.mutation_rate:
-
-            # Increment mutation counter.
-            mutation_counter=mutation_counter+1
-
-            # New cell gets the index number of largest number of mutation
-            self.__mtx[place_to_divide]=len(self.__mut_container)
-            self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
-
-            # Log
-            logging.info('Neighbor cell has new index %d', self.__mtx[place_to_divide])
-            logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
-
-            # Update container and log.
             logging.info('mut container updated: %s', str(self.__mut_container))
 
-            # Decide whether an advantageous mutation occurs.
-            if prng.random()<self.parameters.advantageous_mutation_probability \
-                    and len(self.__benefitial_mutation)==0 \
-                    and step==self.parameters.time_of_advantageous_mutation:
-                logging.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
+            if benefitial:
                 self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
+
+            else:
+                # Decide whether an advantageous mutation occurs.
+                if prng.random()<self.parameters.advantageous_mutation_probability \
+                        and len(self.__benefitial_mutation)==0 \
+                        and step==self.parameters.time_of_advantageous_mutation:
+                    logging.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
+                    self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
             mutation_counter=mutation_counter+1
@@ -552,7 +514,10 @@ class CancerSimulator(object):
         else:
             logging.info('No new mutation in normal division, inhereting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
-            pool.append(place_to_divide)
+
+            ### NOTE: Why only here (taken from original code).
+            if not benefitial:
+                pool.append(place_to_divide)
 
         return mutation_counter
 
@@ -615,11 +580,33 @@ class CancerSimulator(object):
 def main(arguments):
     """ The entry point for the command line interface.
 
-    :param <+variable name+>: <+variable doc+>
-    :type  <+variable name+>: <+type of variable+>
+    :param arguments: The command line arguments for the cancer simulation tool.
+    :type  arguments: Namespace
 
     """
-    raise NotImplementedError()
+
+    if "params.py" in os.listdir():
+        import params
+
+        parameters = CancerSimulatorParameters(matrix_size =                         params.matrixSize,
+                                                number_of_generations =               params.num_of_generations,
+                                                division_probability =                params.div_probability,
+                                                advantageous_division_probability =   params.fittnes_advantage_div_prob,
+                                                death_probability =                   params.death_probability,
+                                                fitness_advantage_death_probability = params.fitness_advantage_death_prob,
+                                                mutation_rate =                       params.mut_rate,
+                                                advantageous_mutation_probability =   params.advantageous_mut_prob,
+                                                mutations_per_division =              params.mut_per_division,
+                                                time_of_advantageous_mutation =       params.time_of_adv_mut,
+                                                number_of_clonal =                    params.num_of_clonal,
+                                               )
+    else:
+        parameters = CancerSimulatorParameters()
+
+    casim = CancerSimulator(parameters, seed=arguments.seed)
+
+    casim.run()
+
 
 def check_set_number(value, typ, default=None, minimum=None, maximum=None):
     """ Checks if a value is instance of type and lies within permissive_range if given. """
