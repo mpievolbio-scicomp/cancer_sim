@@ -33,7 +33,7 @@
 
 
 \begin{document}
-\title{PICKA Python Interactive Cancer Knowledge Analyser}
+\title{Python Interactive Cancer Knowledge Analyser}
 
 \author[1]{Luka Opasic}
 \author[1]{Carsten Fortmann-Grotte}
@@ -44,15 +44,51 @@
 \maketitle
 
 
-\section{Summary}
+\section*{Summary}
+
+Cancer is group of complex diseases characterized by excessive cell proliferation, invasion and destruction of the surrounding tissue. 
+Its high division and mutation rates lead to excessive intratumour heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy. 
+We have built a cancer model that produces tumours with variable levels of intratumour heterogeneity. 
+It is able simulate cancer in multiple spatial dimensions:
+(i) Well-mixed cancer which corresponds to haematological neoplasms, 
+(ii) Two dimensional on-lattice simulations suitable for modeling superficially spreading tumours like carcinoma in situ and finally
+(iii) three dimensional on-lattice simulations for spatial solid tumours. 
+It contains two specific division mechanism both ran in discrete time-steps. In the first scenario each time-step only one cancer cell is chosen for division and in the second scenario every cancer cell has a certain probability to divide during one time-step. 
+In former case tumour growth is linear, in latter it is exponential if every cell divides each time-step. 
+Different division probabilities can be introduced for some cells in order to simulate variability in fitness of cells who acquired beneficial or deleterious mutation.   
+
+During each division mother cell can give birth to one daughter cell and remain unaltered. 
+It can also give birth to two daughter cells, one placed in available neighbour location and one daughter cell which replaces the mother cell at the same location.
 
 
-Guidance:
+Our model is abstract and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings. 
+
+
+Simulated tumours can be pickled via dill package \cite{mckerns:arXiv:2012} and further subjected to virtual biopsy sampling with frequencies of mutations present within the each sample as an output. 
+To make output results more biologically sound, recovered frequencies can be passed through function designed to simulate variable sequencing coverage depth and to introduce sequencing noise into the data. 
+
+
+
+
+Simulation is written in Python and can be imported as Anaconda package. 
+
+We implemented growth visualizer for two-dimensional tumour.
+
+
+
+
+
+
+
+Guidance from the journal:
 Authors include in the paper some sentences that would explain the software functionality and domain of use to a non-specialist reader. Your submission should probably be somewhere between 250-1000 words. A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience.
 A clear statement of need that illustrates the purpose of the software. Mentions (if applicable) of any ongoing research projects using the software or recent scholarly publications enabled by it
 
 
 
+%\bibliographystyle{humannat}
+%\bibliographystyle{vancouver}
+\bibliography{\string~/Bibtex/et.bib}
 
 
 
