@@ -1,7 +1,3 @@
-#params
-import sys
-import numpy as np
-
 #value presents the size of both x and y axis
 matrixSize                      = 10
 num_of_generations              = 2

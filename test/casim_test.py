@@ -130,7 +130,7 @@ class CancerSimulatorTest(unittest.TestCase):
             casim = CancerSimulator()
 
     def test_reference_run_nondefaults(self):
-        """ Test running a simulation with default parameters and check values. """
+        """ Test running a simulation with non-default parameters and check values. """
 
         default_parameters = CancerSimulatorParameters(
                                 matrix_size =                           20  ,
@@ -147,7 +147,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                )
 
 
-        cancer_sim = CancerSimulator(default_parameters)
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
         cancer_sim.run()
 
@@ -191,12 +191,13 @@ class CancerSimulatorTest(unittest.TestCase):
 
         default_parameters = CancerSimulatorParameters()
 
-        cancer_sim = CancerSimulator(default_parameters)
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
         cancer_sim.run()
 
         # Get cell matrix and compare to reference result.
         matrix = cancer_sim._CancerSimulator__mtx
+
         reference_matrix = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

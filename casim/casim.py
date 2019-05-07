@@ -214,7 +214,7 @@ class CancerSimulator(object):
         #s = np.random.poisson(self.parameters.mutations_per_division, 100000)
         # introducing cancer cell
         initLoc=(int(matrix_size/2),int(matrix_size/2))
-        logging.info("First cell at ", initLoc)
+        logging.info("First cell at %s", str(initLoc))
 
         # value within matrix represents index of the mutation container
         # in this case number one point towards (0,1).
