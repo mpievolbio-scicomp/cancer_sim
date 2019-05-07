@@ -47,7 +47,8 @@ class CancerSimulatorParameters():
                  mutations_per_division              = None,
                  time_of_advantageous_mutation       = None,
                  number_of_clonal                    = None,
-                 export_tumour                              = None,
+                 export_tumour                       = None,
+                 single_or_double_tumour             = None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -99,6 +100,7 @@ class CancerSimulatorParameters():
         self.time_of_advantageous_mutation = time_of_advantageous_mutation
         self.number_of_clonal = number_of_clonal
         self.export_tumour = export_tumour
+        self.single_or_double_tumour = single_or_double_tumour
 
     @property
     def matrix_size(self):
@@ -177,15 +179,19 @@ class CancerSimulatorParameters():
     def number_of_clonal(self, val):
         self.__number_of_clonal = check_set_number(val, int, 1, 0)
 
-
-
     @property
     def export_tumour(self):
         return self.__export_tumour
     @export_tumour.setter
     def export_tumour(self,val):
-        self.__export_tumour = check_set_number(val, int, 1, 0)
+        self.__export_tumour = check_set_number(val, bool, False, None, None)
 
+    @property
+    def single_or_double_tumour(self):
+        return self.__single_or_double_tumour
+    @single_or_double_tumour.setter
+    def single_or_double_tumour(self,val):
+        self.__single_or_double_tumour = check_set_number(val, int, 1, 0, 3)
 
 class CancerSimulator(object):
     """
@@ -217,9 +223,10 @@ class CancerSimulator(object):
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = [self.parameters.mutations_per_division]*100000
-        self.__export_tumour = True
+        self.__export_tumour = self.parameters.export_tumour
         self.__seed = seed
-
+        self.__single_or_double_tumour = self.parameters.single_or_double_tumour
+    
     def run(self):
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
@@ -228,19 +235,35 @@ class CancerSimulator(object):
 
         #s = np.random.poisson(self.parameters.mutations_per_division, 100000)
         # introducing cancer cell
-        initLoc=(int(matrix_size/2),int(matrix_size/2))
-        logging.info("First cell at ", initLoc)
-
+        
         # value within matrix represents index of the mutation container
         # in this case number one point towards (0,1).
-        self.__mtx[initLoc]=1
-        self.__mut_container=[(0, 0), (0, 1)]
+        #print ('single or double',self.__single_or_double_tumour)
+
+        if self.__single_or_double_tumour == 1:
+            print('single tumour')
+            initLoc=(int(matrix_size*0.5),int(matrix_size*0.5))
+         #   logging.info("First cell at ", initLoc)
+            self.__mtx[initLoc]=1
+            self.__mut_container=[(0, 0), (0, 1)]
+            self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
+        if self.__single_or_double_tumour == 2:
+            print('sdsa')
+            distance_between_tumours=0.05
+            initLoc=(int(matrix_size*0.45),int(matrix_size*0.5))
+            secondinitLoc=(int(matrix_size*0.65),int(matrix_size*0.51))
+            
+            self.__mtx[initLoc]=1      
+            self.__mtx[secondinitLoc]=2    
+            self.__mut_container=[(0, 0), (0, 1), (0,2)]
+            self.__pool=[initLoc, secondinitLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
+
 
         # create lists used in loops
         lq_bipsy=[]
         self.__growth_plot_data=[]
 
-        self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
+      #  self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
 
         logging.info('Tumour growth in progress.')
 
@@ -254,14 +277,14 @@ class CancerSimulator(object):
 
         true_vaf=self.tumourGrowth()
 
-
-        print('dsadasdsad',self.__export_tumour)
+     
         if self.__export_tumour==True:
-            print('bbbbbbb')
-            self.export_tumour_matrix()  
+            self.export_tumour_matrix(true_vaf)  
+     
+
      #   logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
         
-        #aaaa=export_tumour_matrix()        
+      
 
         end=timer()
         logging.info("Consumed Wall time of this run: %f s.", end - start)
@@ -269,24 +292,28 @@ class CancerSimulator(object):
         
 
 
-    def export_tumour_matrix(self):
-        
+    def export_tumour_matrix(self, true_vaf):
+
+        logging.info('Creating folders and exporting simulation data')
+
+#make output folders
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/code"])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/log"])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/simOutput"])
-        
 
+##save VAF to text file
+        vafEx=open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_VAF_'+str(self.__seed)+'.txt','w') 
+        for i in true_vaf:
+            vafEx.write(str(i)+'\n')
+        vafEx.close() 
 
-        logging.info('Pickling tumour')
-        #np.save('../output/cancer_'+str(self.__seed)'/simOutput',self.__mtx.todense())
 
         pickle.dump(self.__mtx,open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_'+str(self.__seed)+'.p','wb'))
         pickle.dump(self.__mut_container,open('../output/cancer_'+str(self.__seed)+'/simOutput/mut_container_'+str(self.__seed)+'.p','wb'))
         pickle.dump(self.__death_list,open('../output/cancer_'+str(self.__seed)+'/simOutput/death_list_'+str(self.__seed)+'.p','wb'))
 
 
-        pickle.dump
 
     def sampling(self, sample):
         """ TODO: Add a short documentation of this function.
@@ -507,8 +534,8 @@ class CancerSimulator(object):
             pool.append(place_to_divide)
 
             # Log.
-            logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
-            logging.info('random neighbor to divide: %s', str(place_to_divide))
+            # logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
+            # logging.info('random neighbor to divide: %s', str(place_to_divide))
 
             mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, place_to_divide, False)
 
@@ -531,8 +558,8 @@ class CancerSimulator(object):
             self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
 
             # Log
-            logging.info('Neighbor cell has new index %d', self.__mtx[place_to_divide])
-            logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
+          #  logging.info('Neighbor cell has new index %d', self.__mtx[place_to_divide])
+           # logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
            # logging.info('mut container updated: %s', str(self.__mut_container))
 
             if benefitial:
@@ -555,7 +582,7 @@ class CancerSimulator(object):
 
         # No new mutation.
         else:
-            logging.info('No new mutation in normal division, inhereting from parent')
+         #   logging.info('No new mutation in normal division, inhereting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
             ### NOTE: Why only here (taken from original code).
@@ -568,12 +595,16 @@ class CancerSimulator(object):
         """ Run the tumour growth simulation.  """
 
         # setup a counter to keep track of number of mutations that occur in this run.
-        mutation_counter=1
+        if self.__single_or_double_tumour == 1:
+            mutation_counter=1
+        if self.__single_or_double_tumour == 2:
+            mutation_counter=2
 
         # Loop over time steps.
         for step in range(self.parameters.number_of_generations):
+            #logging.info('container', str(self.mutation_container))
             #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
-            logging.info('step in cancer growth: %d', step)
+          #  logging.info('step in cancer growth: %d', step)
 
             # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
 
@@ -583,11 +614,11 @@ class CancerSimulator(object):
             # reshuffle the order of pool to avoid that cells with low number divide always first.
             shuffle(self.__pool)
 
-            logging.info('list of cancer cells %s', str(self.__pool))
+           # logging.info('list of cancer cells %s', str(self.__pool))
 
             # Loop over all cells in the pool.
             for cell in self.__pool:
-                logging.info('cell to divide %s', str(cell))
+                #logging.info('cell to divide %s', str(cell))
 
                 # Get the existing neighboring cells.
                 neigh=self.neighbours(cell)
@@ -642,7 +673,8 @@ def main(arguments):
                                                 mutations_per_division =              params.mut_per_division,
                                                 time_of_advantageous_mutation =       params.time_of_adv_mut,
                                                 number_of_clonal =                    params.num_of_clonal,
-                                                export_tumour=                        params.export_tumour
+                                                export_tumour =                       params.export_tumour,
+                                                single_or_double_tumour =             params.single_or_double_tumour,
                                                )
     else:
         parameters = CancerSimulatorParameters()
