@@ -4,6 +4,9 @@ CaSim.egg-info/
 __pycache__/
 casim/params.py
 docs/build/
+casim/params.py
+docs/build/
+docs/Makefile
 .*.*.swp
 *.*~
 *.*.bu
