@@ -226,7 +226,7 @@ class CancerSimulator(object):
         self.__export_tumour = self.parameters.export_tumour
         self.__seed = seed
         self.__single_or_double_tumour = self.parameters.single_or_double_tumour
-    
+
     def run(self):
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
@@ -235,7 +235,7 @@ class CancerSimulator(object):
 
         #s = np.random.poisson(self.parameters.mutations_per_division, 100000)
         # introducing cancer cell
-        
+
         # value within matrix represents index of the mutation container
         # in this case number one point towards (0,1).
         #print ('single or double',self.__single_or_double_tumour)
@@ -252,9 +252,9 @@ class CancerSimulator(object):
             distance_between_tumours=0.05
             initLoc=(int(matrix_size*0.45),int(matrix_size*0.5))
             secondinitLoc=(int(matrix_size*0.65),int(matrix_size*0.51))
-            
-            self.__mtx[initLoc]=1      
-            self.__mtx[secondinitLoc]=2    
+
+            self.__mtx[initLoc]=1
+            self.__mtx[secondinitLoc]=2
             self.__mut_container=[(0, 0), (0, 1), (0,2)]
             self.__pool=[initLoc, secondinitLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
 
@@ -277,43 +277,34 @@ class CancerSimulator(object):
 
         true_vaf=self.tumourGrowth()
 
-     
-        if self.__export_tumour==True:
-            self.export_tumour_matrix(true_vaf)  
-     
 
-     #   logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
-        
-      
+        if self.__export_tumour==True:
+            self.export_tumour_matrix(true_vaf)
+
 
         end=timer()
         logging.info("Consumed Wall time of this run: %f s.", end - start)
-
-        
-
 
     def export_tumour_matrix(self, true_vaf):
 
         logging.info('Creating folders and exporting simulation data')
 
-#make output folders
+        #make output folders
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/code"])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/log"])
         subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/simOutput"])
 
-##save VAF to text file
-        vafEx=open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_VAF_'+str(self.__seed)+'.txt','w') 
+        # save VAF to text file
+        vafEx=open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_VAF_'+str(self.__seed)+'.txt','w')
         for i in true_vaf:
             vafEx.write(str(i)+'\n')
-        vafEx.close() 
+        vafEx.close()
 
 
         pickle.dump(self.__mtx,open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_'+str(self.__seed)+'.p','wb'))
         pickle.dump(self.__mut_container,open('../output/cancer_'+str(self.__seed)+'/simOutput/mut_container_'+str(self.__seed)+'.p','wb'))
         pickle.dump(self.__death_list,open('../output/cancer_'+str(self.__seed)+'/simOutput/death_list_'+str(self.__seed)+'.p','wb'))
-
-
 
     def sampling(self, sample):
         """ TODO: Add a short documentation of this function.
