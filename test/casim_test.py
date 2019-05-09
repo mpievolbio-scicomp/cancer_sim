@@ -9,6 +9,7 @@ from test_utilities import _remove_test_files
 from io import StringIO
 import logging
 import numpy
+from subprocess import Popen
 import re
 import sys
 import unittest
@@ -253,12 +254,39 @@ class casim_test(unittest.TestCase):
         """ Tear down the test instance. """
         _remove_test_files(self._test_files)
 
+    def test_cli(self):
+        """ Test the command line interface. """
+
+        # Setup command.
+        python = "python"
+        module = "../casim/casim.py"
+
+        # Run with seed only.
+        args = ['1']
+
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
+        # Run with positional argument.
+        args += ['-o', 'cancer_sim_output']
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
+        # run with positional argument (long version).
+        args = ['1', '--outdir', 'cancer_sim_output']
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
 
-        arguments = namedtuple('arguments', ('seed'))
+        arguments = namedtuple('arguments', ('seed', 'outdir'))
         arguments.seed = 1
+        arguments.outdir='cancer_sim_out'
 
         # Capture stdout.
         stream = StringIO()

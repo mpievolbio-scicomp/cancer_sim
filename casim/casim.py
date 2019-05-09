@@ -83,10 +83,12 @@ class CancerSimulatorParameters():
         :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation occurs.
         :type  time_of_advantageous_mutation: int
 
+        :param export_tumour: Flag indicating whether to save the tumour after the simulation.
+        :type  export_tumour: bool
 
-        :param export_tumour: export_tumour the .
-        :type  time_of_advantageous_mutation: int
+        :param single_or_double_tumour: Flag indicating
         """
+        ### TODO: documentation of new parameters.
         # Store parameters on the object.
         self.matrix_size = matrix_size
         self.number_of_generations = number_of_generations
@@ -281,7 +283,6 @@ class CancerSimulator(object):
         if self.__export_tumour==True:
             self.export_tumour_matrix(true_vaf)
 
-
         end=timer()
         logging.info("Consumed Wall time of this run: %f s.", end - start)
 
@@ -300,7 +301,6 @@ class CancerSimulator(object):
         for i in true_vaf:
             vafEx.write(str(i)+'\n')
         vafEx.close()
-
 
         pickle.dump(self.__mtx,open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_'+str(self.__seed)+'.p','wb'))
         pickle.dump(self.__mut_container,open('../output/cancer_'+str(self.__seed)+'/simOutput/mut_container_'+str(self.__seed)+'.p','wb'))
@@ -707,6 +707,13 @@ if __name__ == "__main__":
     # Seed parameter.
     parser.add_argument("seed",
                         help="The prng seed.",
+                        )
+    parser.add_argument("-o",
+                        "--outdir",
+                        dest="outdir",
+                        metavar="DIR",
+                        default=None,
+                        help="Directory where simulation data is saved."
                         )
 
     # Parse the arguments.
