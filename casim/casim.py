@@ -756,8 +756,18 @@ def check_set_number(value, typ, default=None, minimum=None, maximum=None):
 
     return value
 
-#Avoid execution of main if the script is imported ad a module
+def load_cancer_simulation(dumpfile):
+    """ Unpickle a cancer simulation from a dill generated dump.
+    :param dumpfile: Path to the file that contains the dumped object.
+    :type  dumpfile: str
+    """
 
+    with open(dumpfile, 'rb') as fp:
+        obj = dill.load(fp)
+
+    return obj
+
+#Avoid execution of main if the script is imported as a module
 if __name__ == "__main__":
     # Entry point
     # Setup the command line parser.

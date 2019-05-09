@@ -2,7 +2,7 @@
 
 # Import class to be tested.
 from casim import casim
-from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number
+from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation
 
 from collections import namedtuple
 from test_utilities import _remove_test_files
