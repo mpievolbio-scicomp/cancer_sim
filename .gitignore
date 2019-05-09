@@ -1,0 +1,7 @@
+.conda_env/
+.eggs/
+CaSim.egg-info/
+__pycache__/
+.*.*.swp
+docs/build/
+tags
