@@ -26,6 +26,8 @@ import scipy.sparse as sp
 import seaborn as sns
 import subprocess
 import sys
+import dill
+from tempfile import mkstemp
 
 # Configure logging.
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
@@ -47,7 +49,6 @@ class CancerSimulatorParameters():
                  mutations_per_division              = None,
                  time_of_advantageous_mutation       = None,
                  number_of_clonal                    = None,
-                 export_tumour                       = None,
                  single_or_double_tumour             = None,
                 ):
         """
@@ -83,9 +84,6 @@ class CancerSimulatorParameters():
         :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation occurs.
         :type  time_of_advantageous_mutation: int
 
-        :param export_tumour: Flag indicating whether to save the tumour after the simulation.
-        :type  export_tumour: bool
-
         :param single_or_double_tumour: Flag indicating
         """
         ### TODO: documentation of new parameters.
@@ -101,7 +99,6 @@ class CancerSimulatorParameters():
         self.mutations_per_division = mutations_per_division
         self.time_of_advantageous_mutation = time_of_advantageous_mutation
         self.number_of_clonal = number_of_clonal
-        self.export_tumour = export_tumour
         self.single_or_double_tumour = single_or_double_tumour
 
     @property
@@ -182,13 +179,6 @@ class CancerSimulatorParameters():
         self.__number_of_clonal = check_set_number(val, int, 1, 0)
 
     @property
-    def export_tumour(self):
-        return self.__export_tumour
-    @export_tumour.setter
-    def export_tumour(self,val):
-        self.__export_tumour = check_set_number(val, bool, False, None, None)
-
-    @property
     def single_or_double_tumour(self):
         return self.__single_or_double_tumour
     @single_or_double_tumour.setter
@@ -233,12 +223,16 @@ class CancerSimulator(object):
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = [self.parameters.mutations_per_division]*100000
-        self.__export_tumour = self.parameters.export_tumour
+        self.__export_tumour = None
         self.__seed = seed
         self.__single_or_double_tumour = self.parameters.single_or_double_tumour
 
         # Prepare the output directory.
         self.outdir = outdir
+
+    @property
+    def dumpfile(self):
+        return self.__dumpfile
 
     @property
     def outdir(self):
@@ -261,6 +255,9 @@ class CancerSimulator(object):
         if outdir is None:
             return
 
+        # Not None, so we want to store output. Set flag accordingly.
+        self.__export_tumour = True
+
         # Create top-level outdir.
         if not os.path.exists(outdir):
             os.mkdir(outdir)
@@ -269,10 +266,13 @@ class CancerSimulator(object):
         # Check if directory for this seed already exists. Bail out if yes.
         seeddir = os.path.join(outdir, 'cancer_%d' % self.__seed)
         if os.path.exists(seeddir):
-            raise IOError("%s already exists. Cowardly refusing to overwrite. Please specify another seed or a different outdir." % seeddir)
+            raise IOError("The directory %s already exists. Cowardly refusing to overwrite. Please specify another seed or a different outdir." % seeddir)
 
         os.mkdir(seeddir)
         self.__seeddir = seeddir
+
+        # Setup dump file
+        handle, self.__dumpfile = mkstemp(prefix='cancer_sim_', suffix='.py.dill', dir=self.__seeddir)
 
         # Create subdirectories.
         codedir = os.path.join(seeddir, "code")
@@ -286,6 +286,12 @@ class CancerSimulator(object):
         self.__codedir = codedir
         self.__logdir = logdir
         self.__simdir = simdir
+
+    def dump(self):
+        """ Serialize the object. """
+
+        with open(self.dumpfile, 'wb') as fp:
+            dill.dump(self, fp)
 
     def run(self):
         # Setup square matrix.

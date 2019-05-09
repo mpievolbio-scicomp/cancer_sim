@@ -274,9 +274,95 @@ class CancerSimulatorTest(unittest.TestCase):
                          os.path.join(seeddir, 'simOutput'))
         self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
 
+        # Check export_tumour flag
+        self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
+
         # But not twice.
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
+
+    def prototype_dill(self):
+        """ Prototype for dumping and entire simulation object as dill. """
+        import dill
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+
+        # dump before run.
+        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'wb') as fp:
+            dill.dump(cancer_sim, fp)
+
+        # Reload
+        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'rb') as fp:
+            loaded_simulation = dill.load(fp)
+
+        self.assertIsInstance(loaded_simulation, CancerSimulator)
+
+        # Check parameters.
+        loaded_parameters = loaded_simulation.parameters
+
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
+        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
+        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
+        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
+        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
+        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
+        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
+        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
+        self.assertEqual(loaded_parameters.single_or_double_tumour,              parameters.single_or_double_tumour)
+        self.assertEqual(loaded_simulation.outdir,                               cancer_sim.outdir)
+
+        # Check we can run.
+        loaded_simulation.run()
+
+        # dump again.
+        with open(os.path.join(loaded_simulation.outdir, 'CancerSimulation_run.py.dill'), 'wb') as fp:
+            dill.dump(loaded_simulation, fp)
+
+    def test_serialize(self):
+        """ The the serialization of the entire object. """
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+
+        # dump before run.
+        cancer_sim.dump()
+
+        # Reload
+        loaded_simulation = load_cancer_simulation(cancer_sim.dumpfile)
+
+        self.assertIsInstance(loaded_simulation, CancerSimulator)
+
+        # Check parameters.
+        loaded_parameters = loaded_simulation.parameters
+
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
+        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
+        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
+        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
+        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
+        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
+        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
+        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
+        self.assertEqual(loaded_parameters.single_or_double_tumour,              parameters.single_or_double_tumour)
+
+        # Check we can run.
+        loaded_simulation.run()
+
+        # dump again.
+        loaded_simulation.dump()
+
+        # Load again
+        loaded_again_simulation = load_cancer_simulation(loaded_simulation.dumpfile)
+
+        # Run once more.
+        loaded_again_simulation.run()
 
     def test_export_tumour_matrix(self):
         """ Test exporting the tumour matrix. """
