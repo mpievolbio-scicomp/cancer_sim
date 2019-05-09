@@ -248,7 +248,6 @@ class CancerSimulator(object):
 
         self.__outdir = None
         self.__seeddir = None
-        self.__codedir = None
         self.__logdir  = None
         self.__simdir = None
 
@@ -272,18 +271,15 @@ class CancerSimulator(object):
         self.__seeddir = seeddir
 
         # Setup dump file
-        handle, self.__dumpfile = mkstemp(prefix='cancer_sim_', suffix='.py.dill', dir=self.__seeddir)
+        self.__dumpfile = os.path.join(self.__seeddir, 'cancer_sim.py.dill')
 
         # Create subdirectories.
-        codedir = os.path.join(seeddir, "code")
         logdir = os.path.join(seeddir, "log")
         simdir = os.path.join(seeddir, "simOutput")
-        os.mkdir(codedir)
         os.mkdir(logdir)
         os.mkdir(simdir)
 
         # Store on object.
-        self.__codedir = codedir
         self.__logdir = logdir
         self.__simdir = simdir
 
@@ -323,7 +319,6 @@ class CancerSimulator(object):
             self.__mtx[secondinitLoc]=2
             self.__mut_container=[(0, 0), (0, 1), (0,2)]
             self.__pool=[initLoc, secondinitLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
-
 
         # create lists used in loops
         lq_bipsy=[]

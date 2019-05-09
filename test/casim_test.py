@@ -242,7 +242,6 @@ class CancerSimulatorTest(unittest.TestCase):
 
         self.assertIsNone(cancer_sim.outdir)
         self.assertIsNone(cancer_sim._CancerSimulator__seeddir)
-        self.assertIsNone(cancer_sim._CancerSimulator__codedir)
         self.assertIsNone(cancer_sim._CancerSimulator__logdir)
         self.assertIsNone(cancer_sim._CancerSimulator__simdir)
 
@@ -262,9 +261,6 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__seeddir))
 
         # Check all subdirectories are correctly named and exist.
-        self.assertEqual(cancer_sim._CancerSimulator__codedir,
-                         os.path.join(seeddir, 'code'))
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__codedir))
 
         self.assertEqual(cancer_sim._CancerSimulator__logdir,
                          os.path.join(seeddir, 'log'))
