@@ -11,8 +11,10 @@ import logging
 import numpy
 from subprocess import Popen
 import re
+import os
 import sys
 import unittest
+from tempfile import mkdtemp
 
 class CancerSimulatorParametersTest(unittest.TestCase):
     """ :class: Test class for the CancerSimulator """
@@ -56,6 +58,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,                1  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
         self.assertEqual(parameters.number_of_clonal,                     1   )
+        self.assertEqual(parameters.export_tumour,                        False   )
+        self.assertEqual(parameters.single_or_double_tumour,              0 )
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
@@ -72,6 +76,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 mutations_per_division =                10  ,
                                 time_of_advantageous_mutation =      30000  ,
                                 number_of_clonal =                       2  ,
+                                export_tumour =                       True,
+                                single_or_double_tumour =                1,
                                                 )
 
         self.assertEqual(parameters.matrix_size,                          20  )
@@ -85,7 +91,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,               10  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
         self.assertEqual(parameters.number_of_clonal,                      2  )
-
+        self.assertEqual(parameters.export_tumour,                      True  )
+        self.assertEqual(parameters.single_or_double_tumour,               1  )
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -227,6 +234,64 @@ class CancerSimulatorTest(unittest.TestCase):
             self.assertEqual(r[0], m[0])
             self.assertEqual(r[1], m[1])
 
+    def test_setup_io(self):
+        """ Test the IO handling. """
+
+        default_parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
+
+        self.assertIsNone(cancer_sim.outdir)
+        self.assertIsNone(cancer_sim._CancerSimulator__seeddir)
+        self.assertIsNone(cancer_sim._CancerSimulator__codedir)
+        self.assertIsNone(cancer_sim._CancerSimulator__logdir)
+        self.assertIsNone(cancer_sim._CancerSimulator__simdir)
+
+        # Create an empty dir.
+        tmpdir = mkdtemp()
+        self._test_files.append(tmpdir)
+
+        # This should work.
+        cancer_sim.outdir = tmpdir
+
+        # Check value.
+        self.assertEqual(cancer_sim.outdir, tmpdir)
+
+        # Get seed dir.
+        seeddir = os.path.join(tmpdir, 'cancer_%d' % cancer_sim._CancerSimulator__seed)
+        self.assertEqual(cancer_sim._CancerSimulator__seeddir, seeddir)
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__seeddir))
+
+        # Check all subdirectories are correctly named and exist.
+        self.assertEqual(cancer_sim._CancerSimulator__codedir,
+                         os.path.join(seeddir, 'code'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__codedir))
+
+        self.assertEqual(cancer_sim._CancerSimulator__logdir,
+                         os.path.join(seeddir, 'log'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
+
+        self.assertEqual(cancer_sim._CancerSimulator__simdir,
+                         os.path.join(seeddir, 'simOutput'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
+
+        # But not twice.
+        with self.assertRaises(IOError) as exc:
+            cancer_sim.outdir = tmpdir
+
+    def test_export_tumour_matrix(self):
+        """ Test exporting the tumour matrix. """
+
+        parameters = CancerSimulatorParameters()
+        parameters.export_tumour = True
+
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir = mkdtemp())
+
+        cancer_sim.run()
+
+        # Check files where created.
+        listing = os.listdir(cancer_sim._CancerSimulator__simdir)
+        for f in ['mtx.p', 'mut_container.p', 'death_list.p', 'mtx_VAF.txt']:
+            self.assertIn(f, listing)
 
 class casim_test(unittest.TestCase):
     """ :class: Test class for the casim """

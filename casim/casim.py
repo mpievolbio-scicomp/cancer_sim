@@ -200,13 +200,21 @@ class CancerSimulator(object):
         :class CancerSimulator: Represents the Monte-Carlo simulation of cancer tumour growth on a 2D(3D) grid.
     """
 
-    def __init__(self, parameters=None, seed=None):
+    def __init__(self, parameters=None,
+                       seed=None,
+                       outdir=None,
+                       ):
         """
         Construct a new CancerSimulation.
 
         :param parameters: The cancer simulation parameters
         :type  parameters: CancerSimulationParameters
 
+        :param seed: The random seed.
+        :type  seed: int
+
+        :param outdir: The directory where simulation data is saved.
+        :type  outdir: (str || path-like object)
         """
 
         if parameters is None:
@@ -228,6 +236,56 @@ class CancerSimulator(object):
         self.__export_tumour = self.parameters.export_tumour
         self.__seed = seed
         self.__single_or_double_tumour = self.parameters.single_or_double_tumour
+
+        # Prepare the output directory.
+        self.outdir = outdir
+
+    @property
+    def outdir(self):
+        return self.__outdir
+    @outdir.setter
+    def outdir(self, val):
+        """ Create the output directory if not existing. If simulation data is already present inside an existing directory, the simulation aborts. """
+        self._setup_io(val)
+
+    def _setup_io(self, outdir):
+        """ """
+        """ Setup the output directory. """
+
+        self.__outdir = None
+        self.__seeddir = None
+        self.__codedir = None
+        self.__logdir  = None
+        self.__simdir = None
+
+        if outdir is None:
+            return
+
+        # Create top-level outdir.
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+        self.__outdir = outdir
+
+        # Check if directory for this seed already exists. Bail out if yes.
+        seeddir = os.path.join(outdir, 'cancer_%d' % self.__seed)
+        if os.path.exists(seeddir):
+            raise IOError("%s already exists. Cowardly refusing to overwrite. Please specify another seed or a different outdir." % seeddir)
+
+        os.mkdir(seeddir)
+        self.__seeddir = seeddir
+
+        # Create subdirectories.
+        codedir = os.path.join(seeddir, "code")
+        logdir = os.path.join(seeddir, "log")
+        simdir = os.path.join(seeddir, "simOutput")
+        os.mkdir(codedir)
+        os.mkdir(logdir)
+        os.mkdir(simdir)
+
+        # Store on object.
+        self.__codedir = codedir
+        self.__logdir = logdir
+        self.__simdir = simdir
 
     def run(self):
         # Setup square matrix.
@@ -279,8 +337,7 @@ class CancerSimulator(object):
 
         true_vaf=self.tumourGrowth()
 
-
-        if self.__export_tumour==True:
+        if self.__export_tumour is True:
             self.export_tumour_matrix(true_vaf)
 
         end=timer()
@@ -288,23 +345,20 @@ class CancerSimulator(object):
 
     def export_tumour_matrix(self, true_vaf):
 
-        logging.info('Creating folders and exporting simulation data')
-
-        #make output folders
-        subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)])
-        subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/code"])
-        subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/log"])
-        subprocess.call(["mkdir","-p","../output/cancer_"+str(self.__seed)+"/simOutput"])
+        logging.info('Exporting simulation data')
 
         # save VAF to text file
-        vafEx=open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_VAF_'+str(self.__seed)+'.txt','w')
-        for i in true_vaf:
-            vafEx.write(str(i)+'\n')
-        vafEx.close()
+        with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
+            for i in true_vaf:
+                vafEx.write(str(i)+'\n')
 
-        pickle.dump(self.__mtx,open('../output/cancer_'+str(self.__seed)+'/simOutput/mtx_'+str(self.__seed)+'.p','wb'))
-        pickle.dump(self.__mut_container,open('../output/cancer_'+str(self.__seed)+'/simOutput/mut_container_'+str(self.__seed)+'.p','wb'))
-        pickle.dump(self.__death_list,open('../output/cancer_'+str(self.__seed)+'/simOutput/death_list_'+str(self.__seed)+'.p','wb'))
+        # Pickle the data.
+        with open(os.path.join(self.__simdir, 'mtx.p'),'wb') as fp:
+            pickle.dump(self.__mtx, fp)
+        with open(os.path.join(self.__simdir, 'mut_container.p'),'wb') as fp:
+            pickle.dump(self.__mut_container, fp)
+        with open(os.path.join(self.__simdir, 'death_list.p'),'wb') as fp:
+            pickle.dump(self.__death_list, fp)
 
     def sampling(self, sample):
         """ TODO: Add a short documentation of this function.
@@ -670,10 +724,9 @@ def main(arguments):
     else:
         parameters = CancerSimulatorParameters()
 
-    casim = CancerSimulator(parameters, seed=arguments.seed)
+    casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
     casim.run()
-
 
 def check_set_number(value, typ, default=None, minimum=None, maximum=None):
     """ Checks if a value is instance of type and lies within permissive_range if given. """
