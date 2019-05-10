@@ -397,8 +397,6 @@ class casim_test(unittest.TestCase):
 
     def test_cli(self):
         """ Test the command line interface. """
-
-        print("Starting test.")
         # Setup command.
         python = "python"
         module = "../casim/casim.py"
@@ -452,8 +450,6 @@ class casim_test(unittest.TestCase):
         # Reset stdout.
         log.removeHandler(myhandler)
         handler.close()
-
-        print(sim_out)
 
         mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         self.assertRegex(sim_out, mut_container_regex)
