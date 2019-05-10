@@ -10,7 +10,7 @@ from matplotlib.lines import Line2D
 from random import shuffle
 from scipy.sparse import lil_matrix
 from scipy.spatial import distance
-from time import sleep
+from time import sleep, time
 from timeit import default_timer as timer
 import gc
 import itertools
@@ -19,7 +19,6 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import params
 import pickle
 import random as prng
 import scipy.sparse as sp
@@ -49,7 +48,7 @@ class CancerSimulatorParameters():
                  mutations_per_division              = None,
                  time_of_advantageous_mutation       = None,
                  number_of_clonal                    = None,
-                 single_or_double_tumour             = None,
+                 tumour_multiplicity                 = None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -84,7 +83,8 @@ class CancerSimulatorParameters():
         :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation occurs.
         :type  time_of_advantageous_mutation: int
 
-        :param single_or_double_tumour: Flag indicating
+        :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
+        :type  tumour_multiplicity: str
         """
         ### TODO: documentation of new parameters.
         # Store parameters on the object.
@@ -99,7 +99,7 @@ class CancerSimulatorParameters():
         self.mutations_per_division = mutations_per_division
         self.time_of_advantageous_mutation = time_of_advantageous_mutation
         self.number_of_clonal = number_of_clonal
-        self.single_or_double_tumour = single_or_double_tumour
+        self.tumour_multiplicity = tumour_multiplicity
 
     @property
     def matrix_size(self):
@@ -179,11 +179,21 @@ class CancerSimulatorParameters():
         self.__number_of_clonal = check_set_number(val, int, 1, 0)
 
     @property
-    def single_or_double_tumour(self):
-        return self.__single_or_double_tumour
-    @single_or_double_tumour.setter
-    def single_or_double_tumour(self,val):
-        self.__single_or_double_tumour = check_set_number(val, int, 1, 0, 3)
+    def tumour_multiplicity(self):
+        return self.__tumour_multiplicity
+    @tumour_multiplicity.setter
+    def tumour_multiplicity(self,val):
+        if val is None:
+            val = 'single'
+
+
+        if not isinstance(val, str):
+            raise TypeError("Wrong type for parameter 'tumour_multiplicity'. Expected str, got %s" % type(val))
+
+        if val not in ["single", "double"]:
+            raise ValueError("Only 'single' and 'double' are allowed values for parameter 'tumour_multiplicity'.")
+
+        self.__tumour_multiplicity = val
 
 class CancerSimulator(object):
     """
@@ -224,11 +234,31 @@ class CancerSimulator(object):
         self.__mutation_counter = None
         self.__s = [self.parameters.mutations_per_division]*100000
         self.__export_tumour = None
-        self.__seed = seed
-        self.__single_or_double_tumour = self.parameters.single_or_double_tumour
+        self.__tumour_multiplicity = self.parameters.tumour_multiplicity
 
-        # Prepare the output directory.
+        # Handle direct parameters.
+        self.seed = seed
         self.outdir = outdir
+    @property
+    def seed(self):
+        return self.__seed
+    @seed.setter
+    def seed(self, val):
+        """ Set the random seed for the simulation.
+        :param val: The seed to set
+        :type  val: int
+        """
+
+        # If not given: Set it to number of seconds since Jan. 1. 1970 (T0)
+        if val is None:
+            val = int(time())
+        if not isinstance(val, int):
+            print(val)
+            raise TypeError("Wrong type for parameter 'seed'. Expected int, got %s." % type(val))
+        if not val > 0:
+            raise ValueError("The parameter 'seed' must a positive integer (int).")
+
+        self.__seed = val
 
     @property
     def dumpfile(self):
@@ -302,15 +332,21 @@ class CancerSimulator(object):
         # in this case number one point towards (0,1).
         #print ('single or double',self.__single_or_double_tumour)
 
-        if self.__single_or_double_tumour == 1:
-            print('single tumour')
+        if self.__tumour_multiplicity == 'single':
+            logging.info(' Running in single tumour mode.')
             initLoc=(int(matrix_size*0.5),int(matrix_size*0.5))
-         #   logging.info("First cell at ", initLoc)
+
+            logging.info("First cell at %s.", str(initLoc))
+
             self.__mtx[initLoc]=1
             self.__mut_container=[(0, 0), (0, 1)]
-            self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
-        if self.__single_or_double_tumour == 2:
-            print('sdsa')
+            self.__pool=[initLoc]
+
+            #start the pool of cancer cells by adding the initial cancer cell into it
+        if self.__tumour_multiplicity == 'double':
+            logginf.info('Running in sdsa mode.')
+
+            ### COMMENT: Should these be given as parameters?
             distance_between_tumours=0.05
             initLoc=(int(matrix_size*0.45),int(matrix_size*0.5))
             secondinitLoc=(int(matrix_size*0.65),int(matrix_size*0.51))
@@ -318,13 +354,11 @@ class CancerSimulator(object):
             self.__mtx[initLoc]=1
             self.__mtx[secondinitLoc]=2
             self.__mut_container=[(0, 0), (0, 1), (0,2)]
-            self.__pool=[initLoc, secondinitLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
+            self.__pool=[initLoc, secondinitLoc]
 
         # create lists used in loops
         lq_bipsy=[]
         self.__growth_plot_data=[]
-
-      #  self.__pool=[initLoc]   #start the pool of cancer cells by adding the initial cancer cell into it
 
         logging.info('Tumour growth in progress.')
 
@@ -417,8 +451,9 @@ class CancerSimulator(object):
         target_mut_solid=[]
 
         for i in solid_pre_vaf:
-
-            if i[0]==1: #first mutation duplicate N number of times, adding additional clonal mutations
+            #first mutation duplicate N number of times
+            # adding additional clonal mutations
+            if i[0]==1:
 
                 for rep in range(self.parameters.number_of_clonal):
 
@@ -641,9 +676,9 @@ class CancerSimulator(object):
         """ Run the tumour growth simulation.  """
 
         # setup a counter to keep track of number of mutations that occur in this run.
-        if self.__single_or_double_tumour == 1:
+        if self.__tumour_multiplicity == 'single':
             mutation_counter=1
-        if self.__single_or_double_tumour == 2:
+        if self.__tumour_multiplicity == 'double':
             mutation_counter=2
 
         # Loop over time steps.
@@ -705,26 +740,26 @@ def main(arguments):
 
     """
 
-    if "params.py" in os.listdir():
+    parameters = CancerSimulatorParameters()
+
+    if "params.py" in os.listdir(os.getcwd()):
+        # Need to modify sys.path to make sure we import params.py from current working directory.
+        sys.path.insert(0, os.getcwd())
         import params
 
         parameters = CancerSimulatorParameters(matrix_size =                         params.matrixSize,
-                                                number_of_generations =               params.num_of_generations,
-                                                division_probability =                params.div_probability,
-                                                advantageous_division_probability =   params.fittnes_advantage_div_prob,
-                                                death_probability =                   params.death_probability,
-                                                fitness_advantage_death_probability = params.fitness_advantage_death_prob,
-                                                mutation_rate =                       params.mut_rate,
-                                                advantageous_mutation_probability =   params.advantageous_mut_prob,
-                                                mutations_per_division =              params.mut_per_division,
-                                                time_of_advantageous_mutation =       params.time_of_adv_mut,
-                                                number_of_clonal =                    params.num_of_clonal,
-                                                export_tumour =                       params.export_tumour,
-                                                single_or_double_tumour =             params.single_or_double_tumour,
+                                               number_of_generations =               params.num_of_generations,
+                                               division_probability =                params.div_probability,
+                                               advantageous_division_probability =   params.fittnes_advantage_div_prob,
+                                               death_probability =                   params.death_probability,
+                                               fitness_advantage_death_probability = params.fitness_advantage_death_prob,
+                                               mutation_rate =                       params.mut_rate,
+                                               advantageous_mutation_probability =   params.advantageous_mut_prob,
+                                               mutations_per_division =              params.mut_per_division,
+                                               time_of_advantageous_mutation =       params.time_of_adv_mut,
+                                               number_of_clonal =                    params.num_of_clonal,
+                                               tumour_multiplicity =                 params.tumour_multiplicity,
                                                )
-    else:
-        parameters = CancerSimulatorParameters()
-
     casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
     casim.run()
@@ -771,13 +806,15 @@ if __name__ == "__main__":
     # Seed parameter.
     parser.add_argument("seed",
                         help="The prng seed.",
+                        type=int,
                         )
     parser.add_argument("-o",
                         "--outdir",
                         dest="outdir",
                         metavar="DIR",
                         default=None,
-                        help="Directory where simulation data is saved."
+                        help="Directory where simulation data is saved.",
+                        type=str,
                         )
 
     # Parse the arguments.

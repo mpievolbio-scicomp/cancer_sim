@@ -1,8 +1,3 @@
-#params
-import sys
-import numpy as np
-
-#value presents the size of both x and y axis
 matrixSize                      = 10
 num_of_generations              = 2
 div_probability                 = 1
@@ -14,6 +9,4 @@ advantageous_mut_prob           = 1
 mut_per_division                = 1
 time_of_adv_mut                 = 50000
 num_of_clonal                   = 1
-export_tumour                   = True
-single_or_double_tumour         = 1
-
+tumour_multiplicity             = None

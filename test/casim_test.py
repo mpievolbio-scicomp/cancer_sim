@@ -58,8 +58,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,                1  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
         self.assertEqual(parameters.number_of_clonal,                     1   )
-        self.assertEqual(parameters.export_tumour,                        False   )
-        self.assertEqual(parameters.single_or_double_tumour,              0 )
+        self.assertEqual(parameters.tumour_multiplicity,              'single')
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
@@ -76,8 +75,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 mutations_per_division =                10  ,
                                 time_of_advantageous_mutation =      30000  ,
                                 number_of_clonal =                       2  ,
-                                export_tumour =                       True,
-                                single_or_double_tumour =                1,
+                                tumour_multiplicity =                'single',
                                                 )
 
         self.assertEqual(parameters.matrix_size,                          20  )
@@ -91,8 +89,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,               10  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
         self.assertEqual(parameters.number_of_clonal,                      2  )
-        self.assertEqual(parameters.export_tumour,                      True  )
-        self.assertEqual(parameters.single_or_double_tumour,               1  )
+        self.assertEqual(parameters.tumour_multiplicity,               'single' )
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -155,7 +152,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                )
 
 
-        cancer_sim = CancerSimulator(default_parameters)
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
         cancer_sim.run()
 
@@ -199,7 +196,7 @@ class CancerSimulatorTest(unittest.TestCase):
 
         default_parameters = CancerSimulatorParameters()
 
-        cancer_sim = CancerSimulator(default_parameters)
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
         cancer_sim.run()
 
@@ -308,7 +305,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
         self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
         self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
-        self.assertEqual(loaded_parameters.single_or_double_tumour,              parameters.single_or_double_tumour)
+        self.assertEqual(loaded_parameters.tumour_multiplicity,                  parameters.tumour_multiplicity)
         self.assertEqual(loaded_simulation.outdir,                               cancer_sim.outdir)
 
         # Check we can run.
@@ -346,7 +343,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
         self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
         self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
-        self.assertEqual(loaded_parameters.single_or_double_tumour,              parameters.single_or_double_tumour)
+        self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
 
         # Check we can run.
         loaded_simulation.run()
@@ -364,10 +361,7 @@ class CancerSimulatorTest(unittest.TestCase):
         """ Test exporting the tumour matrix. """
 
         parameters = CancerSimulatorParameters()
-        parameters.export_tumour = True
-
         cancer_sim = CancerSimulator(parameters, seed=1, outdir = mkdtemp())
-
         cancer_sim.run()
 
         # Check files where created.
@@ -404,6 +398,7 @@ class casim_test(unittest.TestCase):
     def test_cli(self):
         """ Test the command line interface. """
 
+        print("Starting test.")
         # Setup command.
         python = "python"
         module = "../casim/casim.py"
@@ -416,13 +411,15 @@ class casim_test(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
 
         # Run with positional argument.
-        args += ['-o', 'cancer_sim_output']
+        outdir = 'cancer_sim_output'
+        self._test_files.append(outdir)
+        args += ['-o', outdir ]
         proc = Popen([python, module] + args)
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
         # run with positional argument (long version).
-        args = ['1', '--outdir', 'cancer_sim_output']
+        args = ['2', '--outdir', outdir]
         proc = Popen([python, module] + args)
         proc.wait()
         self.assertEqual(proc.returncode, 0)
@@ -430,10 +427,10 @@ class casim_test(unittest.TestCase):
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
-
         arguments = namedtuple('arguments', ('seed', 'outdir'))
         arguments.seed = 1
         arguments.outdir='cancer_sim_out'
+        self._test_files.append(arguments.outdir)
 
         # Capture stdout.
         stream = StringIO()
@@ -458,11 +455,8 @@ class casim_test(unittest.TestCase):
 
         print(sim_out)
 
-        mut_container_regex = re.compile(r".*mut container updated: \[\(0, 0\), \(0, 1\), \(1, 2\), \(1, 3\), \(3, 4\), \(3, 5\), \(2, 6\)\]")
+        mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         self.assertRegex(sim_out, mut_container_regex)
-
-        matrix_row_regex = re.compile(r" \[0 0 0 0 0 5 7 0 0 0\]")
-        self.assertRegex(sim_out, matrix_row_regex)
 
 if __name__ == "__main__":
 
