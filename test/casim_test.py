@@ -399,7 +399,7 @@ class casim_test(unittest.TestCase):
         """ Test the command line interface. """
         # Setup command.
         python = "python"
-        module = "../casim/casim.py"
+        module = casim.__file__
 
         # Run with seed only.
         args = ['1']
