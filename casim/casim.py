@@ -622,7 +622,6 @@ class CancerSimulator(object):
 
             return mutation_counter
 
-
     def mutation(self, *args):
         """ Perform a mutation. """
 
