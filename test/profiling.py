@@ -7,7 +7,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=loggi
 
 parameters = CancerSimulatorParameters(
                                        matrix_size =                           100,
-                                       number_of_generations =                 10  , # vary
+                                       number_of_generations =                 20  , # vary
                                        division_probability =                  1.0, # 1 => exp. growth
                                        advantageous_division_probability =      0.3,
                                        death_probability =                      0.0,
@@ -21,13 +21,12 @@ parameters = CancerSimulatorParameters(
                                       )
 
 
-#simulator = CancerSimulator(parameters, seed=None, outdir="profiling_out")
-seed  = 1
-age = "new"
-simulator = CancerSimulator(parameters, seed=1, outdir="profiling_out_%s" % age)
+simulator = CancerSimulator(parameters, seed=None, outdir="profiling_out_new")
+commands = "simulator.run()"
+cProfile.run(commands)
 
-simulator.run()
+#seed  = 1
+#age = "new"
+#simulator = CancerSimulator(parameters, seed=1, outdir="profiling_out_%s" % age)
+#simulator.run()
 
-#commands = "simulator.run()"
-
-#cProfile.run(commands)
