@@ -333,7 +333,7 @@ class CancerSimulator(object):
         #print ('single or double',self.__single_or_double_tumour)
 
         if self.__tumour_multiplicity == 'single':
-            logging.info(' Running in single tumour mode.')
+            logging.info('Running in single tumour mode.')
             initLoc=(int(matrix_size*0.5),int(matrix_size*0.5))
 
             logging.info("First cell at %s.", str(initLoc))
@@ -505,43 +505,138 @@ class CancerSimulator(object):
         vaf_bulk=[]
         cellnum=[]
 
+
         reduced=list(itertools.chain(*[j for j in DNA]))  #flatten the list of mutations
 
-        # NOTE: np.hist?
-        for i in set(reduced): #count number of unique mutations in whole tumour at time step
-            vaf_bulk.append((i, float(reduced.count(i))))
+        ### New implementation, using numpy.histogram
+        # Get range and number of bins for histogram.
+        mn, mx = np.min(reduced), np.max(reduced)
+        bins = mx-mn
 
+        hist, edges = np.histogram(reduced, bins, range=(mn,mx))
+
+        edge_hist = [(int(e),h) for e,h in zip(edges[:-1], hist)]
+
+        return edge_hist
+
+        #### FIXME: prop_of_driver is never returned. Either remove or fix.
         prop_of_driver=[]
         tum_size=len(DNA)
 
         if benefitial:
-
             for i in vaf_bulk:
                 if i[0]==benefitial[0]:
                     prop_of_driver.append((i[0], i[1]/tum_size, step))
 
         return vaf_bulk
 
-    def mutation_reconstruction(self, cellToUntangle):
-        """ TODO: Add a short documentation of this function.
+    def mutation_reconstruction(self):
+        """ Reconstruct the mutation history of the given cell.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param cell: The cell to untangle.
+        :type  cell: int
 
         """
+        # Return container.
+        reconstructed = []
 
-        mut_prof=[]
+        # Map mutation count to origin (could save this step if elements in mut_container where (c,o) instead of (o,c)).
+        lookup_map = dict([(k,v) for v,k in self.__mut_container])
 
-        m=self.__mut_container[cellToUntangle][0]
+        # Loop over cell indices.
+        for i in self.__pool:
 
-        mut_prof.append(self.__mut_container[cellToUntangle][1])
+            # Get cell.
+            cell = self.__mtx[i]
+            logging.info("Untangling cell %d.", cell)
 
-        for i in range(cellToUntangle, 0, -1):
-            if self.__mut_container[i][1]==m:
-                mut_prof.append(self.__mut_container[i][1])
-                m=self.__mut_container[i][0]
+            # Setup intermediate container.
+            mut_prof=[]
 
-        return mut_prof[::-1]
+            # Start with the first mutation of this cell.
+            mc=self.__mut_container[cell]
+
+            # Get mutation count
+            m = mc[1]
+
+            # Now go through the mutation container and trace back the history.
+            while m>0:
+                # Append current mutation count.
+                mut_prof.append(m)
+
+                # Get mutation origin of this count.
+                m = lookup_map[m]
+
+            # Store on return container in reverse order.
+            reconstructed.append(mut_prof[::-1])
+
+        return reconstructed
+
+    def tumourGrowth(self):
+        """ Run the tumour growth simulation.  """
+
+        # setup a counter to keep track of number of mutations that occur in this run.
+        if self.__tumour_multiplicity == 'single':
+            mutation_counter=1
+        if self.__tumour_multiplicity == 'double':
+            mutation_counter=2
+
+        # Loop over time steps.
+        for step in range(self.parameters.number_of_generations):
+            #logging.info('container', str(self.mutation_container))
+            #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
+            logging.info('%d/%d generation started', step, self.parameters.number_of_generations)
+
+            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
+
+            # setup a temporary list to store the mutated cells in this iteration.
+            temp_pool=[]
+
+            # reshuffle the order of pool to avoid that cells with low number divide always first.
+            shuffle(self.__pool)
+
+            logging.debug('list of cancer cells %s', str(self.__pool))
+
+            # Loop over all cells in the pool.
+            for cell in self.__pool:
+                logging.debug('cell to divide %s', str(cell))
+
+                # Get the existing neighboring cells.
+                neigh=self.neighbours(cell)
+
+                # first condition: if available neighbors
+                if neigh:
+                    # if cell has benefitial mutation.
+                    if self.__mtx[cell] in self.__benefitial_mutation:
+                        # cell divides with greater probability.
+                        if prng.random()<self.parameters.fitness_advantageous_division_probability:
+                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
+
+                    # cell does not have benefitial mutation -> normal division.
+                    else:
+                        if prng.random()<self.parameters.division_probability:
+                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
+
+            # add new cancer cells to a pool of cells available for division next round
+            [self.__pool.append(v) for v in temp_pool]
+            self.__growth_plot_data.append(len(self.__pool))
+
+
+            # at the end reconstruct mutational frequencies from the whole tumour
+            if step == self.parameters.number_of_generations-1:
+
+                logging.info("All generations finished. Starting tumour reconstruction.")
+                reconstructed = self.mutation_reconstruction()
+
+                logging.info("Reconstruction done,  get statistics.")
+                bulk_vaf=self.bulk_seq(reconstructed, step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
+
+                logging.info("Statistics done,  amplify mutations.")
+                bulk_vaf=self.increase_mut_number(bulk_vaf)
+
+                logging.info('Head of bulk_vaf: %s', str(bulk_vaf[0:10]))
+
+                return bulk_vaf
 
     def neighbours(self, cell):
         """ Returns the nearest-neighbor cells around the given node.
@@ -670,66 +765,6 @@ class CancerSimulator(object):
                 pool.append(place_to_divide)
 
         return mutation_counter
-
-    def tumourGrowth(self):
-        """ Run the tumour growth simulation.  """
-
-        # setup a counter to keep track of number of mutations that occur in this run.
-        if self.__tumour_multiplicity == 'single':
-            mutation_counter=1
-        if self.__tumour_multiplicity == 'double':
-            mutation_counter=2
-
-        # Loop over time steps.
-        for step in range(self.parameters.number_of_generations):
-            #logging.info('container', str(self.mutation_container))
-            #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
-          #  logging.info('step in cancer growth: %d', step)
-
-            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
-
-            # setup a temporary list to store the mutated cells in this iteration.
-            temp_pool=[]
-
-            # reshuffle the order of pool to avoid that cells with low number divide always first.
-            shuffle(self.__pool)
-
-           # logging.info('list of cancer cells %s', str(self.__pool))
-
-            # Loop over all cells in the pool.
-            for cell in self.__pool:
-                #logging.info('cell to divide %s', str(cell))
-
-                # Get the existing neighboring cells.
-                neigh=self.neighbours(cell)
-
-                # first condition: if available neighbors
-                if neigh:
-                    # if cell has benefitial mutation.
-                    if self.__mtx[cell] in self.__benefitial_mutation:
-                        # cell divides with greater probability.
-                        if prng.random()<self.parameters.fitness_advantageous_division_probability:
-                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
-
-                    # cell does not have benefitial mutation -> normal division.
-                    else:
-                        if prng.random()<self.parameters.division_probability:
-                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
-
-            # add new cancer cells to a pool of cells available for division next round
-            [self.__pool.append(v) for v in temp_pool]
-            self.__growth_plot_data.append(len(self.__pool))
-
-
-            # at the end reconstruct mutational frequencies from the whole tumour
-            if step == self.parameters.number_of_generations-1:
-
-                bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
-
-                bulk_vaf=self.increase_mut_number(bulk_vaf)
-                logging.info('1 %s', str(bulk_vaf[0:10]))
-
-                return bulk_vaf
 
 def main(arguments):
     """ The entry point for the command line interface.

@@ -2,14 +2,17 @@ import cProfile
 
 from casim.casim import CancerSimulatorParameters, CancerSimulator
 
+import logging
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG)
+
 parameters = CancerSimulatorParameters(
-                                       matrix_size =                           20  ,
+                                       matrix_size =                           100,
                                        number_of_generations =                 10  , # vary
-                                       division_probability =                   0.5, # 1 => exp. growth
+                                       division_probability =                  1.0, # 1 => exp. growth
                                        advantageous_division_probability =      0.3,
                                        death_probability =                      0.0,
                                        fitness_advantage_death_probability =    0.0,
-                                       mutation_rate =                          0.2, # 1 =>
+                                       mutation_rate =                          1.0, # 1 =>
                                        advantageous_mutation_probability =      0.8,
                                        mutations_per_division =                10  , # if mutation event occurs, have this number of mutation
                                        time_of_advantageous_mutation =      30000  , # large to not kick in
@@ -18,4 +21,13 @@ parameters = CancerSimulatorParameters(
                                       )
 
 
-cProfile.run(commands)
+#simulator = CancerSimulator(parameters, seed=None, outdir="profiling_out")
+seed  = 1
+age = "new"
+simulator = CancerSimulator(parameters, seed=1, outdir="profiling_out_%s" % age)
+
+simulator.run()
+
+#commands = "simulator.run()"
+
+#cProfile.run(commands)
