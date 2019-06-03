@@ -17,7 +17,8 @@ import itertools
 import logging
 import math
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
+np = numpy
 import os
 import pickle
 import random as prng
@@ -29,7 +30,14 @@ import dill
 from tempfile import mkstemp
 
 # Configure logging.
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO)
+LEVEL = logging.WARNING
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(LEVEL)
+HANDLER = logging.StreamHandler()
+HANDLER.setLevel(LEVEL)
+FORMATTER=logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+HANDLER.setFormatter(FORMATTER)
+LOGGER.addHandler(HANDLER)
 
 class CancerSimulatorParameters():
     """
@@ -232,7 +240,7 @@ class CancerSimulator(object):
         self.__benefitial_mutation = []
         self.__growth_plot_data = None
         self.__mutation_counter = None
-        self.__s = [self.parameters.mutations_per_division]*100000
+        self.__s = self.parameters.mutations_per_division
         self.__export_tumour = None
         self.__tumour_multiplicity = self.parameters.tumour_multiplicity
 
@@ -333,10 +341,10 @@ class CancerSimulator(object):
         #print ('single or double',self.__single_or_double_tumour)
 
         if self.__tumour_multiplicity == 'single':
-            logging.info('Running in single tumour mode.')
+            LOGGER.info('Running in single tumour mode.')
             initLoc=(int(matrix_size*0.5),int(matrix_size*0.5))
 
-            logging.info("First cell at %s.", str(initLoc))
+            LOGGER.info("First cell at %s.", str(initLoc))
 
             self.__mtx[initLoc]=1
             self.__mut_container=[(0, 0), (0, 1)]
@@ -344,7 +352,7 @@ class CancerSimulator(object):
 
             #start the pool of cancer cells by adding the initial cancer cell into it
         if self.__tumour_multiplicity == 'double':
-            logginf.info('Running in sdsa mode.')
+            LOGGER.info('Running in sdsa mode.')
 
             ### COMMENT: Should these be given as parameters?
             distance_between_tumours=0.05
@@ -360,7 +368,7 @@ class CancerSimulator(object):
         lq_bipsy=[]
         self.__growth_plot_data=[]
 
-        logging.info('Tumour growth in progress.')
+        LOGGER.info('Tumour growth in progress.')
 
         death_list=[]
         prop_of_driver=[]
@@ -376,11 +384,11 @@ class CancerSimulator(object):
             self.export_tumour_matrix(true_vaf)
 
         end=timer()
-        logging.info("Consumed Wall time of this run: %f s.", end - start)
+        LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
     def export_tumour_matrix(self, true_vaf):
 
-        logging.info('Exporting simulation data')
+        LOGGER.info('Exporting simulation data')
 
         # save VAF to text file
         with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
@@ -445,7 +453,6 @@ class CancerSimulator(object):
         :type  <+variable name+>: <+type of variable+>
 
         """
-
         solid_extended_vaf=[]
 
         target_mut_solid=[]
@@ -454,17 +461,21 @@ class CancerSimulator(object):
             #first mutation duplicate N number of times
             # adding additional clonal mutations
             if i[0]==1:
-
-                for rep in range(self.parameters.number_of_clonal):
-
-                    target_mut_solid.append((i[0] , float(i[1])))
+                target_mut_solid += [(i[0] , float(i[1]))]*self.parameters.number_of_clonal
 
             else:
                 # for all subsequent mutations duplicate number
                 # of them based on poisson distribution in variable s
-                for rep in range(self.__s[i[0]]):
-                    target_mut_solid.append((i[0], float(i[1])))
 
+                # Multiplication factor: Draw from Poisson distribution with expectiation value "mutations_per_division"
+                number_of_additional_mutations = int(np.floor(np.random.poisson(self.__s)))
+                # Log.
+                LOGGER.debug("Will append %d additional mutations." % (number_of_additional_mutations))
+
+                # Append.
+                target_mut_solid += [(i[0], float(i[1]))]*number_of_additional_mutations
+
+        # Return the multiplied mutations.
         return target_mut_solid
 
     def terminate_cell(self, cell, step):
@@ -548,7 +559,7 @@ class CancerSimulator(object):
 
             # Get cell.
             cell = self.__mtx[i]
-            logging.info("Untangling cell %d.", cell)
+            LOGGER.debug("Untangling cell %d.", cell)
 
             # Setup intermediate container.
             mut_prof=[]
@@ -583,9 +594,9 @@ class CancerSimulator(object):
 
         # Loop over time steps.
         for step in range(self.parameters.number_of_generations):
-            #logging.info('container', str(self.mutation_container))
-            #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
-            logging.info('%d/%d generation started', step, self.parameters.number_of_generations)
+            #LOGGER.debug('container', str(self.mutation_container))
+            #LOGGER.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
+            LOGGER.debug('%d/%d generation started', step, self.parameters.number_of_generations)
 
             # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
 
@@ -595,11 +606,11 @@ class CancerSimulator(object):
             # reshuffle the order of pool to avoid that cells with low number divide always first.
             shuffle(self.__pool)
 
-            logging.debug('list of cancer cells %s', str(self.__pool))
+            #LOGGER.debug('list of cancer cells %s', str(self.__pool))
 
             # Loop over all cells in the pool.
             for cell in self.__pool:
-                logging.debug('cell to divide %s', str(cell))
+                #LOGGER.debug('cell to divide %s', str(cell))
 
                 # Get the existing neighboring cells.
                 neigh=self.neighbours(cell)
@@ -625,16 +636,16 @@ class CancerSimulator(object):
             # at the end reconstruct mutational frequencies from the whole tumour
             if step == self.parameters.number_of_generations-1:
 
-                logging.info("All generations finished. Starting tumour reconstruction.")
+                LOGGER.info("All generations finished. Starting tumour reconstruction.")
                 reconstructed = self.mutation_reconstruction()
 
-                logging.info("Reconstruction done,  get statistics.")
+                LOGGER.info("Reconstruction done,  get statistics.")
                 bulk_vaf=self.bulk_seq(reconstructed, step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
 
-                logging.info("Statistics done,  amplify mutations.")
+                LOGGER.info("Statistics done,  amplify mutations.")
                 bulk_vaf=self.increase_mut_number(bulk_vaf)
 
-                logging.info('Head of bulk_vaf: %s', str(bulk_vaf[0:10]))
+                LOGGER.debug('Head of bulk_vaf: %s', str(bulk_vaf[0:10]))
 
                 return bulk_vaf
 
@@ -710,8 +721,8 @@ class CancerSimulator(object):
             pool.append(place_to_divide)
 
             # Log.
-            # logging.info('index of the mother cell: %s', str(self.__mtx[cell]))
-            # logging.info('random neighbor to divide: %s', str(place_to_divide))
+            # LOGGER.debug('index of the mother cell: %s', str(self.__mtx[cell]))
+            # LOGGER.debug('random neighbor to divide: %s', str(place_to_divide))
 
             mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, place_to_divide, False)
 
@@ -733,9 +744,9 @@ class CancerSimulator(object):
             self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
 
             # Log
-          #  logging.info('Neighbor cell has new index %d', self.__mtx[place_to_divide])
-           # logging.info("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
-           # logging.info('mut container updated: %s', str(self.__mut_container))
+          #  LOGGER.debug('Neighbor cell has new index %d', self.__mtx[place_to_divide])
+           # LOGGER.debug("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
+           # LOGGER.debug('mut container updated: %s', str(self.__mut_container))
 
             if benefitial:
                 self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
@@ -745,7 +756,7 @@ class CancerSimulator(object):
                 if prng.random()<self.parameters.advantageous_mutation_probability \
                         and len(self.__benefitial_mutation)==0 \
                         and step==self.parameters.time_of_advantageous_mutation:
-                    logging.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
+                    LOGGER.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
@@ -757,7 +768,7 @@ class CancerSimulator(object):
 
         # No new mutation.
         else:
-         #   logging.info('No new mutation in normal division, inhereting from parent')
+         #   LOGGER.info('No new mutation in normal division, inhereting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
             ### NOTE: Why only here (taken from original code).
@@ -793,7 +804,18 @@ def main(arguments):
                                                time_of_advantageous_mutation =       params.time_of_adv_mut,
                                                number_of_clonal =                    params.num_of_clonal,
                                                tumour_multiplicity =                 params.tumour_multiplicity,
-                                               )
+    )
+
+    # Set loglevel.
+    loglevel = {0 : logging.WARNING,
+                1 : logging.INFO,
+                2 : logging.DEBUG,
+                }
+    if not arguments.loglevel in loglevel.keys():
+        arguments.loglevel = 3
+
+    LOGGER.setLevel(loglevel[arguments.loglevel])
+
     casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
     casim.run()
@@ -849,6 +871,15 @@ if __name__ == "__main__":
                         default=None,
                         help="Directory where simulation data is saved.",
                         type=str,
+                        )
+
+    parser.add_argument("--verbose",
+                        "-v",
+                        dest="loglevel",
+                        action='count',
+                        metavar="LOGLEVEL",
+                        default=None,
+                        help="Increase the verbosity level by adding 'v's."
                         )
 
     # Parse the arguments.
