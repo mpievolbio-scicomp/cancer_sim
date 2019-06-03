@@ -1,32 +1,46 @@
-import cProfile
+#import cProfile
+from time import sleep, time
+import os
+import sys
+from io import StringIO
 
 from casim.casim import CancerSimulatorParameters, CancerSimulator
 
 import logging
 logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG)
 
-parameters = CancerSimulatorParameters(
-                                       matrix_size =                           100,
-                                       number_of_generations =                 20  , # vary
-                                       division_probability =                  1.0, # 1 => exp. growth
-                                       advantageous_division_probability =      0.3,
-                                       death_probability =                      0.0,
-                                       fitness_advantage_death_probability =    0.0,
-                                       mutation_rate =                          1.0, # 1 =>
-                                       advantageous_mutation_probability =      0.8,
-                                       mutations_per_division =                10  , # if mutation event occurs, have this number of mutation
-                                       time_of_advantageous_mutation =      30000  , # large to not kick in
-                                       number_of_clonal =                       2  , # initial number of mutations in first cancer cell
-                                       tumour_multiplicity =                'single',
-                                      )
 
+generations = [10,15,23,45,67,100,150,230,450,670,1000]
+#generations = [10,15,23,45,67,100]
+divprobs = [1.0]
+#divprobs = [0.33]
 
-simulator = CancerSimulator(parameters, seed=None, outdir="profiling_out_new")
-commands = "simulator.run()"
-cProfile.run(commands)
+n_run = sys.argv[1]
+for dp in divprobs:
+    for g in generations:
+        parameters = CancerSimulatorParameters(
+            matrix_size =                          4096,
+            number_of_generations =                 g  , # vary
+            division_probability =                    dp, # 1 => exp. growth
+            advantageous_division_probability =       0.3,
+            death_probability =                       0.0,
+            fitness_advantage_death_probability =     0.0,
+            mutation_rate =                           1.0, # 1 =>
+            advantageous_mutation_probability =       0.8,
+            mutations_per_division =                 10  , # if mutation event occurs, have this number of mutation
+            time_of_advantageous_mutation =       30000  , # large to not kick in
+            number_of_clonal =                        2  , # initial number of mutations in first cancer cell
+            tumour_multiplicity =                'single',
+                                              )
 
-#seed  = 1
-#age = "new"
-#simulator = CancerSimulator(parameters, seed=1, outdir="profiling_out_%s" % age)
-#simulator.run()
+        simulator = CancerSimulator(parameters, seed=None, outdir="%s" % (n_run))
+        t0 = time()
+        simulator.run()
+        T = time() - t0
 
+        with open(os.path.join(simulator.outdir,"log.txt"), 'a') as fp:
+            fp.write("%s\t%f\t%d\t%e\n" % (simulator.seed,dp,g,T))
+
+        simulator.dump()
+
+        sleep(1)
