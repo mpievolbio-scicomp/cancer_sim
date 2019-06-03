@@ -4,14 +4,14 @@ import os
 import sys
 from io import StringIO
 
-from casim.casim import CancerSimulatorParameters, CancerSimulator
-
+from casim.casim import CancerSimulatorParameters, CancerSimulator, HANDLER, LOGGER
 import logging
-logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.DEBUG)
+level = logging.WARNING
+HANDLER.setLevel(level)
+LOGGER.setLevel(level)
 
-
-generations = [10,15,23,45,67,100,150,230,450,670,1000]
-#generations = [10,15,23,45,67,100]
+##generations = [10,15,23,45,67,100,150,230,450,670,1000]
+generations = [10,15,23,45,67,100,150, 230, 450, 670, 1000]
 divprobs = [1.0]
 #divprobs = [0.33]
 
@@ -34,6 +34,7 @@ for dp in divprobs:
                                               )
 
         simulator = CancerSimulator(parameters, seed=None, outdir="%s" % (n_run))
+
         t0 = time()
         simulator.run()
         T = time() - t0
@@ -42,5 +43,4 @@ for dp in divprobs:
             fp.write("%s\t%f\t%d\t%e\n" % (simulator.seed,dp,g,T))
 
         simulator.dump()
-
         sleep(1)
