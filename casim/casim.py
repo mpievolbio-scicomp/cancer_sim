@@ -91,10 +91,13 @@ class CancerSimulatorParameters():
         :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation occurs.
         :type  time_of_advantageous_mutation: int
 
+        :param number_of_clonal: Scale up each mutation by this factor.
+        :type  number_of_clonal: int
+
         :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
         :type  tumour_multiplicity: str
         """
-        ### TODO: documentation of new parameters.
+
         # Store parameters on the object.
         self.matrix_size = matrix_size
         self.number_of_generations = number_of_generations
@@ -193,9 +196,8 @@ class CancerSimulatorParameters():
     def tumour_multiplicity(self,val):
         if val is None:
             val = 'single'
-
-
         if not isinstance(val, str):
+
             raise TypeError("Wrong type for parameter 'tumour_multiplicity'. Expected str, got %s" % type(val))
 
         if val not in ["single", "double"]:
@@ -247,6 +249,7 @@ class CancerSimulator(object):
         # Handle direct parameters.
         self.seed = seed
         self.outdir = outdir
+
     @property
     def seed(self):
         return self.__seed
@@ -282,7 +285,11 @@ class CancerSimulator(object):
 
     def _setup_io(self, outdir):
         """ """
-        """ Setup the output directory. """
+        """ Setup the output directories.
+
+        :param outdir: The directory under which all simulation output will be stored.
+        :type  outdir: str
+        :raises: IOError (Directory for this seed already exists)"""
 
         self.__outdir = None
         self.__seeddir = None
@@ -322,12 +329,16 @@ class CancerSimulator(object):
         self.__simdir = simdir
 
     def dump(self):
-        """ Serialize the object. """
+        """ Serialize the object. The current simulation will be stored in a machine readable
+        format to <OUTDIR>/cancer_<SEED>/cancer_sim.py.dill, where <OUTDIR> is the specified output
+        directory or (if the latter was not defined) a temporary directory."""
 
         with open(self.dumpfile, 'wb') as fp:
             dill.dump(self, fp)
 
     def run(self):
+        """ Run the simulation. """
+
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
 
@@ -350,7 +361,7 @@ class CancerSimulator(object):
             self.__mut_container=[(0, 0), (0, 1)]
             self.__pool=[initLoc]
 
-            #start the pool of cancer cells by adding the initial cancer cell into it
+        #start the pool of cancer cells by adding the initial cancer cell into it
         if self.__tumour_multiplicity == 'double':
             LOGGER.info('Running in sdsa mode.')
 
@@ -386,13 +397,19 @@ class CancerSimulator(object):
         end=timer()
         LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
-    def export_tumour_matrix(self, true_vaf):
+    def export_tumour_matrix(self, tumour_matrix):
+        """ Export (write to disk) the matrix of tumour cells.
+
+        :param tumour_matrix: The tumour matrix to export
+        :type  tumour_matrix: array like
+
+        """
 
         LOGGER.info('Exporting simulation data')
 
         # save VAF to text file
         with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
-            for i in true_vaf:
+            for i in tumour_matrix:
                 vafEx.write(str(i)+'\n')
 
         # Pickle the data.
@@ -404,12 +421,13 @@ class CancerSimulator(object):
             pickle.dump(self.__death_list, fp)
 
     def sampling(self, sample):
-        """ TODO: Add a short documentation of this function.
+        """ Take a sample from the tumour.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param sample: The sample (cell indices)
+        :type  sample: list
 
         """
+
         dna_from_sample=[self.__mutation_reconstruction(self.__mtx[i]) for i in sample]
 
         biopsy_raw_vaf=self.bulk_seq(dna_from_sample, self.parameters.number_of_generations, benefitial=False, sampling_or_fullTumour="Sample", )
@@ -420,12 +438,12 @@ class CancerSimulator(object):
 
         return vaf
 
+    ### FIXME: Not used, can we remove it?
     def simulate_seq_depth(self, extended_vaf):
-        """ TODO: Add a short documentation of this function.
+        """ Take a sample from the passed list of cells.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
-
+        :param extended_vaf: The list of cells to take a sample from.
+        :type  extended_vaf: list
         """
 
         cellnum=extended_vaf[0]
@@ -447,10 +465,10 @@ class CancerSimulator(object):
         return VAF
 
     def increase_mut_number(self, solid_pre_vaf):
-        """ TODO: Add a short documentation of this function.
+        """ Scale up the number of mutations according to the 'number_of_clonal' parameter.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param solid_pre_vaf: The list of mutations to scale.
+        :type  solid_pre_vaf: list
 
         """
         solid_extended_vaf=[]
@@ -479,10 +497,13 @@ class CancerSimulator(object):
         return target_mut_solid
 
     def terminate_cell(self, cell, step):
-        """ TODO: Add a short documentation of this function.
+        """ Register the passed cell as dead.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param cell: The cell that died.
+        :type  cell: int
+
+        :param step: The time step at which the cell died.
+        :type  step: int
 
         """
 
@@ -491,10 +512,10 @@ class CancerSimulator(object):
         self.__mtx[cell]=0
 
     def death_one_cell_chunk(self, step):
-        """ TODO: Add a short documentation of this function.
+        """ Register a randomly chosen chunk of cells as dead
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param step: The time step at which the cells have died.
+        :type  step: int
 
         """
 
@@ -506,11 +527,19 @@ class CancerSimulator(object):
             terminate_cell(i, self.__pool, step)
 
     def bulk_seq(self, DNA, step, benefitial, sampling_or_fullTumour):
-        """ TODO: Add a short documentation of this function.
+        """ Get a histogram of mutations.
 
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
+        :param DNA: The list of mutations to take the histogram from
+        :type  DNA: list
 
+        :param step: At which time step to take the sample
+        :type  step: int
+
+        :param benefitial: Currently unused
+        :type  benefitial: bool
+
+        :param sampling_or_fullTumour: Flag to control whether the full tumour or just a sample is to be histogrammed.
+        :type  sampling_or_fullTumour: bool
         """
 
         vaf_bulk=[]
@@ -729,7 +758,16 @@ class CancerSimulator(object):
             return mutation_counter
 
     def mutation(self, *args):
-        """ Perform a mutation. """
+        """ Perform a mutation.
+
+        :param cell: At which cell the mutation occurs
+        :param neighbors: The neighboring cells
+        :param mutation_counter: The current number of mutations, to be incremented.
+        :param pool: The pool of all cells.
+        :param place_to_divide: The position at which the mutation occurs.
+        :param benefitial: Flag to control whether the mutation is benefitial or not.
+
+        """
 
         cell, neighbors, step, mutation_counter, pool, place_to_divide, benefitial = args
 
@@ -744,9 +782,9 @@ class CancerSimulator(object):
             self.__mut_container.append((self.__mut_container[self.__mtx[cell]][1], mutation_counter))
 
             # Log
-          #  LOGGER.debug('Neighbor cell has new index %d', self.__mtx[place_to_divide])
-           # LOGGER.debug("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
-           # LOGGER.debug('mut container updated: %s', str(self.__mut_container))
+            LOGGER.debug('Neighbor cell has new index %d', self.__mtx[place_to_divide])
+            LOGGER.debug("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
+            LOGGER.debug('mut container updated: %s', str(self.__mut_container))
 
             if benefitial:
                 self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
@@ -768,7 +806,7 @@ class CancerSimulator(object):
 
         # No new mutation.
         else:
-         #   LOGGER.info('No new mutation in normal division, inhereting from parent')
+            LOGGER.info('No new mutation in normal division, inhereting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
             ### NOTE: Why only here (taken from original code).
@@ -811,10 +849,12 @@ def main(arguments):
                 1 : logging.INFO,
                 2 : logging.DEBUG,
                 }
+
     if not arguments.loglevel in loglevel.keys():
-        arguments.loglevel = 3
+        arguments.loglevel = 0
 
     LOGGER.setLevel(loglevel[arguments.loglevel])
+    HANDLER.setLevel(loglevel[arguments.loglevel])
 
     casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
@@ -877,8 +917,7 @@ if __name__ == "__main__":
                         "-v",
                         dest="loglevel",
                         action='count',
-                        metavar="LOGLEVEL",
-                        default=None,
+                        default=0,
                         help="Increase the verbosity level by adding 'v's."
                         )
 
