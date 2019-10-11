@@ -381,10 +381,6 @@ class CancerSimulator(object):
         true_vaf=self.tumourGrowth()
         #print(true_vaf)
 
-
-        self.growth_plot()
-
-
         if self.__export_tumour is True:
             self.export_tumour_matrix(true_vaf)
 
