@@ -861,7 +861,8 @@ class CancerSimulator(object):
             # at the end reconstruct mutational frequencies from the whole tumour
             if step == self.parameters.number_of_generations-1:
 
-                bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
+                reconstructed = self.mutation_reconstruction()
+                bulk_vaf=self.bulk_seq(reconstructed, step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
 
                 bulk_vaf=self.increase_mut_number(bulk_vaf)
                 logging.info('1 %s', str(bulk_vaf[0:10]))
@@ -879,7 +880,8 @@ def main(arguments):
     parameters = CancerSimulatorParameters()
 
     if "params.py" in os.listdir(os.getcwd()):
-        # Need to modify sys.path to make sure we import params.py from current working directory.
+
+        ### FIXME: use from . import params
         sys.path.insert(0, os.getcwd())
         import params
 
