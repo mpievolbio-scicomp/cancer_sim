@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .conda_env/
 .eggs/
 CaSim.egg-info/
@@ -6,6 +5,3 @@ __pycache__/
 .*.*.swp
 docs/build/
 tags
-=======
-# Created by .ignore support plugin (hsz.mobi)
->>>>>>> master

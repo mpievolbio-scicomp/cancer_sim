@@ -35,7 +35,8 @@ FORMATTER=logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(HANDLER)
 
-class CancerSimulatorParameters():
+
+class CancerSimulatorParameters(object):
     """
         :class CancerSimulatorParameters: Represents the parameters for a cancer simulation.
     """
@@ -885,7 +886,7 @@ def main(arguments):
                                                number_of_generations =               params.num_of_generations,
                                                division_probability =                params.div_probability,
                                                advantageous_division_probability =   params.fittnes_advantage_div_prob,
-                                               death_probability =                   params.death_probability,
+                                               death_probability =                   params.dying_fraction,
                                                fitness_advantage_death_probability = params.fitness_advantage_death_prob,
                                                mutation_rate =                       params.mut_rate,
                                                advantageous_mutation_probability =   params.advantageous_mut_prob,

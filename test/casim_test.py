@@ -370,6 +370,7 @@ class CancerSimulatorTest(unittest.TestCase):
         for f in ['mtx.p', 'mut_container.p', 'death_list.p', 'mtx_VAF.txt']:
             self.assertIn(f, listing)
 
+
 class casim_test(unittest.TestCase):
     """ :class: Test class for the casim """
 
@@ -429,7 +430,6 @@ class casim_test(unittest.TestCase):
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
-
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
@@ -464,20 +464,7 @@ class casim_test(unittest.TestCase):
         mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         # self.assertRegex(sim_out, mut_container_regex)
 
+
 if __name__ == "__main__":
 
     unittest.main()
-
-    ## Setup the test suite.
-    #suite = unittest.makeSuite(casim_test, 'test')
-
-    ## Run the suite.
-    #result = unittest.TextTestRunner(verbosity=2).run(suite)
-
-    ## Report test results.
-    #if result.wasSuccessful():
-        #print('---> All tests passed. <---')
-        #sys.exit(0)
-
-    #sys.exit(1)
-
