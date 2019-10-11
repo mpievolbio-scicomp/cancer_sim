@@ -1,61 +1,164 @@
-#name: casim
-#channels:
-#- defaults
-#dependencies:
-blas=1.0=mkl
-ca-certificates=2019.1.23=0
-certifi=2019.3.9=py37_0
-cycler=0.10.0=py37_0
-dbus=1.13.6=h746ee38_0
-dill=0.2.9=py37_0
-expat=2.2.6=he6710b0_0
-fontconfig=2.13.0=h9420a91_0
-freetype=2.9.1=h8a8886c_1
-glib=2.56.2=hd408876_0
-gst-plugins-base=1.14.0=hbbd80ab_1
-gstreamer=1.14.0=hb453b48_1
-icu=58.2=h9c2bf20_1
-intel-openmp=2019.3=199
-jpeg=9b=h024ee3a_2
-kiwisolver=1.1.0=py37he6710b0_0
-libedit=3.1.20181209=hc058e9b_0
-libffi=3.2.1=hd88cf55_4
-libgcc-ng=8.2.0=hdf63c60_1
-libgfortran-ng=7.3.0=hdf63c60_0
-libpng=1.6.37=hbc83047_0
-libstdcxx-ng=8.2.0=hdf63c60_1
-libuuid=1.0.3=h1bed415_2
-libxcb=1.13=h1bed415_1
-libxml2=2.9.9=he19cac6_0
-matplotlib=3.0.3=py37h5429711_0
-mkl=2019.3=199
-mkl_fft=1.0.12=py37ha843d7b_0
-mkl_random=1.0.2=py37hd81dba3_0
-ncurses=6.1=he6710b0_1
-numpy=1.16.3=py37h7e9f1db_0
-numpy-base=1.16.3=py37hde5b4d6_0
-openssl=1.1.1b=h7b6447c_1
-pandas=0.24.2=py37he6710b0_0
-patsy=0.5.1=py37_0
-pcre=8.43=he6710b0_0
-pip=19.1.1=py37_0
-pyparsing=2.4.0=py_0
-pyqt=5.9.2=py37h05f1152_2
-python=3.7.3=h0371630_0
-python-dateutil=2.8.0=py37_0
-pytz=2019.1=py_0
-qt=5.9.7=h5867ecd_1
-readline=7.0=h7b6447c_5
-scipy=1.2.1=py37h7c811a0_0
-seaborn=0.9.0=py37_0
-setuptools=41.0.1=py37_0
-sip=4.19.8=py37hf484d3e_0
-six=1.12.0=py37_0
-sqlite=3.28.0=h7b6447c_0
-statsmodels=0.9.0=py37h035aef0_0
-tk=8.6.8=hbc83047_0
-tornado=6.0.2=py37h7b6447c_0
-wheel=0.33.4=py37_0
-xz=5.2.4=h14c3975_4
-zlib=1.2.11=h7b6447c_3
-
+name: casim
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1
+  - alabaster=0.7.12
+  - asn1crypto=1.0.1
+  - attrs=19.1.0
+  - babel=2.7.0
+  - backcall=0.1.0
+  - blas=1.0
+  - bleach=3.1.0
+  - bzip2=1.0.8
+  - ca-certificates=2019.9.11
+  - cairo=1.14.12
+  - certifi=2019.9.11
+  - cffi=1.12.3
+  - chardet=3.0.4
+  - cryptography=2.7
+  - cycler=0.10.0
+  - dbus=1.13.6
+  - decorator=4.4.0
+  - defusedxml=0.6.0
+  - dill=0.2.9
+  - docutils=0.15.2
+  - entrypoints=0.3
+  - expat=2.2.6
+  - fftw=3.3.8
+  - fontconfig=2.13.0
+  - freetype=2.9.1
+  - gdk-pixbuf=2.36.12
+  - gettext=0.19.8.1
+  - ghostscript=9.22
+  - giflib=5.1.9
+  - glib=2.56.2
+  - gmp=6.1.2
+  - gobject-introspection=1.56.1
+  - graphite2=1.3.13
+  - graphviz=2.38.0
+  - gst-plugins-base=1.14.0
+  - gstreamer=1.14.0
+  - harfbuzz=1.9.0
+  - icu=58.2
+  - idna=2.8
+  - imagemagick=7.0.8_11
+  - imagesize=1.1.0
+  - intel-openmp=2019.3
+  - ipdb=0.12
+  - ipykernel=5.1.0
+  - ipython=7.5.0
+  - ipython_genutils=0.2.0
+  - jbig=2.1
+  - jedi=0.13.3
+  - jinja2=2.10.1
+  - jpeg=9c
+  - jsonschema=3.0.1
+  - jupyter_client=5.2.4
+  - jupyter_core=4.4.0
+  - kiwisolver=1.1.0
+  - libcroco=0.6.12
+  - libedit=3.1.20181209
+  - libffi=3.2.1
+  - libgcc-ng=8.2.0
+  - libgfortran-ng=7.3.0
+  - libpng=1.6.37
+  - librsvg=2.40.19
+  - libsodium=1.0.16
+  - libstdcxx-ng=8.2.0
+  - libtiff=4.0.10
+  - libtool=2.4.6
+  - libuuid=1.0.3
+  - libwebp=0.5.2
+  - libxcb=1.13
+  - libxml2=2.9.9
+  - lz4-c=1.8.3
+  - markupsafe=1.1.1
+  - matplotlib=3.0.3
+  - mistune=0.8.4
+  - mkl=2019.3
+  - mkl_fft=1.0.12
+  - mkl_random=1.0.2
+  - nb_conda=2.2.1
+  - nb_conda_kernels=2.2.1
+  - nbconvert=5.5.0
+  - nbformat=4.4.0
+  - nbsphinx=0.4.3
+  - ncurses=6.1
+  - notebook=5.7.8
+  - numpy=1.16.3
+  - numpy-base=1.16.3
+  - openjpeg=2.3.1
+  - openssl=1.1.1c
+  - packaging=19.2
+  - pandas=0.24.2
+  - pandoc=2.2.3.2
+  - pandocfilters=1.4.2
+  - pango=1.40.14
+  - parso=0.4.0
+  - patsy=0.5.1
+  - pcre=8.43
+  - perl=5.26.2
+  - pexpect=4.7.0
+  - pickleshare=0.7.5
+  - pip=19.1.1
+  - pixman=0.38.0
+  - pkg-config=0.29.2
+  - prometheus_client=0.6.0
+  - prompt_toolkit=2.0.9
+  - ptyprocess=0.6.0
+  - pycparser=2.19
+  - pygments=2.4.2
+  - pyopenssl=19.0.0
+  - pyparsing=2.4.0
+  - pyqt=5.9.2
+  - pyrsistent=0.14.11
+  - pysocks=1.7.1
+  - python=3.7.3
+  - python-dateutil=2.8.0
+  - pytz=2019.1
+  - pyzmq=18.0.0
+  - qt=5.9.7
+  - readline=7.0
+  - requests=2.22.0
+  - scipy=1.2.1
+  - send2trash=1.5.0
+  - setuptools=41.0.1
+  - sip=4.19.8
+  - six=1.12.0
+  - snowballstemmer=2.0.0
+  - sphinx=2.2.0
+  - sphinxcontrib-applehelp=1.0.1
+  - sphinxcontrib-devhelp=1.0.1
+  - sphinxcontrib-htmlhelp=1.0.2
+  - sphinxcontrib-jsmath=1.0.1
+  - sphinxcontrib-qthelp=1.0.2
+  - sphinxcontrib-serializinghtml=1.1.3
+  - sqlite=3.28.0
+  - statsmodels=0.9.0
+  - terminado=0.8.2
+  - testpath=0.4.2
+  - tk=8.6.8
+  - tornado=6.0.2
+  - traitlets=4.3.2
+  - urllib3=1.24.2
+  - wand=0.5.6
+  - wcwidth=0.1.7
+  - webencodings=0.5.1
+  - wheel=0.33.4
+  - xorg-kbproto=1.0.7
+  - xorg-libice=1.0.10
+  - xorg-libsm=1.2.2
+  - xorg-libx11=1.6.9
+  - xorg-libxext=1.3.4
+  - xorg-libxpm=3.5.12
+  - xorg-libxrender=0.9.10
+  - xorg-libxt=1.1.5
+  - xorg-renderproto=0.11.1
+  - xorg-xextproto=7.3.0
+  - xorg-xproto=7.0.31
+  - xz=5.2.4
+  - zeromq=4.3.1
+  - zlib=1.2.11
+  - zstd=1.4.0
