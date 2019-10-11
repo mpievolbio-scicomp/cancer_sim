@@ -84,7 +84,7 @@ class CancerSimulatorParameters():
         :param mutations_per_division: The number of mutations per division
         :type  mutations_per_division: int
 
-        :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation occurs.
+        :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation can occur.
         :type  time_of_advantageous_mutation: int
 
         :param number_of_clonal: Scale up each mutation by this factor.
@@ -338,15 +338,6 @@ class CancerSimulator(object):
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
 
-        #ctDNA_lifetime=self.parameters.ctDNA_lifetime
-
-        #s = np.random.poisson(self.parameters.mutations_per_division, 100000)
-        # introducing cancer cell
-
-        # value within matrix represents index of the mutation container
-        # in this case number one point towards (0,1).
-        #print ('single or double',self.__single_or_double_tumour)
-
         if self.__tumour_multiplicity == 'single':
             LOGGER.info('Running in single tumour mode.')
             initLoc=(int(matrix_size*0.5),int(matrix_size*0.5))
@@ -384,8 +375,14 @@ class CancerSimulator(object):
 
         seed=self.__seed
         prng.seed(seed)
-
+        #run growth function
+        #output variable (true_vaf) is list of tuples with mutation id and frequency of mutation in the tumour [(mut_id, frequency),...] 
         true_vaf=self.tumourGrowth()
+        #print(true_vaf)
+
+
+        self.growth_plot()
+
 
         if self.__export_tumour is True:
             self.export_tumour_matrix(true_vaf)
@@ -419,8 +416,21 @@ class CancerSimulator(object):
         with open(os.path.join(self.__simdir, 'death_list.p'),'wb') as fp:
             pickle.dump(self.__death_list, fp)
 
+    def growth_plot(self):
+    #Plots number of cancer cells over time and outputs it in .pdf
+        
+        plt.plot([x/2 for x in range(len(self.__growth_plot_data))], self.__growth_plot_data)
+        
+        plt.xlabel('Division cycle')
+        plt.ylabel('Number of tumour cells')
+        plt.savefig('./growthCurve.pdf')
+
+        plt.clf()    
+
+
+
     def sampling(self, sample):
-        """ Take a sample from the tumour.
+        """ Takes a subset of cells and abundances of mutations present in the sample.
 
         :param sample: The sample (cell indices)
         :type  sample: list
@@ -470,6 +480,7 @@ class CancerSimulator(object):
         :type  solid_pre_vaf: list
 
         """
+        ### FIXME: needs implementation.
         solid_extended_vaf=[]
 
         target_mut_solid=[]
@@ -502,8 +513,10 @@ class CancerSimulator(object):
         :type cell: tuple (i,j) of cell indices.
         :param int step: The time step in the simulation
         """
-
-        self.__pool.remove(cell)
+        #removes cell from the pool
+        self.__pool.remove(cell) 
+        
+        #resets value of position on matrix to zero
         self.__mtx[cell]=0
 
     def deathStep(self, step):
@@ -512,9 +525,6 @@ class CancerSimulator(object):
         :param int step: The time step in the simulation
 
         """
-
-        #toDie=prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool)))
-        #print('to die', toDie)
         for i in prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool))):
             self.terminate_cell(i, step)
 
@@ -533,14 +543,10 @@ class CancerSimulator(object):
         :param sampling_or_fullTumour: Flag to control whether the full tumour or just a sample is to be histogrammed.
         :type  sampling_or_fullTumour: bool
         """
-
-        vaf_bulk=[]
-        cellnum=[]
-
-
+        #flattens the list of mutations
         reduced=list(itertools.chain(*[j for j in DNA]))  #flatten the list of mutations
 
-        ### New implementation, using numpy.histogram
+        ### NOTE: New implementation, using numpy.histogram
         # Get range and number of bins for histogram.
         mn, mx = np.min(reduced), np.max(reduced)
         bins = mx-mn
@@ -563,10 +569,10 @@ class CancerSimulator(object):
         return vaf_bulk
 
     def mutation_reconstruction(self):
-        """ Reconstruct the mutation history of the given cell.
+        """ Reconstructs list of mutations of individual cell by going thorough its ancestors.
 
-        :param cell: The cell to untangle.
-        :type  cell: int
+        :param cell: Cell for which mutational profile will be recovered.
+        :type cell: tuple (i,j) of cell indices.
 
         """
         # Return container.
@@ -693,12 +699,7 @@ class CancerSimulator(object):
         return [y for y in neighboursList if self.__mtx[y]==0]
 
     def place_to_divide(self):
-        """ Selects random unocupied place on the matrix where cell will divide
-
-        :param <+variable name+>: <+variable doc+>
-        :type  <+variable name+>: <+type of variable+>
-
-        """
+        """ Selects random unoccupied place on the matrix where cell will divide."""
 
         a = prng.randint(0,self.parameters.matrix_size-1)
         b = prng.randint(0,self.parameters.matrix_size-1)
@@ -726,14 +727,13 @@ class CancerSimulator(object):
         :param list pool: The (temporary) pool of cells.
 
         """
-
+        #print('pool ',self.__pool)
         if benefitial:
 
             # Draw a free neighbor.
             place_to_divide=prng.choice(neighbors)
             pool.append(place_to_divide)
-
-            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, True)
+            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool,place_to_divide, True)
 
             return mutation_counter
 
@@ -784,10 +784,11 @@ class CancerSimulator(object):
 
             else:
                 # Decide whether an advantageous mutation occurs.
+                ## hmm problem... if there is no "normal mutation" then cell will never get advantageous mutation. if adv_mut_prob is 1 at turn x,  mutation it should happen 
                 if prng.random()<self.parameters.advantageous_mutation_probability \
                         and len(self.__benefitial_mutation)==0 \
                         and step==self.parameters.time_of_advantageous_mutation:
-                    LOGGER.info('new benefitial mutation: %d', int(self.__mtx[place_to_divide]))
+                    LOGGER.info('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
@@ -799,15 +800,71 @@ class CancerSimulator(object):
 
         # No new mutation.
         else:
-            LOGGER.info('No new mutation in normal division, inhereting from parent')
+            LOGGER.info('No new mutation in normal division, inheriting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
-            ### NOTE: Why only here (taken from original code).
-            #hmm i think this is not needed now that pool append is in division function, it puts double entries
-            # if not benefitial:
-            #     pool.append(place_to_divide)
-
         return mutation_counter
+
+    def tumourGrowth(self):
+        """ Run the tumour growth simulation.  """
+
+        # setup a counter to keep track of number of mutations that occur in this run.
+        mutation_counter=1   
+        
+        # Loop over time steps.
+        for step in range(self.parameters.number_of_generations):
+            #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
+            logging.info('step in cancer growth: %d', step)
+
+            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
+
+            # setup a temporary list to store the mutated cells in this iteration.
+            temp_pool=[]
+
+            # reshuffle the order of pool to avoid that cells with low number divide always first.
+            shuffle(self.__pool)
+
+            logging.info('list of cancer cells %s', str(self.__pool))
+
+            # Loop over all cells in the pool.
+            for cell in self.__pool:
+                logging.info('cell to divide %s', str(cell))
+
+                # Get the existing neighboring cells.
+                neigh=self.neighbours(cell)
+
+                # first condition: if available neighbors
+                if neigh:
+                    # if cell has benefitial mutation.
+                    if self.__mtx[cell] in self.__benefitial_mutation:
+                        # cell divides with greater probability.
+                        if prng.random()<self.parameters.advantageous_division_probability:
+                            print('advantageous start')
+                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
+
+                    # cell does not have benefitial mutation -> normal division.
+                    else:
+                        if prng.random()<self.parameters.division_probability:
+                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
+                        # else:
+                        #     print('normal cell failed to divide')
+            
+            # add new cancer cells to a pool of cells available for division next round
+            
+            [self.__pool.append(v) for v in temp_pool]
+            self.__growth_plot_data.append(len(self.__pool))
+
+            self.deathStep(step)
+            self.__growth_plot_data.append(len(self.__pool))
+            # at the end reconstruct mutational frequencies from the whole tumour
+            if step == self.parameters.number_of_generations-1:
+
+                bulk_vaf=self.bulk_seq([self.mutation_reconstruction(self.__mtx[i]) for i in self.__pool], step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
+
+                bulk_vaf=self.increase_mut_number(bulk_vaf)
+                logging.info('1 %s', str(bulk_vaf[0:10]))
+
+                return bulk_vaf
 
 def main(arguments):
     """ The entry point for the command line interface.
@@ -854,6 +911,7 @@ def main(arguments):
 
     casim.run()
 
+
 def check_set_number(value, typ, default=None, minimum=None, maximum=None):
     """ Checks if a value is instance of type and lies within permissive_range if given. """
 
@@ -876,6 +934,7 @@ def check_set_number(value, typ, default=None, minimum=None, maximum=None):
 
     return value
 
+
 def load_cancer_simulation(dumpfile):
     """ Unpickle a cancer simulation from a dill generated dump.
     :param dumpfile: Path to the file that contains the dumped object.
@@ -887,7 +946,7 @@ def load_cancer_simulation(dumpfile):
 
     return obj
 
-#Avoid execution of main if the script is imported as a module
+
 if __name__ == "__main__":
     # Entry point
     # Setup the command line parser.
