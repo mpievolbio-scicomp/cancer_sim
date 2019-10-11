@@ -512,6 +512,7 @@ class CancerSimulator(object):
 
         :param cell: cell chosen for termination
         :type cell: tuple (i,j) of cell indices.
+
         :param int step: The time step in the simulation
         """
         #removes cell from the pool
