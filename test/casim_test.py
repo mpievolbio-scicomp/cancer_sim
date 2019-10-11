@@ -2,16 +2,19 @@
 
 # Import class to be tested.
 from casim import casim
-from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number
+from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation, LOGGER
 
 from collections import namedtuple
 from test_utilities import _remove_test_files
 from io import StringIO
-import logging
 import numpy
+import logging
+from subprocess import Popen
 import re
+import os
 import sys
 import unittest
+from tempfile import mkdtemp
 
 class CancerSimulatorParametersTest(unittest.TestCase):
     """ :class: Test class for the CancerSimulator """
@@ -55,6 +58,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,                1  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
         self.assertEqual(parameters.number_of_clonal,                     1   )
+        self.assertEqual(parameters.tumour_multiplicity,              'single')
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
@@ -71,6 +75,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 mutations_per_division =                10  ,
                                 time_of_advantageous_mutation =      30000  ,
                                 number_of_clonal =                       2  ,
+                                tumour_multiplicity =                'single',
                                                 )
 
         self.assertEqual(parameters.matrix_size,                          20  )
@@ -84,7 +89,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutations_per_division,               10  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
         self.assertEqual(parameters.number_of_clonal,                      2  )
-
+        self.assertEqual(parameters.tumour_multiplicity,               'single' )
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -227,6 +232,144 @@ class CancerSimulatorTest(unittest.TestCase):
             self.assertEqual(r[0], m[0])
             self.assertEqual(r[1], m[1])
 
+    def test_setup_io(self):
+        """ Test the IO handling. """
+
+        default_parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
+
+        self.assertIsNone(cancer_sim.outdir)
+        self.assertIsNone(cancer_sim._CancerSimulator__seeddir)
+        self.assertIsNone(cancer_sim._CancerSimulator__logdir)
+        self.assertIsNone(cancer_sim._CancerSimulator__simdir)
+
+        # Create an empty dir.
+        tmpdir = mkdtemp()
+        self._test_files.append(tmpdir)
+
+        # This should work.
+        cancer_sim.outdir = tmpdir
+
+        # Check value.
+        self.assertEqual(cancer_sim.outdir, tmpdir)
+
+        # Get seed dir.
+        seeddir = os.path.join(tmpdir, 'cancer_%d' % cancer_sim._CancerSimulator__seed)
+        self.assertEqual(cancer_sim._CancerSimulator__seeddir, seeddir)
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__seeddir))
+
+        # Check all subdirectories are correctly named and exist.
+
+        self.assertEqual(cancer_sim._CancerSimulator__logdir,
+                         os.path.join(seeddir, 'log'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
+
+        self.assertEqual(cancer_sim._CancerSimulator__simdir,
+                         os.path.join(seeddir, 'simOutput'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
+
+        # Check export_tumour flag
+        self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
+
+        # But not twice.
+        with self.assertRaises(IOError) as exc:
+            cancer_sim.outdir = tmpdir
+
+    def prototype_dill(self):
+        """ Prototype for dumping and entire simulation object as dill. """
+        import dill
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+
+        # dump before run.
+        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'wb') as fp:
+            dill.dump(cancer_sim, fp)
+
+        # Reload
+        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'rb') as fp:
+            loaded_simulation = dill.load(fp)
+
+        self.assertIsInstance(loaded_simulation, CancerSimulator)
+
+        # Check parameters.
+        loaded_parameters = loaded_simulation.parameters
+
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
+        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
+        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
+        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
+        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
+        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
+        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
+        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
+        self.assertEqual(loaded_parameters.tumour_multiplicity,                  parameters.tumour_multiplicity)
+        self.assertEqual(loaded_simulation.outdir,                               cancer_sim.outdir)
+
+        # Check we can run.
+        loaded_simulation.run()
+
+        # dump again.
+        with open(os.path.join(loaded_simulation.outdir, 'CancerSimulation_run.py.dill'), 'wb') as fp:
+            dill.dump(loaded_simulation, fp)
+
+    def test_serialize(self):
+        """ The the serialization of the entire object. """
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+
+        # dump before run.
+        cancer_sim.dump()
+
+        # Reload
+        loaded_simulation = load_cancer_simulation(cancer_sim.dumpfile)
+
+        self.assertIsInstance(loaded_simulation, CancerSimulator)
+
+        # Check parameters.
+        loaded_parameters = loaded_simulation.parameters
+
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
+        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
+        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
+        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
+        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
+        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
+        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
+        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
+        self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
+
+        # Check we can run.
+        loaded_simulation.run()
+
+        # dump again.
+        loaded_simulation.dump()
+
+        # Load again
+        loaded_again_simulation = load_cancer_simulation(loaded_simulation.dumpfile)
+
+        # Run once more.
+        loaded_again_simulation.run()
+
+    def test_export_tumour_matrix(self):
+        """ Test exporting the tumour matrix. """
+
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir = mkdtemp())
+        cancer_sim.run()
+
+        # Check files where created.
+        listing = os.listdir(cancer_sim._CancerSimulator__simdir)
+        for f in ['mtx.p', 'mut_container.p', 'death_list.p', 'mtx_VAF.txt']:
+            self.assertIn(f, listing)
+
 
 class casim_test(unittest.TestCase):
     """ :class: Test class for the casim """
@@ -254,19 +397,55 @@ class casim_test(unittest.TestCase):
         """ Tear down the test instance. """
         _remove_test_files(self._test_files)
 
+    def test_cli(self):
+        """ Test the command line interface. """
+        # Setup command.
+        python = "python"
+        module = casim.__file__
+
+        # Run with seed only.
+        args = ['1']
+
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
+        # Run with positional argument.
+        outdir = 'cancer_sim_output'
+        self._test_files.append(outdir)
+        args += ['-o', outdir ]
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
+        # run with positional argument (long version).
+        args = ['2', '--outdir', outdir]
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
+        # run with positional argument (long version).
+        args = ['3', '--outdir', outdir, '-vv']
+        proc = Popen([python, module] + args)
+        proc.wait()
+        self.assertEqual(proc.returncode, 0)
+
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
-
-        arguments = namedtuple('arguments', ('seed'))
+        arguments = namedtuple('arguments', ('seed', 'outdir', 'loglevel'))
         arguments.seed = 1
+        arguments.outdir='cancer_sim_out'
+        arguments.loglevel = 2
+        self._test_files.append(arguments.outdir)
 
         # Capture stdout.
         stream = StringIO()
-        log = logging.getLogger()
+        log = LOGGER
         for handler in log.handlers:
-            log.removeHandler(handler)
+           log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
+        myhandler.setLevel(logging.DEBUG)
         log.addHandler(myhandler)
 
         # Run the simulation.
@@ -282,28 +461,10 @@ class casim_test(unittest.TestCase):
         log.removeHandler(myhandler)
         handler.close()
 
-        print(sim_out)
+        mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
+        # self.assertRegex(sim_out, mut_container_regex)
 
-        mut_container_regex = re.compile(r".*mut container updated: \[\(0, 0\), \(0, 1\), \(1, 2\), \(1, 3\), \(3, 4\), \(3, 5\), \(2, 6\)\]")
-        self.assertRegex(sim_out, mut_container_regex)
-
-        matrix_row_regex = re.compile(r" \[0 0 0 0 0 5 7 0 0 0\]")
-        self.assertRegex(sim_out, matrix_row_regex)
 
 if __name__ == "__main__":
 
     unittest.main()
-
-    ## Setup the test suite.
-    #suite = unittest.makeSuite(casim_test, 'test')
-
-    ## Run the suite.
-    #result = unittest.TextTestRunner(verbosity=2).run(suite)
-
-    ## Report test results.
-    #if result.wasSuccessful():
-        #print('---> All tests passed. <---')
-        #sys.exit(0)
-
-    #sys.exit(1)
-
