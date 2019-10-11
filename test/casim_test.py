@@ -53,7 +53,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.division_probability,                  1  )
         self.assertEqual(parameters.advantageous_division_probability,     1  )
         self.assertEqual(parameters.death_probability,                     0  )
-        self.assertEqual(parameters.fitness_advantage_death_probability,   0.0)
+        self.assertEqual(parameters.advantageous_death_probability,   0.0)
         self.assertEqual(parameters.mutation_rate,                         0.8)
         self.assertEqual(parameters.advantageous_mutation_probability,     1  )
         self.assertEqual(parameters.mutations_per_division,                1  )
@@ -70,7 +70,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 division_probability =                   0.5,
                                 advantageous_division_probability =      0.3,
                                 death_probability =                      0.1,
-                                fitness_advantage_death_probability =    0.4,
+                                advantageous_death_probability =    0.4,
                                 mutation_rate =                          0.2,
                                 advantageous_mutation_probability =      0.8,
                                 mutations_per_division =                10  ,
@@ -84,7 +84,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.division_probability,                  0.5)
         self.assertEqual(parameters.advantageous_division_probability,     0.3)
         self.assertEqual(parameters.death_probability,                     0.1)
-        self.assertEqual(parameters.fitness_advantage_death_probability,   0.4)
+        self.assertEqual(parameters.advantageous_death_probability,   0.4)
         self.assertEqual(parameters.mutation_rate,                         0.2)
         self.assertEqual(parameters.advantageous_mutation_probability,     0.8)
         self.assertEqual(parameters.mutations_per_division,               10  )
@@ -144,7 +144,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                 division_probability =                   0.5,
                                 advantageous_division_probability =      0.8,
                                 death_probability =                      0.1,
-                                fitness_advantage_death_probability =    0.4,
+                                advantageous_death_probability =    0.4,
                                 mutation_rate =                          0.2,
                                 advantageous_mutation_probability =      0.8,
                                 mutations_per_division =                10  ,
@@ -153,7 +153,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                )
 
 
-        cancer_sim = CancerSimulator(default_parameters, seed=1)
+        cancer_sim = CancerSimulator(default_parameters, seed=1, outdir='/tmp/1')
 
         cancer_sim.run()
 
@@ -162,27 +162,27 @@ class CancerSimulatorTest(unittest.TestCase):
 
         print(matrix.todense())
         reference_matrix = numpy.array(
-                [[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 55, 54,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0, 62,  1, 52,  1,  1, 55,  1,  1,  1,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0, 63, 38, 53,  1, 36,  1,  1,  1,  0, 15,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  1, 46,  1, 39,  1,  1, 37,  1,  1, 15,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 12,  1,  1, 47,  1,  1,  1,  1,  1, 15, 22,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 28, 12, 12,  1, 35,  1,  1,  1, 15, 22, 15, 42,  0,  0,  0],
-                 [ 0,  0,  0,  0, 28, 28, 12, 10, 12,  4,  1,  1, 15, 23, 43, 42, 48,  0,  0,  0],
-                 [ 0,  0,  0,  0, 56, 12, 28, 12, 10, 13,  5,  1,  1, 25, 18, 49, 18,  0,  0,  0],
-                 [ 0,  0,  0,  0, 50, 57,  6, 29, 27, 11,  1,  3,  2,  1,  1, 18,  1,  1,  0,  0],
-                 [ 0,  0,  0,  0, 31, 51, 31, 26, 16, 17,  1,  1,  2,  2,  2,  1,  1,  1,  0,  0],
-                 [ 0,  0,  0,  0, 31, 31, 30, 26,  1,  1,  1,  1,  1,  2, 33, 41, 40,  0,  0,  0],
-                 [ 0,  0,  0,  0, 30, 30,  1,  1,  1,  1,  1,  9,  1,  1, 32, 61,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 45, 45,  1, 20, 21,  1,  8,  9,  1,  1,  0, 60,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 44,  1, 20, 21,  1,  8,  1,  8,  1,  1,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  1, 20, 20,  1,  1,  8,  8, 59,  8,  1,  1,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  8,  0, 58,  1,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
-                                      )
+                                       [[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 55, 54,  0,  0,  0,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0, 62,  1, 52,  1,  1, 55,  1,  1,  1,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0, 63, 38, 53,  1, 36,  1,  1,  1,  0, 15,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  1, 46,  1, 39,  1,  1, 37,  1,  1, 15,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0, 12,  1,  1, 47,  1,  1,  1,  1,  1, 15, 22,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0, 28, 12, 12,  1, 35,  1,  1,  1, 15, 22, 15, 42,  0,  0,  0],
+                                        [ 0,  0,  0,  0, 28, 28, 12, 10, 12,  4,  1,  1, 15, 23, 43, 42, 48,  0,  0,  0],
+                                        [ 0,  0,  0,  0, 56, 12, 28, 12, 10, 13,  5,  1,  1, 25, 18, 49, 18,  0,  0,  0],
+                                        [ 0,  0,  0,  0, 50, 57,  6, 29, 27, 11,  1,  3,  2,  1,  1, 18,  1,  1,  0,  0],
+                                        [ 0,  0,  0,  0, 31, 51, 31, 26, 16, 17,  1,  1,  2,  2,  2,  1,  1,  1,  0,  0],
+                                        [ 0,  0,  0,  0, 31, 31, 30, 26,  1,  1,  1,  1,  1,  2, 33, 41, 40,  0,  0,  0],
+                                        [ 0,  0,  0,  0, 30, 30,  1,  1,  1,  1,  1,  9,  1,  1, 32, 61,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0, 45, 45,  1, 20, 21,  1,  8,  9,  1,  1,  0, 60,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0, 44,  1, 20, 21,  1,  8,  1,  8,  1,  1,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  1, 20, 20,  1,  1,  8,  8, 59,  8,  1,  1,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  8,  0, 58,  1,  0,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+                                        [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
+                                       )
 
         self.assertEqual( numpy.linalg.norm(matrix - reference_matrix), 0)
 
@@ -300,7 +300,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
         self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
         self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
+        self.assertEqual(loaded_parameters.advantageous_death_probability,  parameters.advantageous_death_probability)
         self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
         self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
         self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)

@@ -9,4 +9,5 @@ advantageous_mut_prob           = 1
 mut_per_division                = 1
 time_of_adv_mut                 = 2
 num_of_clonal                   = 1
+tumour_multiplicity             = None
 

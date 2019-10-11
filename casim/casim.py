@@ -4,26 +4,25 @@ __author__ = 'Luka Opasic, MD'
 __email__ = 'opasic@evolbio.mpg.de'
 __version__ = '0.0.1'
 
+
 from argparse import ArgumentParser
-from fractions import gcd
-from matplotlib.lines import Line2D
 from random import shuffle
 from scipy.sparse import lil_matrix
-from scipy.spatial import distance
 from time import sleep, time
 from timeit import default_timer as timer
-import gc
+import dill
 import itertools
 import logging
 import math
 import matplotlib.pyplot as plt
 import numpy
-np = numpy
 import os
 import pickle
 import random as prng
 import sys
-import dill
+
+
+np = numpy
 
 # Configure logging.
 LEVEL = logging.WARNING
@@ -47,7 +46,7 @@ class CancerSimulatorParameters(object):
                  division_probability                = None,
                  advantageous_division_probability   = None,
                  death_probability                   = None,
-                 fitness_advantage_death_probability = None,
+                 advantageous_death_probability = None,
                  mutation_rate                       = None,
                  advantageous_mutation_probability   = None,
                  mutations_per_division              = None,
@@ -73,8 +72,8 @@ class CancerSimulatorParameters(object):
         :param death_probability: The probability for a cell to die during one generation.
         :type  death_probability: float (0.0 <= division_probability <= 1.0)
 
-        :param fitness_advantage_death_probability: The probability for a cell with advantageous mutation to die during one generation.
-        :type  fitness_advantage_death_probability: float (0.0 <= division_probability <= 1.0)
+        :param advantageous_death_probability: The probability for a cell with advantageous mutation to die during one generation.
+        :type  advantageous_death_probability: float (0.0 <= division_probability <= 1.0)
 
         :param mutation_rate: The rate of mutation (probability per generation).
         :type  mutation_rate: float (0.0 <= division_probability <= 1.0)
@@ -101,7 +100,7 @@ class CancerSimulatorParameters(object):
         self.division_probability = division_probability
         self.advantageous_division_probability = advantageous_division_probability
         self.death_probability = death_probability
-        self.fitness_advantage_death_probability = fitness_advantage_death_probability
+        self.advantageous_death_probability = advantageous_death_probability
         self.mutation_rate = mutation_rate
         self.advantageous_mutation_probability = advantageous_mutation_probability
         self.mutations_per_division = mutations_per_division
@@ -145,11 +144,11 @@ class CancerSimulatorParameters(object):
         self.__death_probability = check_set_number(val, float, 0, 0.0, 1.0)
 
     @property
-    def fitness_advantage_death_probability(self):
-        return self.__fitness_advantage_death_probability
-    @fitness_advantage_death_probability.setter
-    def fitness_advantage_death_probability(self, val):
-        self.__fitness_advantage_death_probability = check_set_number(val, float, 0.0, 0.0, 1.0)
+    def advantageous_death_probability(self):
+        return self.__advantageous_death_probability
+    @advantageous_death_probability.setter
+    def advantageous_death_probability(self, val):
+        self.__advantageous_death_probability = check_set_number(val, float, 0.0, 0.0, 1.0)
 
     @property
     def mutation_rate(self):
@@ -202,6 +201,7 @@ class CancerSimulatorParameters(object):
 
         self.__tumour_multiplicity = val
 
+
 class CancerSimulator(object):
     """
         :class CancerSimulator: Represents the Monte-Carlo simulation of cancer tumour growth on a 2D(3D) grid.
@@ -236,7 +236,7 @@ class CancerSimulator(object):
         self.__xaxis_histogram = None
         self.__death_list = None
         self.__biopsy_timing = None
-        self.__benefitial_mutation = []
+        self.__beneficial_mutation = []
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = self.parameters.mutations_per_division
@@ -419,16 +419,20 @@ class CancerSimulator(object):
 
     def growth_plot(self):
     #Plots number of cancer cells over time and outputs it in .pdf
-        
+
+        if self.outdir is None:
+            return
+
         plt.plot([x/2 for x in range(len(self.__growth_plot_data))], self.__growth_plot_data)
         
         plt.xlabel('Division cycle')
         plt.ylabel('Number of tumour cells')
-        plt.savefig('./growthCurve.pdf')
+        figure_path = os.path.join(self.__simdir,'growthCurve.pdf')
+        plt.savefig(figure_path)
 
-        plt.clf()    
+        LOGGER.info("Growth curve graph written to %s.", figure_path)
 
-
+        plt.clf()
 
     def sampling(self, sample):
         """ Takes a subset of cells and abundances of mutations present in the sample.
@@ -440,7 +444,7 @@ class CancerSimulator(object):
 
         dna_from_sample=[self.__mutation_reconstruction(self.__mtx[i]) for i in sample]
 
-        biopsy_raw_vaf=self.bulk_seq(dna_from_sample, self.parameters.number_of_generations, benefitial=False, sampling_or_fullTumour="Sample", )
+        biopsy_raw_vaf=self.bulk_seq(dna_from_sample, self.parameters.number_of_generations, beneficial=False, sampling_or_fullTumour="Sample", )
 
         vaf=self.increase_mut_number(biopsy_raw_vaf)
 
@@ -530,7 +534,7 @@ class CancerSimulator(object):
         for i in prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool))):
             self.terminate_cell(i, step)
 
-    def bulk_seq(self, DNA, step, benefitial, sampling_or_fullTumour):
+    def bulk_seq(self, DNA, step, beneficial, sampling_or_fullTumour):
         """ Get a histogram of mutations.
 
         :param DNA: The list of mutations to take the histogram from
@@ -539,8 +543,8 @@ class CancerSimulator(object):
         :param step: At which time step to take the sample
         :type  step: int
 
-        :param benefitial: Currently unused
-        :type  benefitial: bool
+        :param beneficial: Currently unused
+        :type  beneficial: bool
 
         :param sampling_or_fullTumour: Flag to control whether the full tumour or just a sample is to be histogrammed.
         :type  sampling_or_fullTumour: bool
@@ -563,9 +567,9 @@ class CancerSimulator(object):
         prop_of_driver=[]
         tum_size=len(DNA)
 
-        if benefitial:
+        if beneficial:
             for i in vaf_bulk:
-                if i[0]==benefitial[0]:
+                if i[0]==beneficial[0]:
                     prop_of_driver.append((i[0], i[1]/tum_size, step))
 
         return vaf_bulk
@@ -624,11 +628,8 @@ class CancerSimulator(object):
 
         # Loop over time steps.
         for step in range(self.parameters.number_of_generations):
-            #LOGGER.debug('container', str(self.mutation_container))
-            #LOGGER.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
+            LOGGER.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
             LOGGER.debug('%d/%d generation started', step, self.parameters.number_of_generations)
-
-            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
 
             # setup a temporary list to store the mutated cells in this iteration.
             temp_pool=[]
@@ -636,24 +637,24 @@ class CancerSimulator(object):
             # reshuffle the order of pool to avoid that cells with low number divide always first.
             shuffle(self.__pool)
 
-            #LOGGER.debug('list of cancer cells %s', str(self.__pool))
+            LOGGER.debug('list of cancer cells %s', str(self.__pool))
 
             # Loop over all cells in the pool.
             for cell in self.__pool:
-                #LOGGER.debug('cell to divide %s', str(cell))
+                LOGGER.debug('cell to divide %s', str(cell))
 
                 # Get the existing neighboring cells.
                 neigh=self.neighbours(cell)
 
                 # first condition: if available neighbors
                 if neigh:
-                    # if cell has benefitial mutation.
-                    if self.__mtx[cell] in self.__benefitial_mutation:
+                    # if cell has beneficial mutation.
+                    if self.__mtx[cell] in self.__beneficial_mutation:
                         # cell divides with greater probability.
-                        if prng.random()<self.parameters.fitness_advantageous_division_probability:
+                        if prng.random()<self.parameters.advantageous_division_probability:
                             mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
 
-                    # cell does not have benefitial mutation -> normal division.
+                    # cell does not have beneficial mutation -> normal division.
                     else:
                         if prng.random()<self.parameters.division_probability:
                             mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
@@ -662,6 +663,8 @@ class CancerSimulator(object):
             [self.__pool.append(v) for v in temp_pool]
             self.__growth_plot_data.append(len(self.__pool))
 
+            self.deathStep(step)
+            self.__growth_plot_data.append(len(self.__pool))
 
             # at the end reconstruct mutational frequencies from the whole tumour
             if step == self.parameters.number_of_generations-1:
@@ -670,7 +673,7 @@ class CancerSimulator(object):
                 reconstructed = self.mutation_reconstruction()
 
                 LOGGER.info("Reconstruction done,  get statistics.")
-                bulk_vaf=self.bulk_seq(reconstructed, step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
+                bulk_vaf=self.bulk_seq(reconstructed, step, self.__beneficial_mutation, sampling_or_fullTumour="Full")
 
                 LOGGER.info("Statistics done,  amplify mutations.")
                 bulk_vaf=self.increase_mut_number(bulk_vaf)
@@ -718,19 +721,18 @@ class CancerSimulator(object):
 
             return a, b
 
-    def division(self, cell, benefitial, neighbors, step, mutation_counter, pool):
+    def division(self, cell, beneficial, neighbors, step, mutation_counter, pool):
         """ Perform a cell division.
 
         :param tuple cell: The mother cell coordinates.
-        :param bool benefitial: Flag to indicate if the cell carries the benefitial mutation.
+        :param bool beneficial: Flag to indicate if the cell carries the beneficial mutation.
         :param list neighbors: The neighboring cells.
         :param int step: The time step in the simulation
         :param int mutation_counter: The counter of mutations to be updated
         :param list pool: The (temporary) pool of cells.
 
         """
-        #print('pool ',self.__pool)
-        if benefitial:
+        if beneficial:
 
             # Draw a free neighbor.
             place_to_divide=prng.choice(neighbors)
@@ -744,9 +746,8 @@ class CancerSimulator(object):
             place_to_divide=prng.choice(neighbors)
             pool.append(place_to_divide)
 
-            # Log.
-            # LOGGER.debug('index of the mother cell: %s', str(self.__mtx[cell]))
-            # LOGGER.debug('random neighbor to divide: %s', str(place_to_divide))
+            LOGGER.debug('index of the mother cell: %s', str(self.__mtx[cell]))
+            LOGGER.debug('random neighbor to divide: %s', str(place_to_divide))
 
             mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, place_to_divide, False)
 
@@ -760,11 +761,11 @@ class CancerSimulator(object):
         :param mutation_counter: The current number of mutations, to be incremented.
         :param pool: The pool of all cells.
         :param place_to_divide: The position at which the mutation occurs.
-        :param benefitial: Flag to control whether the mutation is benefitial or not.
+        :param beneficial: Flag to control whether the mutation is beneficial or not.
 
         """
 
-        cell, neighbors, step, mutation_counter, pool, place_to_divide, benefitial = args
+        cell, neighbors, step, mutation_counter, pool, place_to_divide, beneficial = args
 
         # Mutation.
         if prng.random()<self.parameters.mutation_rate:
@@ -781,17 +782,17 @@ class CancerSimulator(object):
             LOGGER.debug("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
             LOGGER.debug('mut container updated: %s', str(self.__mut_container))
 
-            if benefitial:
-                self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
+            if beneficial:
+                self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
             else:
                 # Decide whether an advantageous mutation occurs.
-                ## hmm problem... if there is no "normal mutation" then cell will never get advantageous mutation. if adv_mut_prob is 1 at turn x,  mutation it should happen 
+                ### FIXME: if there is no "normal mutation" then cell will never get advantageous mutation. if adv_mut_prob is 1 at turn x,  mutation it should happen
                 if prng.random()<self.parameters.advantageous_mutation_probability \
-                        and len(self.__benefitial_mutation)==0 \
+                        and len(self.__beneficial_mutation)==0 \
                         and step==self.parameters.time_of_advantageous_mutation:
                     LOGGER.info('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
-                    self.__benefitial_mutation.append(int(self.__mtx[place_to_divide]))
+                    self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
             mutation_counter=mutation_counter+1
@@ -807,68 +808,6 @@ class CancerSimulator(object):
 
         return mutation_counter
 
-    def tumourGrowth(self):
-        """ Run the tumour growth simulation.  """
-
-        # setup a counter to keep track of number of mutations that occur in this run.
-        mutation_counter=1   
-        
-        # Loop over time steps.
-        for step in range(self.parameters.number_of_generations):
-            #logging.info("Cell matrix: \n%s", str(self.__mtx.todense()))
-            logging.info('step in cancer growth: %d', step)
-
-            # bulk_vaf=self.bulk_seq([mutation_reconstruction(self.__mtx[i]) for i in pool], step, self.__benefitial_mutation)
-
-            # setup a temporary list to store the mutated cells in this iteration.
-            temp_pool=[]
-
-            # reshuffle the order of pool to avoid that cells with low number divide always first.
-            shuffle(self.__pool)
-
-            logging.info('list of cancer cells %s', str(self.__pool))
-
-            # Loop over all cells in the pool.
-            for cell in self.__pool:
-                logging.info('cell to divide %s', str(cell))
-
-                # Get the existing neighboring cells.
-                neigh=self.neighbours(cell)
-
-                # first condition: if available neighbors
-                if neigh:
-                    # if cell has benefitial mutation.
-                    if self.__mtx[cell] in self.__benefitial_mutation:
-                        # cell divides with greater probability.
-                        if prng.random()<self.parameters.advantageous_division_probability:
-                            print('advantageous start')
-                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
-
-                    # cell does not have benefitial mutation -> normal division.
-                    else:
-                        if prng.random()<self.parameters.division_probability:
-                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
-                        # else:
-                        #     print('normal cell failed to divide')
-            
-            # add new cancer cells to a pool of cells available for division next round
-            
-            [self.__pool.append(v) for v in temp_pool]
-            self.__growth_plot_data.append(len(self.__pool))
-
-            self.deathStep(step)
-            self.__growth_plot_data.append(len(self.__pool))
-            # at the end reconstruct mutational frequencies from the whole tumour
-            if step == self.parameters.number_of_generations-1:
-
-                reconstructed = self.mutation_reconstruction()
-                bulk_vaf=self.bulk_seq(reconstructed, step, self.__benefitial_mutation, sampling_or_fullTumour="Full")
-
-                bulk_vaf=self.increase_mut_number(bulk_vaf)
-                logging.info('1 %s', str(bulk_vaf[0:10]))
-
-                return bulk_vaf
-
 def main(arguments):
     """ The entry point for the command line interface.
 
@@ -881,7 +820,6 @@ def main(arguments):
 
     if "params.py" in os.listdir(os.getcwd()):
 
-        ### FIXME: use from . import params
         sys.path.insert(0, os.getcwd())
         import params
 
@@ -890,7 +828,7 @@ def main(arguments):
                                                division_probability =                params.div_probability,
                                                advantageous_division_probability =   params.fittnes_advantage_div_prob,
                                                death_probability =                   params.dying_fraction,
-                                               fitness_advantage_death_probability = params.fitness_advantage_death_prob,
+                                               advantageous_death_probability = params.fitness_advantage_death_prob,
                                                mutation_rate =                       params.mut_rate,
                                                advantageous_mutation_probability =   params.advantageous_mut_prob,
                                                mutations_per_division =              params.mut_per_division,
