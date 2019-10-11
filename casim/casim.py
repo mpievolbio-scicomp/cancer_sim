@@ -22,12 +22,8 @@ np = numpy
 import os
 import pickle
 import random as prng
-import scipy.sparse as sp
-import seaborn as sns
-import subprocess
 import sys
 import dill
-from tempfile import mkstemp
 
 # Configure logging.
 LEVEL = logging.WARNING
@@ -395,6 +391,9 @@ class CancerSimulator(object):
             self.export_tumour_matrix(true_vaf)
 
         end=timer()
+
+        self.growth_plot()
+
         LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
     def export_tumour_matrix(self, tumour_matrix):
@@ -440,7 +439,7 @@ class CancerSimulator(object):
 
     ### FIXME: Not used, can we remove it?
     def simulate_seq_depth(self, extended_vaf):
-        """ Take a sample from the passed list of cells.
+        """ Ads a beta binomial noise to sampled mutation frequencies
 
         :param extended_vaf: The list of cells to take a sample from.
         :type  extended_vaf: list
@@ -497,34 +496,27 @@ class CancerSimulator(object):
         return target_mut_solid
 
     def terminate_cell(self, cell, step):
-        """ Register the passed cell as dead.
+        """ Kills cancer cell and removes it from the pool of cancer cells
 
-        :param cell: The cell that died.
-        :type  cell: int
-
-        :param step: The time step at which the cell died.
-        :type  step: int
-
+        :param cell: cell chosen for termination
+        :type cell: tuple (i,j) of cell indices.
+        :param int step: The time step in the simulation
         """
 
         self.__pool.remove(cell)
-        death_list.append((self.__mtx[cell], step))
         self.__mtx[cell]=0
 
-    def death_one_cell_chunk(self, step):
-        """ Register a randomly chosen chunk of cells as dead
+    def deathStep(self, step):
+        """ Takes a group of random cells and kills them
 
-        :param step: The time step at which the cells have died.
-        :type  step: int
+        :param int step: The time step in the simulation
 
         """
 
-        NtoDie=self.parameters.prop_of_expired_cells*len(self.__pool)
-        NtoDie=math.ceil(NtoDie)
-        toDie=prng.sample(self.__pool, math.ceil(NtoDie))
-
-        for i in toDie:
-            terminate_cell(i, self.__pool, step)
+        #toDie=prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool)))
+        #print('to die', toDie)
+        for i in prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool))):
+            self.terminate_cell(i, step)
 
     def bulk_seq(self, DNA, step, benefitial, sampling_or_fullTumour):
         """ Get a histogram of mutations.
@@ -580,7 +572,8 @@ class CancerSimulator(object):
         # Return container.
         reconstructed = []
 
-        # Map mutation count to origin (could save this step if elements in mut_container where (c,o) instead of (o,c)).
+        # Map mutation count to origin (could save this step if elements in
+        # mut_container where (c,o) instead of (o,c)).
         lookup_map = dict([(k,v) for v,k in self.__mut_container])
 
         # Loop over cell indices.
@@ -700,7 +693,7 @@ class CancerSimulator(object):
         return [y for y in neighboursList if self.__mtx[y]==0]
 
     def place_to_divide(self):
-        """ TODO: Add a short documentation of this function.
+        """ Selects random unocupied place on the matrix where cell will divide
 
         :param <+variable name+>: <+variable doc+>
         :type  <+variable name+>: <+type of variable+>
@@ -740,7 +733,7 @@ class CancerSimulator(object):
             place_to_divide=prng.choice(neighbors)
             pool.append(place_to_divide)
 
-            mutation_counter = mutation(self, cell, neighbors, step, mutation_counter, pool, True)
+            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, True)
 
             return mutation_counter
 
@@ -810,8 +803,9 @@ class CancerSimulator(object):
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
             ### NOTE: Why only here (taken from original code).
-            if not benefitial:
-                pool.append(place_to_divide)
+            #hmm i think this is not needed now that pool append is in division function, it puts double entries
+            # if not benefitial:
+            #     pool.append(place_to_divide)
 
         return mutation_counter
 
