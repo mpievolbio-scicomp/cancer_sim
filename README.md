@@ -71,13 +71,11 @@ parameters results in identical results, this may be used for testing and
 debugging. The optional argument ```DIR``` specifies the directory where to
 store the simulation log and output data. That directory must exist.
 
-Example 1
-.........
+### Example 1
 
     $> python -m casim.casim 1
 
-Example 2
-.........
+### Example 2
 
     $> mkdir sim_out
     $> python -m casim.casim.py -o sim_out
