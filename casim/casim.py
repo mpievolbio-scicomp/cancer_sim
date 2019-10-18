@@ -377,7 +377,7 @@ class CancerSimulator(object):
         seed=self.__seed
         prng.seed(seed)
         #run growth function
-        #output variable (true_vaf) is list of tuples with mutation id and frequency of mutation in the tumour [(mut_id, frequency),...] 
+        #output variable (true_vaf) is list of tuples with mutation id and frequency of mutation in the tumour [(mut_id, frequency),...]
         true_vaf=self.tumourGrowth()
         #print(true_vaf)
 
@@ -420,7 +420,7 @@ class CancerSimulator(object):
             return
 
         plt.plot([x/2 for x in range(len(self.__growth_plot_data))], self.__growth_plot_data)
-        
+
         plt.xlabel('Division cycle')
         plt.ylabel('Number of tumour cells')
         figure_path = os.path.join(self.__simdir,'growthCurve.pdf')
@@ -516,8 +516,8 @@ class CancerSimulator(object):
         :param int step: The time step in the simulation
         """
         #removes cell from the pool
-        self.__pool.remove(cell) 
-        
+        self.__pool.remove(cell)
+
         #resets value of position on matrix to zero
         self.__mtx[cell]=0
 
@@ -819,19 +819,26 @@ def main(arguments):
         sys.path.insert(0, os.getcwd())
         import params
 
-        parameters = CancerSimulatorParameters(matrix_size =                         params.matrixSize,
-                                               number_of_generations =               params.num_of_generations,
-                                               division_probability =                params.div_probability,
-                                               advantageous_division_probability =   params.fittnes_advantage_div_prob,
-                                               death_probability =                   params.dying_fraction,
-                                               advantageous_death_probability = params.fitness_advantage_death_prob,
-                                               mutation_rate =                       params.mut_rate,
-                                               advantageous_mutation_probability =   params.advantageous_mut_prob,
-                                               mutations_per_division =              params.mut_per_division,
-                                               time_of_advantageous_mutation =       params.time_of_adv_mut,
-                                               number_of_clonal =                    params.num_of_clonal,
-                                               tumour_multiplicity =                 params.tumour_multiplicity,
-    )
+        # Catch legacy issue
+        ms = None
+        if hasattr(params, "matrixSize"):
+            ms = params.matrixSize
+        else:
+            ms = params.matrix_size
+
+        parameters = CancerSimulatorParameters(matrix_size = ms,
+                number_of_generations = params.num_of_generations,
+                division_probability = params.div_probability,
+                advantageous_division_probability = params.fittnes_advantage_div_prob,
+                death_probability = params.dying_fraction,
+                advantageous_death_probability = params.fitness_advantage_death_prob,
+                mutation_rate = params.mut_rate,
+                advantageous_mutation_probability = params.advantageous_mut_prob,
+                mutations_per_division = params.mut_per_division,
+                time_of_advantageous_mutation = params.time_of_adv_mut,
+                number_of_clonal = params.num_of_clonal,
+                tumour_multiplicity = params.tumour_multiplicity,
+                )
 
     # Set loglevel.
     loglevel = {0 : logging.WARNING,

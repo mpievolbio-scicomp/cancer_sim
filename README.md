@@ -36,30 +36,43 @@ The parameter values of the cancer simulation are given via a python module or
 programmatically via the ```CancerSimulationParameters``` class. A documented
 example is included in the released distribution and reproduced here:
 
-    $> cat tests/params.py
+    $> cat/params.py
+    # Number of mesh points in each dimension
+    matrix_size                      = 100
 
-    # Grid size (value presents the size of both x and y axis)
-    matrixSize                      = 10
-    # The number of generations to simulate (scales the simulation run time)
-    num_of_generations              = 2
-    # Probability of cell division for cells without advantagous mutation
+    # Number of generations to simulate.
+    num_of_generations              = 20
+
+    # Number of divisions per generation.
     div_probability                 = 1
-    # Probability of cell division for cells with advantagous mutation
+
+    # Number of division for cells with mutation.
     fittnes_advantage_div_prob      = 1
-    # Probability of cell death for cells without advantagous mutation
-    death_probability               = 0
-    # Probability of cell death for cells with advantagous mutation
+
+    # Fraction of cells that die per generation.
+    dying_fraction                   = 0.1
+
+    # Fraction of cells with mutation that die per generation.
     fitness_advantage_death_prob    = 0.0
-    # Rate of mutation.
+
+    # Rate of mutations.
     mut_rate                        = 0.8
-    # Probability for an advantagous mutation
+
+    # Probability that a mutation is advantagous (??).
     advantageous_mut_prob           = 1
-    # Number of mutations per division
+
+    # Number of mutations per cell division.
     mut_per_division                = 1
-    # Timestep when an advantagous mutation occurs.
-    time_of_adv_mut                 = 50000
-    # Number of clones (??)
+
+    # Time after which adv. mutations occur.
+    time_of_adv_mut                 = 2
+
+    # Factor to scale the simulation to actual cell count numbers.
     num_of_clonal                   = 1
+
+    # Tumour multiplicity.
+    tumour_multiplicity             = None
+
 
 The simulation is started from the command line. The syntax is
 
