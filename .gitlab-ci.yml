@@ -35,11 +35,11 @@ pages:
   script:
   - source ./.bashrc
   - conda activate ./condaenv
-  - cd doc
+  - cd docs
   - make html
   - cd ..
   - rm -rvf public
-  - cp -rv doc/build/html public
+  - cp -rv docs/build/html public
   - ls -lR public
   artifacts:
     paths:
