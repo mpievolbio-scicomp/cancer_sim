@@ -101,7 +101,7 @@ Results will be stored in the newly created directory ```sim_out/```.
 
 Reference Manual
 ----------------
-The API reference manual is available at https://c.fortmanngrote.pages.gwdg.de/cancer_sim .
+The API reference manual is available at [our pages site](https://c.fortmanngrote.pages.gwdg.de/cancer_sim).
 
 Examples
 --------
