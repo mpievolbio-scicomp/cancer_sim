@@ -60,7 +60,7 @@ The parameter values of the cancer simulation are given via a python module or
 programmatically via the ```CancerSimulationParameters``` class. A documented
 example is included in the released distribution and reproduced here:
 
-    $> cat/params.py
+    $> cat params.py
     # Number of mesh points in each dimension
     matrix_size                      = 100
 
