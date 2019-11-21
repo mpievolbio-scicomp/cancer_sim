@@ -240,7 +240,7 @@ class CancerSimulator(object):
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = self.parameters.mutations_per_division
-        self.__export_tumour = None
+        self.__export_tumour = True
         self.__tumour_multiplicity = self.parameters.tumour_multiplicity
 
         # Handle direct parameters.
@@ -288,10 +288,10 @@ class CancerSimulator(object):
         :type  outdir: str
         :raises: IOError (Directory for this seed already exists)"""
 
-        self.__outdir = None
-        self.__seeddir = None
-        self.__logdir  = None
-        self.__simdir = None
+        self.__outdir = './outdir'
+        self.__seeddir = './seeddir'
+        self.__logdir  = './logdir'
+        self.__simdir = './simdir'
 
         if outdir is None:
             return
@@ -399,12 +399,12 @@ class CancerSimulator(object):
         """
 
         LOGGER.info('Exporting simulation data')
-
+        
         # save VAF to text file
         with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
             for i in tumour_matrix:
                 vafEx.write(str(i)+'\n')
-
+        
         # Pickle the data.
         with open(os.path.join(self.__simdir, 'mtx.p'),'wb') as fp:
             pickle.dump(self.__mtx, fp)
@@ -449,6 +449,7 @@ class CancerSimulator(object):
         return vaf
 
     ### FIXME: Not used, can we remove it?
+    ### I want to implement this at some point together with bottom function
     def simulate_seq_depth(self, extended_vaf):
         """ Ads a beta binomial noise to sampled mutation frequencies
 

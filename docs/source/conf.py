@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'CancerSim'
-copyright = '2019, Luca Opasic, Carsten Fortmann-Grote'
-author = 'Luca Opasic, Carsten Fortmann-Grote'
+copyright = '2019, Luka Opasic, Carsten Fortmann-Grote'
+author = 'Luka Opasic, Carsten Fortmann-Grote'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1'

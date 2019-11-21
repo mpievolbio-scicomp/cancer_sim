@@ -19,7 +19,7 @@ fitness_advantage_death_prob    = 0.0
 # Rate of mutations.
 mut_rate                        = 0.8
 
-# Probability that a mutation is advantagous (??).
+# Probability that advantagous mutation emerges.
 advantageous_mut_prob           = 1
 
 # Number of mutations per cell division.
