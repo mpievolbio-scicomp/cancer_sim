@@ -13,9 +13,9 @@ Here, we present a software that simulates spatial tumours with variable extent 
 
 Tumour is simulated using two-dimensional, on-lattice agent-based model.
 Our model is abstract, not specific to any neoplasm type and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings.
-It is, however, most suitable for simulating mostly superficially spreading tumours like carcinoma in situ, skin cancers, gastric cancers etc. 
+It is, however, most suitable for simulating mostly superficially spreading tumours like carcinoma in situ, skin cancers, gastric cancers etc.
 
-Tumour lattice structure is established by a sparse matrix where each position on a matrix corresponds to an individual cell. 
+Tumour lattice structure is established by a sparse matrix where each position on a matrix corresponds to an individual cell.
 Each cell is surrounded by eight neighbouring cells (Moore neighbourhood).
 Value in the matrix is an index pointing to the last mutation cell acquired in the stored list of mutations.
 
@@ -27,7 +27,7 @@ Throughout the cancer growth phase, for every cell, CancerSim stores information
 Complete mutational profiles of cells are reconstructed a posteriori based on the stored lineage information.
 
 Rule that allows only cells with empty neighbouring nodes to divide leads to predominantly peripheral growth of tumour and complete absence of dynamics in the centre.
-To make the system more realistic and allow for some degree of growth inside the tumour, we introduced a death process. 
+To make the system more realistic and allow for some degree of growth inside the tumour, we introduced a death process.
 Every time step, after all cells attempt their division, a number of random cells expires leaving their position free to host a new cancer cell.
 
 Simulation is written in Python and can be imported as Anaconda package.
@@ -101,11 +101,12 @@ Results will be stored in the newly created directory ```sim_out/```.
 
 Reference Manual
 ----------------
-The API reference manual is available at https://cancer-sim.gitlab.io.
+The API reference manual is available at https://c.fortmanngrote.pages.gwdg.de/cancer_sim .
 
 Examples
 --------
-See our collection of jupyter notebooks.
+See our quickstart example in
+`docs/source/include/notebooks/quickstart_example.ipynb`. Or [launch it in Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
 
 
 

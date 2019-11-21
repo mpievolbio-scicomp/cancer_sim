@@ -33,6 +33,7 @@ release = '0.1'
 extensions = [
         'sphinx.ext.autodoc',
         'nbsphinx',
+        'recommonmark',
 
 ]
 

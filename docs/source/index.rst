@@ -10,9 +10,11 @@ Welcome to CancerSim's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   include/README.md
    include/notebooks/quickstart_example
    refman.rst
+
+
 
 
 Indices and tables
