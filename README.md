@@ -1,30 +1,34 @@
-CaSim: A Cancer Simulation Package for python3
+CancerSim: A Cancer Simulation Package for python3
 ==============================================
+
 
 Background
 ----------
 Cancer is a group of complex diseases characterized by excessive cell proliferation, invasion and destruction of the surrounding tissue.
-Its high division and mutation rates lead to excessive intratumour heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy.
-We have built a cancer model that produces tumours with variable levels of intratumour heterogeneity.
-It is able to simulate cancer in multiple spatial dimensions:
+Its high division and mutation rates lead to excessive intratumour genetic heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy.
+Throughout most of its existence tumour is inaccessible to direct observation.
+Some examples where computational models can be of great use include early carcinogenesis as lesions are clinically observable when they already contain millions of cells, seeding of metastases, cancer cell dormancy.
 
-(i) Well-mixed cancer which corresponds to haematological neoplasms,
-(ii) Two dimensional on-lattice simulations suitable for modeling superficially spreading tumours like carcinoma in situ and finally
-(iii) three dimensional on-lattice simulations for spatial solid tumours.
+Here, we present a software that simulates spatial tumours with variable extent of intratumour genetic heterogeneity.
 
-It contains two specific division mechanism both ran in discrete time-steps. In the first scenario each time-step only one cancer cell is chosen for division and in the second scenario every cancer cell has a certain probability to divide during one time-step.
-In former case tumour growth is linear, in latter it is exponential if every cell divides each time-step.
+Tumour is simulated using two-dimensional, on-lattice agent-based model.
+Our model is abstract, not specific to any neoplasm type and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings.
+It is, however, most suitable for simulating mostly superficially spreading tumours like carcinoma in situ, skin cancers, gastric cancers etc. 
+
+Tumour lattice structure is established by a sparse matrix where each position on a matrix corresponds to an individual cell. 
+Each cell is surrounded by eight neighbouring cells (Moore neighbourhood).
+Value in the matrix is an index pointing to the last mutation cell acquired in the stored list of mutations.
+
+Simulation runs in discrete time-steps. Each turn every cell in the tumour that has unoccupied neighbour can divide with certain probability (params.div__probability).
+With each division daughter cell inherits all mutations from parent cell and acquires new mutation with a given probability (params.mut_rate).
 Different division probabilities can be introduced for some cells in order to simulate variability in fitness of cells who acquired beneficial or deleterious mutation.
 
-During each division mother cell can give birth to one daughter cell and remain unaltered.
-It can also give birth to two daughter cells, one placed in available neighbour location and one daughter cell which replaces the mother cell at the same location.
+Throughout the cancer growth phase, for every cell, CancerSim stores information about parent cell and a designation of newly acquired mutation.
+Complete mutational profiles of cells are reconstructed a posteriori based on the stored lineage information.
 
-
-Our model is abstract and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings.
-
-
-Simulated tumours can be pickled via dill package and further subjected to virtual biopsy sampling with frequencies of mutations present within the each sample as an output.
-To make output results more biologically sound, recovered frequencies can be passed through function designed to simulate variable sequencing coverage depth and to introduce sequencing noise into the data.
+Rule that allows only cells with empty neighbouring nodes to divide leads to predominantly peripheral growth of tumour and complete absence of dynamics in the centre.
+To make the system more realistic and allow for some degree of growth inside the tumour, we introduced a death process. 
+Every time step, after all cells attempt their division, a number of random cells expires leaving their position free to host a new cancer cell.
 
 Simulation is written in Python and can be imported as Anaconda package.
 
