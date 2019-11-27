@@ -8,7 +8,6 @@ Cancer is a group of complex diseases characterized by excessive cell proliferat
 Its high division and mutation rates lead to excessive intratumour genetic heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy.
 Throughout most of its existence tumour is inaccessible to direct observation.
 Some examples where computational models can be of great use include early carcinogenesis as lesions are clinically observable when they already contain millions of cells, seeding of metastases, cancer cell dormancy.
-
 Here, we present a software that simulates spatial tumours with variable extent of intratumour genetic heterogeneity.
 
 Tumour is simulated using two-dimensional, on-lattice agent-based model.
@@ -29,6 +28,9 @@ Complete mutational profiles of cells are reconstructed a posteriori based on th
 Rule that allows only cells with empty neighbouring nodes to divide leads to predominantly peripheral growth of tumour and complete absence of dynamics in the centre.
 To make the system more realistic and allow for some degree of growth inside the tumour, we introduced a death process.
 Every time step, after all cells attempt their division, a number of random cells expires leaving their position free to host a new cancer cell.
+
+After the simulation, tumour can be sampled and number, or frequency of mutations quantified and visualized as hustogram of mutation frequencies.
+
 
 Simulation is written in Python and can be imported as Anaconda package.
 
