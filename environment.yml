@@ -13,3 +13,4 @@ dependencies:
   - scipy=1.2.1
   - sphinx=2.2.0
   - matplotlib
+  - recommonmark=0.5.0
