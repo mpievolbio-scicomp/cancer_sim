@@ -23,13 +23,13 @@ mut_rate                        = 0.8
 advantageous_mut_prob           = 1
 
 # Number of mutations per cell division.
-mut_per_division                = 30
+mut_per_division                = 3
 
 # Time after which adv. mutations occur.
-time_of_adv_mut                 = 50000
+time_of_adv_mut                 = 10
 
 # Factor to scale the simulation to actual cell count numbers.
-num_of_clonal                   = 150
+num_of_clonal                   = 5
 
 # Tumour multiplicity.
 tumour_multiplicity             = None

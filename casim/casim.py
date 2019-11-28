@@ -253,7 +253,7 @@ class CancerSimulator(object):
 
         
         self.__mutMultiplier=[self.__s]*100000
-        #self.__mutMultiplier=np.random.poisson(self.__s, 1000)
+        #self.__mutMultiplier=np.random.poisson(self.__s, 10000)
         
     @property
     def seed(self):
@@ -417,8 +417,8 @@ class CancerSimulator(object):
         
         
         ##Exports
-        if self.__export_tumour is True:   #export tumour as pickled matrix together with accompanying data
-            self.export_tumour_matrix(true_vaf)
+        # if self.__export_tumour is True:   #export tumour as pickled matrix together with accompanying data
+        #     self.export_tumour_matrix(true_vaf)
 
        
         if self.__export_tumour_growth is True:   #export a graph containing change in tumour size over time
@@ -430,27 +430,28 @@ class CancerSimulator(object):
         #samplesCoordinatesList=[self.__pool[5],self.__pool[3],self.__pool[10]] #list of coordinates that serve as center of sampling [(x,y),(x,y),(x,y)]
         samplesCoordinatesList=[self.__pool[5]] #list of coordinates that serve as center of sampling [(x,y),(x,y),(x,y)]
 
-        for centerCellCoordinates in samplesCoordinatesList:          
+
+        for centerCellCoordinates in samplesCoordinatesList:          #iterate over each sample from the list of samples
             extendedSample=self.extendSample(centerCellCoordinates, sampleSize=0.1)    #get sample of certain size
             
-            dna_from_sample=self.mutation_reconstruction(extendedSample)
+            dna_from_sample=self.mutation_reconstruction(extendedSample)      #extract mutation profiles of all cells found in the sample
 
-            countedSample=self.countMutations(dna_from_sample, getFrequencies=True)
-            self.export_sample(countedSample, centerCellCoordinates)
+            countedSample=self.countMutations(dna_from_sample, getFrequencies=True)   #count the number of detected mutations and calculate frequency of each mutation (getFrequencies=False gives count for each mutation)
+
+            if self.parameters.mutations_per_division==1 and self.parameters.number_of_clonal==1:
+                self.export_sample(countedSample, centerCellCoordinates)        #export mutational profile of the sample
+            
+            
+            if self.parameters.mutations_per_division>1 or self.parameters.number_of_clonal>1:
+                increasedMutNumberSample=self.increase_mut_number(countedSample)    #increases number of mutations in the tumour by factor from params.mut_per_division
+                                                                                    #additional mutation serves to distinguish different mutations that occured in the same cell at the same time.
+                noisyData=self.simulate_seq_depth(increasedMutNumberSample)   #introduce sequencing noise, works only with increased number of mutations
+                self.export_sample(noisyData, centerCellCoordinates)
+                self.export_histogram(noisyData, centerCellCoordinates)       #creates and exports histogram of mutational frequencies
+                           
             
 
-            ##optional, increase mutation number 
-            increasedMutNumberSample=self.increase_mut_number(countedSample)
             
-
-            #introduce sequencing noise, works only with increased number of mutations
-            noisyData=self.simulate_seq_depth(increasedMutNumberSample)
-            self.export_histogram(noisyData, centerCellCoordinates)
-                       
-            #self.export_sample(countedSample, centerCellCoordinates)
-
-            
-
 #############
 
 
@@ -459,37 +460,60 @@ class CancerSimulator(object):
 
 
     def export_histogram(self, sampleData, sampleCoordinates):    
-        xaxis_histogram=np.arange(0.0,1,0.01)   
-        detectionLimit=0.05
-              
+        """ Create and export histogram of mutational frequencies (aka variant allelic frequencies)
 
-        plt.hist([s[1] for s in sampleData if s[1]>detectionLimit], bins=xaxis_histogram)
+        :param sampleData: List of mutations and their frequencies
+        :type  sampleData: list
+        
+        :param sampleCoordinates: coordinates of central sample cell
+        :type  sampleCoordinates: tuple (i,j) of cell indices 
+        """
+
+
+
+        xaxis_histogram=np.arange(0.0,1,0.01)   
+        detectionLimit=0.05    #setdetection limit of the mutation in the sample (depends on the sequencing machine and sequencing depth)
+
+        plt.hist([s[1] for s in sampleData if s[1]>detectionLimit], bins=xaxis_histogram)  #plots all mutations with frequences above detection threshold 
         
         plt.xlabel('Mutation frequency')
         plt.ylabel('Number of mutations')
         
-        figure_path = os.path.join(self.__outdir,'sampleHistogram_'+str(sampleCoordinates[0])+'_'+str(sampleCoordinates[1])+'.pdf')
-        plt.savefig(figure_path)
+        if sampleCoordinates=='whole_tumour': #export VAF histogram of the whole tumour
+            figure_path = os.path.join(self.__simdir,'wholeTumourVAFHistogram.pdf')
         
-        #plt.show()
+        else: #export VAF histogram of sample
+            figure_path = os.path.join(self.__outdir,'sampleHistogram_'+str(sampleCoordinates[0])+'_'+str(sampleCoordinates[1])+'.pdf')
+        
+        plt.savefig(figure_path)
+        plt.clf()
+        
 
     def export_sample(self, sampleData, sampleCoordinates):
-        #  """ Export (write to disk) frequencies of samples.
+        """ Export (write to disk) frequencies of samples.
 
-        # :param sampleData: List of mutations and their frequencies
-        # :type  sampleData: list
+        :param sampleData: List of mutations and their frequencies
+        :type  sampleData: list
         
-        # :param sampleCoordinates: coordinates of central sample cell
-        # :type  sampleCoordinates: tuple (i,j) of cell indices 
-        # """
+        :param sampleCoordinates: coordinates of central sample cell
+        :type  sampleCoordinates: tuple (i,j) of cell indices 
+        """
+        
+        if len(sampleData[0])==2:
+            with open(os.path.join(self.__outdir, 'sample_out_'+str(sampleCoordinates[0])+'_'+str(sampleCoordinates[1])+'.txt'),'w') as sampleVafEx:
+                sampleVafEx.write('mutation_id'+'\t'+'frequency'+'\n')
+                for i in sampleData:
+                    sampleVafEx.write(str(i[0])+'\t'+str(i[1])+'\n')
+     
 
-        with open(os.path.join(self.__outdir, 'sample_out_'+str(sampleCoordinates[0])+'_'+str(sampleCoordinates[1])+'.txt'),'w') as sampleVafEx:
-            sampleVafEx.write('mutation_id'+'\t'+'frequency'+'\n')
-            for i in sampleData:
-                sampleVafEx.write(str(i[0])+'\t'+str(i[1])+'\n')
-                
+        if len(sampleData[0])==3:
+            with open(os.path.join(self.__outdir, 'sample_out_'+str(sampleCoordinates[0])+'_'+str(sampleCoordinates[1])+'.txt'),'w') as sampleVafEx:
+                sampleVafEx.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
+                for i in sampleData:
+                    sampleVafEx.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
 
-    def export_tumour_matrix(self, tumour_matrix):
+
+    def export_tumour_matrix(self, tumourMutData):
         """ Export (write to disk) the matrix of tumour cells.
 
         :param tumour_matrix: The tumour matrix to export
@@ -500,12 +524,21 @@ class CancerSimulator(object):
         LOGGER.info('Exporting simulation data')
         
         # save VAF to text file
-        with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
-            vafEx.write('mutation_id'+'\t'+'frequency'+'\n')
-            for i in tumour_matrix:
-                vafEx.write(str(i[0])+'\t'+str(i[1])+'\n')
-                #vafEx.write(str(i)+'\n')
+        if len(tumourMutData[0])==2:
+            with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
+                vafEx.write('mutation_id'+'\t'+'frequency'+'\n')
+                for i in tumourMutData:
+                    vafEx.write(str(i[0])+'\t'+str(i[1])+'\n')
+                    
         
+        if len(tumourMutData[0])==3:
+            with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vafEx:
+                vafEx.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
+                for i in tumourMutData:
+                    vafEx.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
+            
+
+
         # Pickle the data.
         with open(os.path.join(self.__simdir, 'mtx.p'),'wb') as fp:
             pickle.dump(self.__mtx, fp)
@@ -578,7 +611,7 @@ class CancerSimulator(object):
         
         VAF = samp_alleles/depth
        
-        return [(extended_vaf[i][0], VAF[i], extended_vaf[i][2]) for i in range(len(extended_vaf))]
+        return [(extended_vaf[i][0], VAF[i], extended_vaf[i][2]) for i in range(len(extended_vaf)) if VAF[i]!=0]
 
 
 
@@ -747,12 +780,26 @@ class CancerSimulator(object):
                
                 mutationCounts=self.countMutations(reconstructed, getFrequencies=True)
                 
-                
+                if self.parameters.mutations_per_division==1 and self.parameters.number_of_clonal==1:
+                    self.export_tumour_matrix(mutationCounts)
+                    return mutationCounts
+
+                if self.parameters.mutations_per_division>1 or self.parameters.number_of_clonal>1:
+                    
+                    increasedMutNumberTumour=self.increase_mut_number(mutationCounts)    #increases number of mutations in the tumour by factor from params.mut_per_division
+
+                    noisyData=self.simulate_seq_depth(increasedMutNumberTumour)       #introduce sequencing noise, works only with increased number of mutations
+                    
+                    self.export_tumour_matrix(noisyData)
+                    centerCellCoordinates='whole_tumour'
+                    self.export_histogram(noisyData, centerCellCoordinates)       #creates and exports histogram of mutational frequencies
+                    return noisyData
+
                 #LOGGER.info("Statistics done,  amplify mutations.")
                                                 
                 LOGGER.debug('Head of bulk_vaf: %s', str(mutationCounts[0:10]))
 
-                return mutationCounts
+
 
     def neighbours(self, cell):
         """ Returns the nearest-neighbor cells around the given node.
