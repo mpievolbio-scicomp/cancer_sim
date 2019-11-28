@@ -8,7 +8,7 @@ Cancer is a group of complex diseases characterized by excessive cell proliferat
 Its high division and mutation rates lead to excessive intratumour genetic heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy.
 Throughout most of its existence tumour is inaccessible to direct observation.
 Some examples where computational models can be of great use include early carcinogenesis as lesions are clinically observable when they already contain millions of cells, seeding of metastases, cancer cell dormancy.
-Here, we present a software that simulates spatial tumours with variable extent of intratumour genetic heterogeneity.
+Here, we present a software that simulates somatic evolution of cancer and produces virtual spatial tumours with variable extent of intratumour genetic heterogeneity.
 
 Tumour is simulated using two-dimensional, on-lattice agent-based model.
 Our model is abstract, not specific to any neoplasm type and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings.
@@ -29,8 +29,9 @@ Rule that allows only cells with empty neighbouring nodes to divide leads to pre
 To make the system more realistic and allow for some degree of growth inside the tumour, we introduced a death process.
 Every time step, after all cells attempt their division, a number of random cells expires leaving their position free to host a new cancer cell.
 
-After the simulation, tumour can be sampled and number, or frequency of mutations quantified and visualized as hustogram of mutation frequencies.
-
+After the simulation, frequency of each mutataion in the tumour is quantified and exported to a file.
+We introduces variable amount sequencing noise (cite williams) which makes output data more biologically realistic.
+Further, tumour can be sampled and number, or frequency of mutations quantified and visualized as histogram of mutation frequencies.
 
 Simulation is written in Python and can be imported as Anaconda package.
 
