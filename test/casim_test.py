@@ -201,19 +201,22 @@ class CancerSimulatorTest(unittest.TestCase):
 
         ### Load results and reference data.
         # Reference data.
-        with open('reference_test_data_50mut/cancer_1/simOutput/death_list.p', 'rb') as fp:
+        ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_50mut', 'cancer_1', 'simOutput')
+        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
             ref_death_list = pickle.load(fp)
-        with open('reference_test_data_50mut/cancer_1/simOutput/mtx.p', 'rb') as fp:
+        with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
             ref_mtx = pickle.load(fp)
-        with open('reference_test_data_50mut/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+        with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
             ref_mutations = pickle.load(fp)
 
+
+        run_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_out', 'cancer_1', 'simOutput')
         # Run data.
-        with open('reference_test_out/cancer_1/simOutput/death_list.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
             run_death_list = pickle.load(fp)
-        with open('reference_test_out/cancer_1/simOutput/mtx.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
             run_mtx = pickle.load(fp)
-        with open('reference_test_out/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
             run_mutations = pickle.load(fp)
 
         # Check data is equal.
@@ -248,7 +251,7 @@ class CancerSimulatorTest(unittest.TestCase):
 
         ### Load results and reference data.
         # Reference data.
-        ref_dir = os.path.join(os.path.dirname(__file__), 'reference_test_data_1mut', 'cancer_1', 'simOutput')
+        ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_1mut', 'cancer_1', 'simOutput')
         with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
             ref_death_list = pickle.load(fp)
         with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
@@ -257,7 +260,7 @@ class CancerSimulatorTest(unittest.TestCase):
             ref_mutations = pickle.load(fp)
 
 
-        run_dir = os.path.join(os.path.dirname(__file__), 'reference_test_out', 'cancer_1', 'simOutput')
+        run_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_out', 'cancer_1', 'simOutput')
         # Run data.
         with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
             run_death_list = pickle.load(fp)
