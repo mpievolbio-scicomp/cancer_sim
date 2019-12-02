@@ -243,37 +243,28 @@ class CancerSimulatorTest(unittest.TestCase):
         """ Test the IO handling. """
 
         default_parameters = CancerSimulatorParameters()
-        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
-        self.assertIsNone(cancer_sim.outdir)
-        self.assertIsNone(cancer_sim._CancerSimulator__seeddir)
-        self.assertIsNone(cancer_sim._CancerSimulator__logdir)
-        self.assertIsNone(cancer_sim._CancerSimulator__simdir)
+        # Setup the simulator without outdir.
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
+        self._test_files.append("casim_out")
+
+        # Test it is set to the default path in CWD.
+        self.assertEqual(cancer_sim.outdir, "casim_out")
+
+        # Get seed dir.
+        seeddir = os.path.join("casim_out", 'cancer_%d' % cancer_sim._CancerSimulator__seed)
+        # Check all subdirectories are correctly named and exist.
+        self.assertEqual(cancer_sim._CancerSimulator__logdir, os.path.join(seeddir, 'log'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
+        self.assertEqual(cancer_sim._CancerSimulator__simdir, os.path.join(seeddir, 'simOutput'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
 
         # Create an empty dir.
         tmpdir = mkdtemp()
         self._test_files.append(tmpdir)
 
-        # This should work.
+        # Set to a different dir.
         cancer_sim.outdir = tmpdir
-
-        # Check value.
-        self.assertEqual(cancer_sim.outdir, tmpdir)
-
-        # Get seed dir.
-        seeddir = os.path.join(tmpdir, 'cancer_%d' % cancer_sim._CancerSimulator__seed)
-        self.assertEqual(cancer_sim._CancerSimulator__seeddir, seeddir)
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__seeddir))
-
-        # Check all subdirectories are correctly named and exist.
-
-        self.assertEqual(cancer_sim._CancerSimulator__logdir,
-                         os.path.join(seeddir, 'log'))
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
-
-        self.assertEqual(cancer_sim._CancerSimulator__simdir,
-                         os.path.join(seeddir, 'simOutput'))
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
 
         # Check export_tumour flag
         self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
