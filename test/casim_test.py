@@ -14,6 +14,7 @@ import re
 import os
 import sys
 import unittest
+import pickle
 from tempfile import mkdtemp
 
 
@@ -272,6 +273,102 @@ class CancerSimulatorTest(unittest.TestCase):
         # But not twice.
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
+
+    def test_reference_data_50mut(self):
+        """ Run a reference test and compare against reference data."""
+        """ 50 mutations per division."""
+
+        # Setup parameters. Values taken from casim/params.py.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_rate=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=50,
+                                            tumour_multiplicity=None,
+                                            )
+
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="reference_test_out")
+        self._test_files.append('reference_test_out')
+
+        simulator.run()
+
+        ### Load results and reference data.
+        # Reference data.
+        with open('reference_test_data_50mut/cancer_1/simOutput/death_list.p', 'rb') as fp:
+            ref_death_list = pickle.load(fp)
+        with open('reference_test_data_50mut/cancer_1/simOutput/mtx.p', 'rb') as fp:
+            ref_mtx = pickle.load(fp)
+        with open('reference_test_data_50mut/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+            ref_mutations = pickle.load(fp)
+
+        # Run data.
+        with open('reference_test_out/cancer_1/simOutput/death_list.p', 'rb') as fp:
+            run_death_list = pickle.load(fp)
+        with open('reference_test_out/cancer_1/simOutput/mtx.p', 'rb') as fp:
+            run_mtx = pickle.load(fp)
+        with open('reference_test_out/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+            run_mutations = pickle.load(fp)
+
+        # Check data is equal.
+        self.assertEqual(ref_death_list, run_death_list)
+        self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
+        self.assertEqual(ref_mutations, run_mutations)
+
+    def test_reference_data_1mut(self):
+        """ Run a reference test and compare against reference data."""
+        """ 1 mutation per division."""
+
+        # Setup parameters. Values taken from casim/params.py.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_rate=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=50,
+                                            tumour_multiplicity=None,
+                                            )
+
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="reference_test_out")
+        self._test_files.append('reference_test_out')
+
+        simulator.run()
+
+        ### Load results and reference data.
+        # Reference data.
+        with open('reference_test_data_1mut/cancer_1/simOutput/death_list.p', 'rb') as fp:
+            ref_death_list = pickle.load(fp)
+        with open('reference_test_data_1mut/cancer_1/simOutput/mtx.p', 'rb') as fp:
+            ref_mtx = pickle.load(fp)
+        with open('reference_test_data_1mut/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+            ref_mutations = pickle.load(fp)
+
+        # Run data.
+        with open('reference_test_out/cancer_1/simOutput/death_list.p', 'rb') as fp:
+            run_death_list = pickle.load(fp)
+        with open('reference_test_out/cancer_1/simOutput/mtx.p', 'rb') as fp:
+            run_mtx = pickle.load(fp)
+        with open('reference_test_out/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+            run_mutations = pickle.load(fp)
+
+        # Check data is equal.
+        self.assertEqual(ref_death_list, run_death_list)
+        self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
+        self.assertEqual(ref_mutations, run_mutations)
+
+
 
     def test_serialize(self):
         """ The the serialization of the entire object. """

@@ -25,7 +25,7 @@ from operator import itemgetter
 np = numpy
 
 # Configure logging.
-LEVEL = logging.DEBUG
+LEVEL = logging.WARNING
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(LEVEL)
 HANDLER = logging.StreamHandler()
@@ -326,7 +326,6 @@ class CancerSimulator(object):
         # Store on object.
         self.__logdir = logdir
         self.__simdir = simdir
-
 
     def extendSample(self, sampleCenter, sampleSize):
         """ Takes a subset of cells from the tumour positioned around single input cell with specific coordinates. Output is list containing tuples of cells belonging to the sample.
