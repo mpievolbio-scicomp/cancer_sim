@@ -498,7 +498,7 @@ class CancerSimulator(object):
             figure_path = os.path.join(self.__simdir,'wholeTumourVAFHistogram.pdf')
 
         #export VAF histogram of sample
-    else:
+        else:
             figure_path = os.path.join(self.__outdir,'sampleHistogram_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.pdf')
 
         plt.savefig(figure_path)
