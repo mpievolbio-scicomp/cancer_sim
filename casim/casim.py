@@ -6,6 +6,7 @@ __version__ = '0.0.1'
 
 
 from argparse import ArgumentParser
+from operator import itemgetter
 from random import shuffle
 from scipy.sparse import lil_matrix
 from time import sleep, time
@@ -20,7 +21,6 @@ import os
 import pickle
 import random as prng
 import sys
-from operator import itemgetter
 
 np = numpy
 
@@ -46,8 +46,8 @@ class CancerSimulatorParameters(object):
                  division_probability                = None,
                  advantageous_division_probability   = None,
                  death_probability                   = None,
-                 advantageous_death_probability = None,
-                 mutation_rate                       = None,
+                 advantageous_death_probability      = None,
+                 mutation_probability                       = None,
                  advantageous_mutation_probability   = None,
                  mutations_per_division              = None,
                  time_of_advantageous_mutation       = None,
@@ -57,7 +57,7 @@ class CancerSimulatorParameters(object):
         """
         Construct a new CancerSimulationParameters object.
 
-        :param matrix_size: The size of the grid in each dimension.
+        :param matrix_size: The size of the (square) grid in each dimension.
         :type  matrix_size: int
 
         :param number_of_generations: The number of generations to simulate.
@@ -75,8 +75,8 @@ class CancerSimulatorParameters(object):
         :param advantageous_death_probability: The probability for a cell with advantageous mutation to die during one generation.
         :type  advantageous_death_probability: float (0.0 <= division_probability <= 1.0)
 
-        :param mutation_rate: The rate of mutation (probability per generation).
-        :type  mutation_rate: float (0.0 <= division_probability <= 1.0)
+        :param mutation_probability: The probalitiy of mutation.
+        :type  mutation_probability: float (0.0 <= division_probability <= 1.0)
 
         :param advantageous_mutation_probability: The rate for an advantageous mutation to occur during one generation.
         :type  advantageous_mutation_probability: float (0.0 <= division_probability <= 1.0)
@@ -87,7 +87,7 @@ class CancerSimulatorParameters(object):
         :param time_of_advantageous_mutation: The number of generations after which an advantageous mutation can occur.
         :type  time_of_advantageous_mutation: int
 
-        :param number_of_clonal: Scale up each mutation by this factor.
+        :param number_of_clonal: Number of mutations present in first cancer cell.
         :type  number_of_clonal: int
 
         :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
@@ -101,7 +101,7 @@ class CancerSimulatorParameters(object):
         self.advantageous_division_probability = advantageous_division_probability
         self.death_probability = death_probability
         self.advantageous_death_probability = advantageous_death_probability
-        self.mutation_rate = mutation_rate
+        self.mutation_probability = mutation_probability
         self.advantageous_mutation_probability = advantageous_mutation_probability
         self.mutations_per_division = mutations_per_division
         self.time_of_advantageous_mutation = time_of_advantageous_mutation
@@ -151,11 +151,11 @@ class CancerSimulatorParameters(object):
         self.__advantageous_death_probability = check_set_number(val, float, 0.0, 0.0, 1.0)
 
     @property
-    def mutation_rate(self):
-        return self.__mutation_rate
-    @mutation_rate.setter
-    def mutation_rate(self, val):
-        self.__mutation_rate = check_set_number(val, float, 0.8, 0.0, 1.0)
+    def mutation_probability(self):
+        return self.__mutation_probability
+    @mutation_probability.setter
+    def mutation_probability(self, val):
+        self.__mutation_probability = check_set_number(val, float, 0.8, 0.0, 1.0)
 
     @property
     def advantageous_mutation_probability(self):
@@ -885,7 +885,7 @@ class CancerSimulator(object):
         cell, neighbors, step, mutation_counter, pool, place_to_divide, beneficial = args
 
         # Mutation.
-        if prng.random()<self.parameters.mutation_rate:
+        if prng.random()<self.parameters.mutation_probability:
 
             # Increment mutation counter.
             mutation_counter=mutation_counter+1
@@ -953,7 +953,7 @@ def main(arguments):
                 advantageous_division_probability = params.fittnes_advantage_div_prob,
                 death_probability = params.dying_fraction,
                 advantageous_death_probability = params.fitness_advantage_death_prob,
-                mutation_rate = params.mut_rate,
+                mutation_probability = params.mut_prob,
                 advantageous_mutation_probability = params.advantageous_mut_prob,
                 mutations_per_division = params.mut_per_division,
                 time_of_advantageous_mutation = params.time_of_adv_mut,

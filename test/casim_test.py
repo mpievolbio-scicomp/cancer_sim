@@ -56,7 +56,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.advantageous_division_probability,     1  )
         self.assertEqual(parameters.death_probability,                     0  )
         self.assertEqual(parameters.advantageous_death_probability,   0.0)
-        self.assertEqual(parameters.mutation_rate,                         0.8)
+        self.assertEqual(parameters.mutation_probability,                         0.8)
         self.assertEqual(parameters.advantageous_mutation_probability,     1  )
         self.assertEqual(parameters.mutations_per_division,                1  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
@@ -73,7 +73,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 advantageous_division_probability =      0.3,
                                 death_probability =                      0.1,
                                 advantageous_death_probability =    0.4,
-                                mutation_rate =                          0.2,
+                                mutation_probability =                          0.2,
                                 advantageous_mutation_probability =      0.8,
                                 mutations_per_division =                10  ,
                                 time_of_advantageous_mutation =      30000  ,
@@ -87,7 +87,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.advantageous_division_probability,     0.3)
         self.assertEqual(parameters.death_probability,                     0.1)
         self.assertEqual(parameters.advantageous_death_probability,   0.4)
-        self.assertEqual(parameters.mutation_rate,                         0.2)
+        self.assertEqual(parameters.mutation_probability,                         0.2)
         self.assertEqual(parameters.advantageous_mutation_probability,     0.8)
         self.assertEqual(parameters.mutations_per_division,               10  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
@@ -186,7 +186,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             advantageous_division_probability=1,
                                             death_probability=0.1,
                                             advantageous_death_probability=0.0,
-                                            mutation_rate=1,
+                                            mutation_probability=1,
                                             advantageous_mutation_probability=1,
                                             time_of_advantageous_mutation=10,
                                             number_of_clonal=150,
@@ -233,7 +233,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             advantageous_division_probability=1,
                                             death_probability=0.1,
                                             advantageous_death_probability=0.0,
-                                            mutation_rate=1,
+                                            mutation_probability=1,
                                             advantageous_mutation_probability=1,
                                             time_of_advantageous_mutation=10,
                                             number_of_clonal=150,
@@ -301,7 +301,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
         self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
         self.assertEqual(loaded_parameters.advantageous_death_probability,  parameters.advantageous_death_probability)
-        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
         self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
         self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
         self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)

@@ -17,7 +17,7 @@ dying_fraction                  = 0.1
 fitness_advantage_death_prob    = 0.0
 
 # Probability that single mutation event will occur at the time of division
-mut_rate                        = 1
+mut_prob                        = 1
 
 # Probability that advantageous mutation will occur in time step params.time_of_adv_mut
 advantageous_mut_prob           = 1
