@@ -421,8 +421,11 @@ class CancerSimulator(object):
 
 #############here sampling
 
-        #samplesCoordinatesList=[self.__pool[5],self.__pool[3],self.__pool[10]] #list of coordinates that serve as center of sampling [(x,y),(x,y),(x,y)]
-        samplesCoordinatesList=[self.__pool[5]] #list of coordinates that serve as center of sampling [(x,y),(x,y),(x,y)]
+        # List of coordinates that serve as center of sampling [(x,y)]
+        # Pick a random cell from the pool.
+        # TODO: enter wanted sampling coordinates.
+        random_index = numpy.random.randint(len(self.__pool))
+        samplesCoordinatesList=[self.__pool[random_index]]
 
 
         for centerCellCoordinates in samplesCoordinatesList:          #iterate over each sample from the list of samples
@@ -452,6 +455,7 @@ class CancerSimulator(object):
         end=timer()
         LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
+        return 0
 
     def export_histogram(self, sampleData, sampleCoordinates):
         """ Create and export histogram of mutational frequencies (aka variant allelic frequencies)
@@ -971,7 +975,7 @@ def main(arguments):
 
     casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
-    casim.run()
+    return (casim.run())
 
 
 def check_set_number(value, typ, default=None, minimum=None, maximum=None):
@@ -1039,5 +1043,5 @@ if __name__ == "__main__":
     # Parse the arguments.
     arguments = parser.parse_args()
 
-    main(arguments)
+    sys.exit(main(arguments))
 
