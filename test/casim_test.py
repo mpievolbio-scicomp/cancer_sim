@@ -248,35 +248,28 @@ class CancerSimulatorTest(unittest.TestCase):
 
         ### Load results and reference data.
         # Reference data.
-        with open('reference_test_data_1mut/cancer_1/simOutput/death_list.p', 'rb') as fp:
+        ref_dir = os.path.join(os.path.dirname(__file__), 'reference_test_data_1mut', 'cancer_1', 'simOutput')
+        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
             ref_death_list = pickle.load(fp)
-        with open('reference_test_data_1mut/cancer_1/simOutput/mtx.p', 'rb') as fp:
+        with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
             ref_mtx = pickle.load(fp)
-        with open('reference_test_data_1mut/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+        with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
             ref_mutations = pickle.load(fp)
 
-        ref_mtx_VAF = pandas.read_csv("reference_test_data_1mut/cancer_1/simOutput/mtx_VAF.txt", delimiter="\t")
 
-        ref_sample_data = pandas.read_csv("reference_test_data_1mut/sample_out_501_502.txt", delimiter="\t")
-
+        run_dir = os.path.join(os.path.dirname(__file__), 'reference_test_out', 'cancer_1', 'simOutput')
         # Run data.
-        with open('reference_test_out/cancer_1/simOutput/death_list.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
             run_death_list = pickle.load(fp)
-        with open('reference_test_out/cancer_1/simOutput/mtx.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
             run_mtx = pickle.load(fp)
-        with open('reference_test_out/cancer_1/simOutput/mut_container.p', 'rb') as fp:
+        with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
             run_mutations = pickle.load(fp)
-        run_mtx_VAF = pandas.read_csv("reference_test_out/cancer_1/simOutput/mtx_VAF.txt", delimiter="\t")
-
 
         # Check data is equal.
         self.assertEqual(ref_death_list, run_death_list)
         self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
         self.assertEqual(ref_mutations, run_mutations)
-
-        ### FIXME: These ones fail, Luka?
-        #self.assertEqual(ref_mtx_VAF, run_mtx_VAF)
-        #self.assertEqual(ref_sample_data, run_sample_data)
 
     def test_serialize(self):
         """ The the serialization of the entire object. """
