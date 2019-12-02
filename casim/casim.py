@@ -232,7 +232,7 @@ class CancerSimulator(object):
         :param seed: The random seed.
         :type  seed: int
 
-        :param outdir: The directory where simulation data is saved.
+        :param outdir: The directory where simulation data is saved. Default: "casim_out/" in the current working directory.
         :type  outdir: (str || path-like object)
         """
 
@@ -466,12 +466,6 @@ class CancerSimulator(object):
                 #creates and exports histogram of mutational frequencies
                 self.export_histogram(noisy_data, center_cell_coordinates)
 
-
-
-
-#############
-
-
         end=timer()
         LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
@@ -490,17 +484,21 @@ class CancerSimulator(object):
 
 
         xaxis_histogram=np.arange(0.0,1,0.01)
-        detection_limit=0.05    #setdetection limit of the mutation in the sample (depends on the sequencing machine and sequencing depth)
+        #setdetection limit of the mutation in the sample (depends on the sequencing machine and sequencing depth)
+        detection_limit=0.05
 
-        plt.hist([s[1] for s in sample_data if s[1]>detection_limit], bins=xaxis_histogram)  #plots all mutations with frequences above detection threshold
+        #plots all mutations with frequences above detection threshold
+        plt.hist([s[1] for s in sample_data if s[1]>detection_limit], bins=xaxis_histogram)
 
         plt.xlabel('Mutation frequency')
         plt.ylabel('Number of mutations')
 
-        if sample_coordinates=='whole_tumour': #export VAF histogram of the whole tumour
+        #export VAF histogram of the whole tumour
+        if sample_coordinates=='whole_tumour':
             figure_path = os.path.join(self.__simdir,'wholeTumourVAFHistogram.pdf')
 
-        else: #export VAF histogram of sample
+        #export VAF histogram of sample
+    else:
             figure_path = os.path.join(self.__outdir,'sampleHistogram_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.pdf')
 
         plt.savefig(figure_path)
@@ -582,7 +580,6 @@ class CancerSimulator(object):
 
         plt.clf()
 
-
     def count_mutations(self,mutation_list, get_frequencies):
         """ Count number each time mutation is detected in the sample
 
@@ -592,14 +589,12 @@ class CancerSimulator(object):
         """
         mut_count=[]
 
-
         #flatten the list of mutations
         reduced=list(itertools.chain(*[j for j in mutation_list]))
 
         #count number of unique mutations in whole tumour at time step
         for i in set(reduced):
             mut_count.append((i, float(reduced.count(i))))
-
 
         #sort list of mutations based on the mutation id just in case they are not sorted
         mut_count=sorted(mut_count,key=itemgetter(0))
@@ -611,10 +606,7 @@ class CancerSimulator(object):
 
             return mut_freq
 
-
         return mut_count
-
-
 
     def simulate_seq_depth(self, extended_vaf):
         """ Ads a beta binomial noise to sampled mutation frequencies
@@ -633,8 +625,6 @@ class CancerSimulator(object):
         VAF = samp_alleles/depth
 
         return [(extended_vaf[i][0], VAF[i], extended_vaf[i][2]) for i in range(len(extended_vaf)) if VAF[i]!=0]
-
-
 
     def increase_mut_number(self, original_mut_list):
         """ Scale up the number of mutations according to the 'number_of_clonal' 'and mut_per_division' parameter.
