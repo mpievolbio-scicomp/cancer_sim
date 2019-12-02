@@ -34,3 +34,6 @@ mut_per_division                = 50
 # Tumour multiplicity.
 tumour_multiplicity             = None
 
+# Read depth
+read_depth                      = 100
+
