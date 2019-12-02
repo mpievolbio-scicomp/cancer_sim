@@ -77,7 +77,7 @@ example is included in the released distribution and reproduced here:
     # Rate of mutations.
     mut_rate                        = 1
 
-    # Probability that a mutation is advantagous (??).
+    # Mutation probability for the adv. cells.
     advantageous_mut_prob           = 1
 
     # Number of mutations per cell division.
@@ -86,11 +86,14 @@ example is included in the released distribution and reproduced here:
     # Time after which adv. mutations occur.
     time_of_adv_mut                 = 2
 
-    # Factor to scale the simulation to actual cell count numbers.
+    # Number of mutations present in first cancer cell. 
     num_of_clonal                   = 15
 
     # Tumour multiplicity.
     tumour_multiplicity             = None
+
+    # Read depth.
+    read_depth                      =100
 
 
 The simulation is started from the command line. The syntax is
@@ -101,7 +104,9 @@ The simulation is started from the command line. The syntax is
 random seed. Using the same seed on two simulation runs with identical
 parameters results in identical results, this may be used for testing and
 debugging. The optional argument ```DIR``` specifies the directory where to
-store the simulation log and output data. That directory must exist.
+store the simulation log and output data. If not given, output will be stored
+in the directory `casim_out` in the current directory. If a previous run with the same seed
+exists, the run will abort. This is a safety catch to avoid overwriting previous data.
 
 ### Example 1
 

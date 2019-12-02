@@ -26,7 +26,7 @@ test:
   script:
     - source ./.bashrc
     - conda activate ./condaenv
-    - python test/casim_test.py
+    - python test/casim_test.py -v
   dependencies:
     - build
 
