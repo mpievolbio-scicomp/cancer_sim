@@ -53,6 +53,7 @@ class CancerSimulatorParameters(object):
                  time_of_advantageous_mutation       = None,
                  number_of_clonal                    = None,
                  tumour_multiplicity                 = None,
+                 read_depth                          = None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -92,6 +93,10 @@ class CancerSimulatorParameters(object):
 
         :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
         :type  tumour_multiplicity: str
+
+        :param read_depth: The sequencing depth (read length * number of reads / genome length). Default: 100.
+        :type  read_depth: int
+
         """
 
         # Store parameters on the object.
@@ -107,6 +112,7 @@ class CancerSimulatorParameters(object):
         self.time_of_advantageous_mutation = time_of_advantageous_mutation
         self.number_of_clonal = number_of_clonal
         self.tumour_multiplicity = tumour_multiplicity
+        self.read_depth = read_depth
 
     @property
     def matrix_size(self):
@@ -201,6 +207,12 @@ class CancerSimulatorParameters(object):
 
         self.__tumour_multiplicity = val
 
+    @property
+    def read_depth(self):
+        return self.__read_depth
+    @read_depth.setter
+    def read_depth(self, val):
+        self.__read_depth = check_set_number(val, int, 100, 1, 0)
 
 class CancerSimulator(object):
     """
@@ -611,8 +623,7 @@ class CancerSimulator(object):
         :type  extended_vaf: list
         """
 
-        #depth=np.random.poisson(params.read_depth, len(input_mut))
-        depth=np.random.poisson(100, len(extended_vaf))
+        depth=np.random.poisson(self.parameters.read_depth, len(extended_vaf))
 
         AF=np.array([i[1] for i in extended_vaf])
 
@@ -952,6 +963,10 @@ def main(arguments):
         else:
             ms = params.matrix_size
 
+        rd = 100
+        if hasattr(params, "read_depth"):
+            rd = params.read_depth
+
         parameters = CancerSimulatorParameters(matrix_size = ms,
                 number_of_generations = params.num_of_generations,
                 division_probability = params.div_probability,
@@ -964,6 +979,7 @@ def main(arguments):
                 time_of_advantageous_mutation = params.time_of_adv_mut,
                 number_of_clonal = params.num_of_clonal,
                 tumour_multiplicity = params.tumour_multiplicity,
+                read_depth=rd
                 )
 
     # Set loglevel.

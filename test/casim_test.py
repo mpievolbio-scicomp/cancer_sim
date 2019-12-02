@@ -62,6 +62,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
         self.assertEqual(parameters.number_of_clonal,                     1   )
         self.assertEqual(parameters.tumour_multiplicity,              'single')
+        self.assertEqual(parameters.read_depth,                         100  )
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
