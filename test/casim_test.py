@@ -337,7 +337,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             advantageous_mutation_probability=1,
                                             time_of_advantageous_mutation=10,
                                             number_of_clonal=150,
-                                            mutations_per_division=50,
+                                            mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             )
 
