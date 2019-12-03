@@ -4,7 +4,7 @@
 
 ---
 reference-section-title: References
-csl: https://www.zotero.org/styles/nature
+csl: reference_style.csl
 link-citations: True
 ...
 
