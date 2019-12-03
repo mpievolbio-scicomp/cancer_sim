@@ -2,6 +2,16 @@
 .eggs/
 CaSim.egg-info/
 __pycache__/
-.*.*.swp
+casim/params.py
 docs/build/
+.*.*.swp
+*.*~
+*.*.bu
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.synctex.gz
 tags
