@@ -37,3 +37,6 @@ tumour_multiplicity             = None
 # Read depth
 read_depth                      = 100
 
+# Fraction of cells to sample (from interval [0,1))
+sampling_fraction                      = 0.9
+
