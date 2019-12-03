@@ -1,7 +1,6 @@
 % CancerSim: A Cancer Simulation Package for python3
 % Luka Opasic
   Carsten Fortmann-Grote
-% December 3, 2019
 
 ---
 reference-section-title: References
