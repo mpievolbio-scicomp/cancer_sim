@@ -98,7 +98,10 @@ example is included in the released distribution and reproduced here:
     tumour_multiplicity             = None
 
     # Read depth.
-    read_depth                      =100
+    read_depth                      = 100
+
+    # Fraction of cells to be sampled.
+    # sampling_fraction             = 0.1
 
 
 The simulation is started from the command line. The syntax is
