@@ -11,14 +11,16 @@ link-citations: True
 Background
 ----------
 
-Cancer is a group of complex diseases characterized by excessive cell proliferation, invasion and destruction of the surrounding tissue [@kumar:Oncogene:2012].
+Cancer is a group of complex diseases characterized by excessive cell proliferation, invasion and destruction of the surrounding tissue [@kumar:book:2017].
 Its high division and mutation rates lead to excessive intratumour genetic heterogeneity which makes cancer highly adaptable to environmental pressures such as therapy [@turajlic:NRG:2019].
 Throughout most of its existence tumour is inaccessible to direct observation and experimental evaluation.
 Therefore, computational modelling can useful tool of study many aspects of cancer.
-Some examples where theoretical models can be of great use include early carcinogenesis as lesions are clinically observable when they already contain millions of cells, seeding of metastases, cancer cell dormancy.
+Some examples where theoretical models can be of great use include early carcinogenesis as lesions are clinically observable when they already contain millions of cells, seeding of metastases, cancer cell dormancy [@altrock:NatRevCancer:2015].
+
 
 Here, we present a software that simulates somatic evolution of tumour and produces virtual spatial tumours with variable extent of intratumour genetic heterogeneity and realistic mutational profiles.
 Simulated tumours can be subjected to multi-region sampling process to obtain mutation profiles that are realistic representation of the sequencing data. This makes the software useful for studying various sampling strategies in clinical cancer diagnostics.
+Early version of this cancer evolution model was used to simulate tumours subjected to sampling for classification of mutations based on their abundance [@opasic:BMCCancer:2019].
 Target users are scientists working in the field of mathematical oncology and students with interest in studying somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type and does not consider variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients and architecture of the tumour surroundings.
