@@ -54,6 +54,7 @@ class CancerSimulatorParameters(object):
                  number_of_clonal                    = None,
                  tumour_multiplicity                 = None,
                  read_depth                          = None,
+                 sampling_fraction                   = None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -97,6 +98,9 @@ class CancerSimulatorParameters(object):
         :param read_depth: The sequencing depth (read length * number of reads / genome length). Default: 100.
         :type  read_depth: int
 
+        :param sampling_fraction: The fraction of cells to include in a sample. Allowed values are 0 <= sampling_fraction < 1. Default: 0.
+        :type  sampling_fraction: float
+
         """
 
         # Store parameters on the object.
@@ -113,6 +117,7 @@ class CancerSimulatorParameters(object):
         self.number_of_clonal = number_of_clonal
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
+        self.sampling_fraction = sampling_fraction
 
     @property
     def matrix_size(self):
@@ -213,6 +218,14 @@ class CancerSimulatorParameters(object):
     @read_depth.setter
     def read_depth(self, val):
         self.__read_depth = check_set_number(val, int, 100, 0, None)
+
+    @property
+    def sampling_fraction(self):
+        return self.__sampling_fraction
+    @sampling_fraction.setter
+    def sampling_fraction(self, val):
+        self.__sampling_fraction = check_set_number(val, float, 0.0, 0.0, 1.0)
+
 
 class CancerSimulator(object):
     """
@@ -338,6 +351,9 @@ class CancerSimulator(object):
         """ Takes a subset of cells from the tumour positioned around single input cell with specific coordinates. Output is a list of tuples of cells belonging to the sample.
         :param sample_center: coordinates of cell that will be center of the sample
         :type  sample: tuple
+
+        :param sample_size: The size of the sample (fraction of total cells.)
+        :type  sample_size: float
         """
 
         biopsy_size=math.ceil(sample_size*len(self.__pool))
@@ -441,7 +457,7 @@ class CancerSimulator(object):
         #iterate over each sample from the list of samples
         for center_cell_coordinates in samples_coordinates_list:
             #get sample of certain size
-            extended_sample=self.extend_sample(center_cell_coordinates, sample_size=0.1)
+            extended_sample=self.extend_sample(center_cell_coordinates, sample_size=self.parameters.sampling_fraction)
 
             #extract mutation profiles of all cells found in the sample
             dna_from_sample=self.mutation_reconstruction(extended_sample)
@@ -499,7 +515,7 @@ class CancerSimulator(object):
 
         #export VAF histogram of sample
         else:
-            figure_path = os.path.join(self.__outdir,'sampleHistogram_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.pdf')
+            figure_path = os.path.join(self.__simdir,'sampleHistogram_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.pdf')
 
         plt.savefig(figure_path)
         plt.clf()
@@ -509,21 +525,21 @@ class CancerSimulator(object):
         """ Export (write to disk) frequencies of samples.
 
         :param sample_data: List of mutations and their frequencies
-        :type  sampleData: list
+        :type  sample_data: list
 
         :param sample_coordinates: coordinates of central sample cell
         :type  sample_coordinates: tuple (i,j) of cell indices
         """
 
         if len(sample_data[0])==2:
-            with open(os.path.join(self.__outdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
+            with open(os.path.join(self.__simdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
                 sample_vaf_ex.write('mutation_id'+'\t'+'frequency'+'\n')
                 for i in sample_data:
                     sample_vaf_ex.write(str(i[0])+'\t'+str(i[1])+'\n')
 
 
         if len(sample_data[0])==3:
-            with open(os.path.join(self.__outdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
+            with open(os.path.join(self.__simdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
                 sample_vaf_ex.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
                 for i in sample_data:
                     sample_vaf_ex.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
