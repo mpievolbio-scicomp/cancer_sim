@@ -30,7 +30,29 @@ After the simulation, the tumour matrix, and the  lists of lineages and frequenc
 Furthermore, the virtual tumour can be sampled and a histogram over the
  frequency of mutations will be visualised. Alternatively, a saved tumour can be loaded from file and then subjected to the sampling process.
 
-CancerSim is written in Python (version >3.5).
+CancerSim is written in Python (version >3.5). It can be installed in various
+ways, see below. Software dependencies are listed in the `requirements.txt`
+file.
+
+
+### PIP
+```bash:
+$> pip install casim
+```
+
+### Conda
+```bash
+$> conda install -c conda-forge casim
+```
+
+### From the source code repository:
+```bash
+$> python setup.py install
+```
+or
+```bash
+$> pip install .
+```
 
 We implemented growth visualizer for two-dimensional tumour **Where is it?**
 
