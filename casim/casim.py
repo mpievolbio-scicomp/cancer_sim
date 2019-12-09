@@ -212,7 +212,7 @@ class CancerSimulatorParameters(object):
         return self.__read_depth
     @read_depth.setter
     def read_depth(self, val):
-        self.__read_depth = check_set_number(val, int, 100, 1, 0)
+        self.__read_depth = check_set_number(val, int, 100, 0, None)
 
 class CancerSimulator(object):
     """
