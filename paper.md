@@ -47,10 +47,6 @@ $> conda install -c conda-forge casim
 
 ### From the source code repository:
 ```bash
-$> python setup.py install
-```
-or
-```bash
 $> pip install .
 ```
 
