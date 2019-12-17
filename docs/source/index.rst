@@ -8,7 +8,6 @@ Welcome to CancerSim's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    include/README.md
    include/notebooks/quickstart_example
