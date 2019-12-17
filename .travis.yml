@@ -7,6 +7,9 @@ python:
 matrix:
     allow_failures:
         - python: "nightly"
+branches:
+  only:
+  - /.*/
 
 cache:
   apt: false
