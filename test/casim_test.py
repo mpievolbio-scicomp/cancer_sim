@@ -14,7 +14,10 @@ import re
 import os
 import sys
 import unittest
+import pickle
+import pandas
 from tempfile import mkdtemp
+
 
 class CancerSimulatorParametersTest(unittest.TestCase):
     """ :class: Test class for the CancerSimulator """
@@ -52,13 +55,15 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.division_probability,                  1  )
         self.assertEqual(parameters.advantageous_division_probability,     1  )
         self.assertEqual(parameters.death_probability,                     0  )
-        self.assertEqual(parameters.fitness_advantage_death_probability,   0.0)
-        self.assertEqual(parameters.mutation_rate,                         0.8)
+        self.assertEqual(parameters.advantageous_death_probability,   0.0)
+        self.assertEqual(parameters.mutation_probability,                         0.8)
         self.assertEqual(parameters.advantageous_mutation_probability,     1  )
         self.assertEqual(parameters.mutations_per_division,                1  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
         self.assertEqual(parameters.number_of_clonal,                     1   )
         self.assertEqual(parameters.tumour_multiplicity,              'single')
+        self.assertEqual(parameters.read_depth,                         100  )
+        self.assertEqual(parameters.sampling_fraction,                         0.0  )
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
@@ -69,13 +74,15 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 division_probability =                   0.5,
                                 advantageous_division_probability =      0.3,
                                 death_probability =                      0.1,
-                                fitness_advantage_death_probability =    0.4,
-                                mutation_rate =                          0.2,
+                                advantageous_death_probability =    0.4,
+                                mutation_probability =                          0.2,
                                 advantageous_mutation_probability =      0.8,
                                 mutations_per_division =                10  ,
                                 time_of_advantageous_mutation =      30000  ,
                                 number_of_clonal =                       2  ,
                                 tumour_multiplicity =                'single',
+                                read_depth = 200,
+                                sampling_fraction = 0.3,
                                                 )
 
         self.assertEqual(parameters.matrix_size,                          20  )
@@ -83,13 +90,15 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.division_probability,                  0.5)
         self.assertEqual(parameters.advantageous_division_probability,     0.3)
         self.assertEqual(parameters.death_probability,                     0.1)
-        self.assertEqual(parameters.fitness_advantage_death_probability,   0.4)
-        self.assertEqual(parameters.mutation_rate,                         0.2)
+        self.assertEqual(parameters.advantageous_death_probability,   0.4)
+        self.assertEqual(parameters.mutation_probability,                         0.2)
         self.assertEqual(parameters.advantageous_mutation_probability,     0.8)
         self.assertEqual(parameters.mutations_per_division,               10  )
         self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
         self.assertEqual(parameters.number_of_clonal,                      2  )
         self.assertEqual(parameters.tumour_multiplicity,               'single' )
+        self.assertEqual(parameters.read_depth,              200 )
+        self.assertEqual(parameters.sampling_fraction,              0.3 )
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -130,143 +139,39 @@ class CancerSimulatorTest(unittest.TestCase):
     def test_default_constructor (self):
         """ Test the construction of the Simulator without arguments. """
 
+        # Cleanup.
+        self._test_files.append("casim_out")
+
         # Test that the Simulator cannot be constructed without parameters.
         with self.assertRaises(ValueError):
             casim = CancerSimulator()
-
-    def test_reference_run_nondefaults(self):
-        """ Test running a simulation with non-default parameters and check values. """
-
-        default_parameters = CancerSimulatorParameters(
-                                matrix_size =                           20  ,
-                                number_of_generations =                 10  ,
-                                division_probability =                   0.5,
-                                advantageous_division_probability =      0.8,
-                                death_probability =                      0.1,
-                                fitness_advantage_death_probability =    0.4,
-                                mutation_rate =                          0.2,
-                                advantageous_mutation_probability =      0.8,
-                                mutations_per_division =                10  ,
-                                time_of_advantageous_mutation =      30000  ,
-                                number_of_clonal =                       2  ,
-                               )
-
-
-        cancer_sim = CancerSimulator(default_parameters, seed=1)
-
-        cancer_sim.run()
-
-        # Get cell matrix and compare to reference result.
-        matrix = cancer_sim._CancerSimulator__mtx
-        reference_matrix = numpy.array(
-                [[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 55, 54,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0, 62,  1, 52,  1,  1, 55,  1,  1,  1,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0, 63, 38, 53,  1, 36,  1,  1,  1,  0, 15,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  1, 46,  1, 39,  1,  1, 37,  1,  1, 15,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 12,  1,  1, 47,  1,  1,  1,  1,  1, 15, 22,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 28, 12, 12,  1, 35,  1,  1,  1, 15, 22, 15, 42,  0,  0,  0],
-                 [ 0,  0,  0,  0, 28, 28, 12, 10, 12,  4,  1,  1, 15, 23, 43, 42, 48,  0,  0,  0],
-                 [ 0,  0,  0,  0, 56, 12, 28, 12, 10, 13,  5,  1,  1, 25, 18, 49, 18,  0,  0,  0],
-                 [ 0,  0,  0,  0, 50, 57,  6, 29, 27, 11,  1,  3,  2,  1,  1, 18,  1,  1,  0,  0],
-                 [ 0,  0,  0,  0, 31, 51, 31, 26, 16, 17,  1,  1,  2,  2,  2,  1,  1,  1,  0,  0],
-                 [ 0,  0,  0,  0, 31, 31, 30, 26,  1,  1,  1,  1,  1,  2, 33, 41, 40,  0,  0,  0],
-                 [ 0,  0,  0,  0, 30, 30,  1,  1,  1,  1,  1,  9,  1,  1, 32, 61,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 45, 45,  1, 20, 21,  1,  8,  9,  1,  1,  0, 60,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0, 44,  1, 20, 21,  1,  8,  1,  8,  1,  1,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  1, 20, 20,  1,  1,  8,  8, 59,  8,  1,  1,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  8,  0, 58,  1,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-                 [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]]
-                                      )
-
-        self.assertEqual( numpy.linalg.norm(matrix - reference_matrix), 0)
-
-        # Get mutation container and compare to reference result.
-        mutation_container = cancer_sim._CancerSimulator__mut_container
-        reference_mutation_container = [(0, 0), (0, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (7, 12), (7, 13), (1, 14), (1, 15), (1, 16), (1, 17), (1, 18), (1, 19), (1, 20), (1, 21), (14, 22), (14, 23), (19, 24), (19, 25), (6, 26), (6, 27), (6, 28), (6, 29), (6, 30), (6, 31), (2, 32), (2, 33), (1, 34), (1, 35), (1, 36), (1, 37), (1, 38), (1, 39), (2, 40), (2, 41), (24, 42), (24, 43), (1, 44), (1, 45), (34, 46), (34, 47), (1, 48), (1, 49), (6, 50), (6, 51), (1, 52), (1, 53), (1, 54), (1, 55), (31, 56), (31, 57), (1, 58), (1, 59), (33, 60), (33, 61), (1, 62)]
-
-        for r,m in zip(reference_mutation_container, mutation_container):
-            self.assertEqual(r[0], m[0])
-            self.assertEqual(r[1], m[1])
-
-    def test_reference_run_defaults(self):
-        """ Test running a simulation with default parameters and check values. """
-
-        default_parameters = CancerSimulatorParameters()
-
-        cancer_sim = CancerSimulator(default_parameters, seed=1)
-
-        cancer_sim.run()
-
-        # Get cell matrix and compare to reference result.
-        matrix = cancer_sim._CancerSimulator__mtx
-
-        reference_matrix = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 6, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 5, 7, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 4, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-                                       ]
-                                      )
-
-        self.assertEqual( numpy.linalg.norm(matrix - reference_matrix), 0)
-
-        # Get mutation container and compare to reference result.
-        mutation_container = cancer_sim._CancerSimulator__mut_container
-        reference_mutation_container = [(0, 0),
-                                        (0, 1),
-                                        (1, 2),
-                                        (1, 3),
-                                        (3, 4),
-                                        (3, 5),
-                                        (2, 6),
-                                       ]
-        for r,m in zip(reference_mutation_container, mutation_container):
-            self.assertEqual(r[0], m[0])
-            self.assertEqual(r[1], m[1])
 
     def test_setup_io(self):
         """ Test the IO handling. """
 
         default_parameters = CancerSimulatorParameters()
-        cancer_sim = CancerSimulator(default_parameters, seed=1)
 
-        self.assertIsNone(cancer_sim.outdir)
-        self.assertIsNone(cancer_sim._CancerSimulator__seeddir)
-        self.assertIsNone(cancer_sim._CancerSimulator__logdir)
-        self.assertIsNone(cancer_sim._CancerSimulator__simdir)
+        # Setup the simulator without outdir.
+        cancer_sim = CancerSimulator(default_parameters, seed=1)
+        self._test_files.append("casim_out")
+
+        # Test it is set to the default path in CWD.
+        self.assertEqual(cancer_sim.outdir, "casim_out")
+
+        # Get seed dir.
+        seeddir = os.path.join("casim_out", 'cancer_%d' % cancer_sim._CancerSimulator__seed)
+        # Check all subdirectories are correctly named and exist.
+        self.assertEqual(cancer_sim._CancerSimulator__logdir, os.path.join(seeddir, 'log'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
+        self.assertEqual(cancer_sim._CancerSimulator__simdir, os.path.join(seeddir, 'simOutput'))
+        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
 
         # Create an empty dir.
         tmpdir = mkdtemp()
         self._test_files.append(tmpdir)
 
-        # This should work.
+        # Set to a different dir.
         cancer_sim.outdir = tmpdir
-
-        # Check value.
-        self.assertEqual(cancer_sim.outdir, tmpdir)
-
-        # Get seed dir.
-        seeddir = os.path.join(tmpdir, 'cancer_%d' % cancer_sim._CancerSimulator__seed)
-        self.assertEqual(cancer_sim._CancerSimulator__seeddir, seeddir)
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__seeddir))
-
-        # Check all subdirectories are correctly named and exist.
-
-        self.assertEqual(cancer_sim._CancerSimulator__logdir,
-                         os.path.join(seeddir, 'log'))
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__logdir))
-
-        self.assertEqual(cancer_sim._CancerSimulator__simdir,
-                         os.path.join(seeddir, 'simOutput'))
-        self.assertTrue(os.path.isdir(cancer_sim._CancerSimulator__simdir))
 
         # Check export_tumour flag
         self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
@@ -275,51 +180,143 @@ class CancerSimulatorTest(unittest.TestCase):
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
 
-    def prototype_dill(self):
-        """ Prototype for dumping and entire simulation object as dill. """
-        import dill
-        parameters = CancerSimulatorParameters()
-        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+    def test_high_sampling_fraction(self):
+        """ Test run with sampling_fraction=0.9 """
 
-        # dump before run.
-        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'wb') as fp:
-            dill.dump(cancer_sim, fp)
+        # Setup parameters.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_probability=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=50,
+                                            tumour_multiplicity=None,
+                                            read_depth=100,
+                                            sampling_fraction=0.9,
+                                            )
 
-        # Reload
-        with open(os.path.join(cancer_sim.outdir, 'CancerSimulation.py.dill'), 'rb') as fp:
-            loaded_simulation = dill.load(fp)
+        # Setup the simulator.
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir=mkdtemp())
+        # Cleanup (remove test output).
+        self._test_files.append(simulator.outdir)
 
-        self.assertIsInstance(loaded_simulation, CancerSimulator)
+        # Check run returns sanely.
+        self.assertEqual(simulator.run(), 0)
 
-        # Check parameters.
-        loaded_parameters = loaded_simulation.parameters
+    def test_reference_data_50mut(self):
+        """ Run a reference test and compare against reference data."""
+        """ 50 mutations per division."""
 
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
-        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
-        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
-        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
-        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
-        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
-        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
-        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
-        self.assertEqual(loaded_parameters.tumour_multiplicity,                  parameters.tumour_multiplicity)
-        self.assertEqual(loaded_simulation.outdir,                               cancer_sim.outdir)
+        # Setup parameters. Values taken from casim/params.py.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_probability=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=50,
+                                            tumour_multiplicity=None,
+                                            sampling_fraction=0.1,
+                                            )
 
-        # Check we can run.
-        loaded_simulation.run()
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="reference_test_out")
+        self._test_files.append('reference_test_out')
 
-        # dump again.
-        with open(os.path.join(loaded_simulation.outdir, 'CancerSimulation_run.py.dill'), 'wb') as fp:
-            dill.dump(loaded_simulation, fp)
+        simulator.run()
+
+        ### Load results and reference data.
+        # Reference data.
+        ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_50mut', 'cancer_1', 'simOutput')
+        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
+            ref_death_list = pickle.load(fp)
+        with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
+            ref_mtx = pickle.load(fp)
+        with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
+            ref_mutations = pickle.load(fp)
+
+
+        run_dir = os.path.join('reference_test_out', 'cancer_1', 'simOutput')
+        # Run data.
+        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
+            run_death_list = pickle.load(fp)
+        with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
+            run_mtx = pickle.load(fp)
+        with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
+            run_mutations = pickle.load(fp)
+
+        # Check data is equal.
+        self.assertEqual(ref_death_list, run_death_list)
+        self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
+        self.assertEqual(ref_mutations, run_mutations)
+
+    def test_reference_data_1mut(self):
+        """ Run a reference test and compare against reference data."""
+        """ 1 mutation per division."""
+
+        # Setup parameters. Values taken from casim/params.py.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_probability=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=1,
+                                            tumour_multiplicity=None,
+                                            sampling_fraction=0.1,
+                                            )
+
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="reference_test_out")
+        self._test_files.append('reference_test_out')
+
+        simulator.run()
+
+        ### Load results and reference data.
+        # Reference data.
+        ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_1mut', 'cancer_1', 'simOutput')
+        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
+            ref_death_list = pickle.load(fp)
+        with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
+            ref_mtx = pickle.load(fp)
+        with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
+            ref_mutations = pickle.load(fp)
+
+        run_dir = os.path.join('reference_test_out', 'cancer_1', 'simOutput')
+        # Run data.
+        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
+            run_death_list = pickle.load(fp)
+        with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
+            run_mtx = pickle.load(fp)
+        with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
+            run_mutations = pickle.load(fp)
+
+        # Check data is equal.
+        self.assertEqual(ref_death_list, run_death_list)
+        self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
+        self.assertEqual(ref_mutations, run_mutations)
 
     def test_serialize(self):
         """ The the serialization of the entire object. """
         parameters = CancerSimulatorParameters()
         cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+
+        # Cleanup.
+        self._test_files.append(cancer_sim.outdir)
 
         # dump before run.
         cancer_sim.dump()
@@ -338,13 +335,15 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
         self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
         self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.fitness_advantage_death_probability,  parameters.fitness_advantage_death_probability)
-        self.assertEqual(loaded_parameters.mutation_rate,                        parameters.mutation_rate)
+        self.assertEqual(loaded_parameters.advantageous_death_probability,  parameters.advantageous_death_probability)
+        self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
         self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
         self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
         self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
         self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
         self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
+        self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
+        self.assertEqual(loaded_parameters.sampling_fraction,              parameters.sampling_fraction)
 
         # Check we can run.
         loaded_simulation.run()
@@ -369,6 +368,37 @@ class CancerSimulatorTest(unittest.TestCase):
         listing = os.listdir(cancer_sim._CancerSimulator__simdir)
         for f in ['mtx.p', 'mut_container.p', 'death_list.p', 'mtx_VAF.txt']:
             self.assertIn(f, listing)
+
+    def test_sampling_output(self):
+        """ Check that output generated by the sampling postprocessing goes to the correct path."""
+
+        # Setup parameters.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            advantageous_division_probability=1,
+                                            death_probability=0.1,
+                                            advantageous_death_probability=0.0,
+                                            mutation_probability=1,
+                                            advantageous_mutation_probability=1,
+                                            time_of_advantageous_mutation=10,
+                                            number_of_clonal=150,
+                                            mutations_per_division=1,
+                                            tumour_multiplicity=None,
+                                            sampling_fraction=0.5,
+                                            )
+
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="casim_out")
+        # Cleanup (remove test output).
+        self._test_files.append(simulator.outdir)
+
+        # Run the simulation.
+        simulator.run()
+
+        # Check sampling file was written.
+        self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sample_out_[0-9]{3}_[0-9]{3}.txt"))
+        self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sampleHistogram_[0-9]{3}_[0-9]{3}.pdf"))
 
 
 class casim_test(unittest.TestCase):

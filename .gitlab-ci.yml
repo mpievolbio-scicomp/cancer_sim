@@ -1,0 +1,48 @@
+image: conda/miniconda3
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+  - conda env create -p ./condaenv -f environment.yml
+  - conda init bash
+  - cp -v ~/.bashrc .
+  - source ./.bashrc
+  - conda activate ./condaenv
+  - conda install git make
+  - pip install .
+  artifacts:
+    paths:
+      - .bashrc
+      - ./condaenv/
+    expire_in: '1 hrs'
+
+test:
+  stage: test
+  script:
+    - source ./.bashrc
+    - conda activate ./condaenv
+    - python test/casim_test.py -v
+  dependencies:
+    - build
+
+pages:
+  stage: deploy
+  script:
+  - source ./.bashrc
+  - conda activate ./condaenv
+  - cd docs
+  - make html
+  - cd ..
+  - rm -rvf public
+  - cp -rv docs/build/html public
+  - ls -lR public
+  artifacts:
+    paths:
+    - public
+  dependencies:
+    - build
