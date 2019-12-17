@@ -435,6 +435,7 @@ class casim_test(unittest.TestCase):
 
         # Run with seed only.
         args = ['1']
+        self._test_files.append('casim_out')
 
         proc = Popen([python, module] + args)
         proc.wait()
@@ -455,7 +456,7 @@ class casim_test(unittest.TestCase):
         self.assertEqual(proc.returncode, 0)
 
         # run with positional argument (long version).
-        args = ['3', '--outdir', outdir, '-vv']
+        args = ['3', '--outdir', outdir]
         proc = Popen([python, module] + args)
         proc.wait()
         self.assertEqual(proc.returncode, 0)
