@@ -6,6 +6,6 @@ setup(
     setup_requires=['setuptools_scm'],
     packages=['casim',
              ],
-    license='UNLICENSED',
-    #long_description=open('README.md').read(),
+    license='MIT',
+    long_description=open('README.md').read(),
 )
