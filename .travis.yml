@@ -1,0 +1,29 @@
+language: python
+python:
+  - 3.7
+  - 3.8
+  - "nightly"
+
+matrix:
+    allow_failures:
+        - python: "nightly"
+branches:
+  only:
+  - /.*/
+
+cache:
+  apt: false
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/lib
+
+
+sudo: required
+dist: xenial
+
+install:
+  - pip install -r requirements.txt
+  - pip install .
+
+script:
+  - sh run_tests.sh
