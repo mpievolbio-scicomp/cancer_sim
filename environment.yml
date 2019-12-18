@@ -1,4 +1,3 @@
-name: casim
 channels:
   - conda-forge
   - defaults

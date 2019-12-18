@@ -48,9 +48,9 @@ We provide for two alternatives to install the software after it was downloaded:
 ### Alternative 1: Conda
 #### New conda environment
 We provide an `environment.yml` to be consumed by `conda`. To create a fully
-self-contained conda environment:
+self-contained conda environment (named `casim`):
 ```
-$> conda env create --file=environment.yml
+$> conda env create -n casim --file environment.yml
 ```
 This will also install the cancer simulation code into the new environment.
 
@@ -67,10 +67,12 @@ if you have set up conda appropriately.
 
 
 
-#### Install into existing conda environment
+#### Install into existing and activated conda environment
+
 To install the software into an already existing environment:
 ```
-$> conda install --file=environment.yml
+$> conda activate <name_of_existing_conda_environment>
+$> conda env update --file environment.yml
 ```
 
 
