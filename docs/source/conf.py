@@ -66,8 +66,8 @@ master_doc = 'index'
 
 html_theme_options = {
     'show_powered_by': False,
-    'github_user': 'requests',
-    'github_repo': 'requests',
+    'github_user': 'mpievolbio-scicomp',
+    'github_repo': 'cancer_sim',
     'github_banner': True,
     'show_related': False,
     'note_bg': '#FFF59C'
