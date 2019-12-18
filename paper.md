@@ -30,27 +30,22 @@ After the simulation, the tumour matrix, and the  lists of lineages and frequenc
 Furthermore, the virtual tumour can be sampled and a histogram over the
  frequency of mutations will be visualised. Alternatively, a saved tumour can be loaded from file and then subjected to the sampling process.
 
+## Installation
 CancerSim is written in Python (version >3.5). It can be installed in various
 ways, see below. Software dependencies are listed in the `requirements.txt`
 file.
 
 
-### PIP
-```bash:
-$> pip install casim
+### Conda environment
+```
+$> conda env create --file=environment.yml
+$> conda activate casim
 ```
 
-### Conda
-```bash
-$> conda install -c conda-forge casim
+### From the source code repository using `pip`:
 ```
-
-### From the source code repository:
-```bash
-$> pip install .
+$> pip install -r requirements.txt [--user] [--upgrade]
 ```
-
-We implemented growth visualizer for two-dimensional tumour **Where is it?**
 
 High--level functionality
 -------------------------
@@ -58,7 +53,7 @@ The parameters of the cancer simulation are given via a python module or
 programmatically via the ```CancerSimulationParameters``` class. A documented
 example `params.py` is included in the source code (under `test/params.py`) and reproduced here:
 
-```bash:
+```
 $> cat test/params.py
 # Number of mesh points in each dimension
 matrix_size                      = 100
@@ -129,10 +124,11 @@ Results will be stored in the newly created directory ```sim_out/```.
 
 Reference Manual
 ----------------
-The API reference manual is available at [our pages site](https://c.fortmanngrote.pages.gwdg.de/cancer_sim).
+The API reference manual is available at [https://cancer-sim.readthedocs.io](https://cancer-sim.readthedocs.io).
 
 Examples
 --------
 See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb`. Or [launch it in Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
+`docs/source/include/notebooks/quickstart_example.ipynb`. Or on [mybinder.org](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb) .
+
 
