@@ -31,21 +31,63 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
  frequency of mutations will be visualised. Alternatively, a saved tumour can be loaded from file and then subjected to the sampling process.
 
 ## Installation
-CancerSim is written in Python (version >3.5). It can be installed in various
-ways, see below. Software dependencies are listed in the `requirements.txt`
-file.
+CancerSim is written in Python (version >3.5). We recommend to install it
+directly from the source code. To download the code:
 
+**EITHER** clone the repository:
+```
+$> git clone https://github.com/mpievolbio-scicomp/cancer_sim.git
+```
 
-### Conda environment
+**OR** download the source code archive:
+```
+$> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
+$> unzip master.zip
+$> mv cancer_sim-master cancer_sim
+```
+Change into the source code directory
+```
+$> cd cancer_sim
+```
+
+We provide for two alternatives to install the software after it was downloaded:
+### Alternative 1: Conda
+#### New conda environment
+We provide an `environment.yml` to be consumed by `conda`. To create a fully
+self-contained conda environment:
 ```
 $> conda env create --file=environment.yml
-$> conda activate casim
+```
+This will also install the cancer simulation code into the new environment.
+
+To activate the new conda environment:
+```
+$> source activate casim
 ```
 
-### From the source code repository using `pip`:
+or
 ```
-$> pip install -r requirements.txt [--user] [--upgrade]
+$> conda activate casim
 ```
+if you have set up conda appropriately.
+
+
+
+#### Install into existing conda environment
+To install the software into an already existing environment:
+```
+$> conda install --file=environment.yml
+```
+
+
+### Alternative 2: Using pip
+The file `requirements.txt` is meant to be consumed by `pip`:
+```
+$> pip install -r requirements.txt [--user]
+```
+The option `--user` is needed to install without admin privileges.
+
+
 
 High--level functionality
 -------------------------
@@ -100,7 +142,7 @@ read_depth                      = 100
 
 The simulation is started from the command line. The syntax is
 
-    $> python -m casim.py [-h] [-o DIR] seed
+    $> python -m casim.casim [-h] [-o DIR] seed
 
  The mandatory command line argument ```seed``` is the
 random seed. Using the same seed on two simulation runs with identical
@@ -118,7 +160,7 @@ earlier run used the same seed, the run will abort. This is a safety catch to av
 ### Example 2
 
     $> mkdir sim_out
-    $> python -m casim.casim.py -o sim_out
+    $> python -m casim.casim -o sim_out
 
 Results will be stored in the newly created directory ```sim_out/```.
 
