@@ -12,9 +12,9 @@ Here, we present CancerSim, a software that simulates somatic evolution of tumou
 
 Our model is abstract, not specific to any neoplasm type and does not consider a variety of biological features commonly found in neoplasm such as vasculature, immune contexture, availability of nutrients, and architecture of the tumour surroundings.  It resembles the most to superficially spreading tumours like carcinoma in situ, skin cancers, or gastric cancers but it can be used to model any tumour.
 
-The tumour is simulated using a two-dimensional, on-lattice, agent-based model.  The tumour lattice structure is established by a sparse matrix whose non-zero elements correspond to an individual cell.  Each cell is surrounded by eight neighbouring cells (Moore neighbourhood).  The value of the matrix element is an index pointing to the last mutation cell acquired in the list of mutations which is updated in each simulation step.
+The tumour is simulated using a two-dimensional, on-lattice, agent-based model.  The tumour lattice structure is established by a sparse matrix whose non-zero elements correspond to the individual cells. Each cell is surrounded by eight neighbouring cells (Moore neighbourhood). The value of the matrix element is an index pointing to the last mutation cell acquired in the list of mutations which is updated in each simulation step.
 
-The simulation advances in discrete time-steps. In each simulation step, every tumour cell in the tumour that has an unoccupied neighbour can divide with a certain probability (params.div__probability).  The daughter cell resulting from a cell division inherits all mutations from the parent cell and acquires a new mutation with a given probability (params.mut_prob).  Different division probabilities can be introduced for some cells in order to simulate variability in fitness of cells that acquired beneficial or deleterious mutation.  The simulation allows the acquisition of more than one mutational event per cell (params.mut_per_division). In that case variable amount of sequencing noise [@williams:NG:2016] will be added to make the output data more biologically realistic.
+The simulation advances in discrete time-steps. In each simulation step, every tumour cell in the tumour that has an unoccupied neighbour can divide with a certain probability (params.div__probability).  The daughter cell resulting from a cell division inherits all mutations from the parent cell and acquires a new mutation with a given probability (params.mut_prob).  Different division probabilities can be introduced for some cells in order to simulate variability in fitness of cells that acquired a beneficial or deleterious mutation.  The simulation allows the acquisition of more than one mutational event per cell (params.mut_per_division). In that case variable amounts of sequencing noise [@williams:NG:2016] will be added to make the output data more biologically realistic.
 
 Throughout the cancer growth phase,  CancerSim stores information about the parent cell and a designation of newly acquired mutations for every cell, Complete mutational profiles of cells are reconstructed a posteriori based on the stored lineage information.
 
@@ -45,7 +45,9 @@ $> cd cancer_sim
 ```
 
 We provide for two alternatives to install the software after it was downloaded:
+
 ### Alternative 1: Conda
+
 #### New conda environment
 We provide an `environment.yml` to be consumed by `conda`. To create a fully
 self-contained conda environment (named `casim`):
@@ -84,6 +86,28 @@ $> pip install -r requirements.txt [--user]
 The option `--user` is needed to install without admin privileges.
 
 
+Testing
+-------
+
+Although not strictly required, we recommend to run the test suite after
+installation. Simply execute the `run_tests.sh` shell script:
+```
+$> ./run_tests.sh
+```
+
+This will generate a test log named `casim_test@<timestamp>.log` with
+`<timestamp>` being the date and time when the test was run. You should see an ```OK```
+at the bottom of the log. If instead errors or failures are reported, something
+is wrong with the installation or the code itself. Feel free to
+open a github
+issue at [https://github.com/mpievolbio-scicomp/cancer_sim/issues](https://github.com/mpievolbio-scicomp/cancer_sim/issues) and attach the
+test log plus any information that may be useful to reproduce the error (version
+hash, computer hardware, operating system, python version, a dump of ```conda
+env export``` if applicable, ...).
+
+The test suite is automatically run after each commit to the code base. Results
+are published on
+[travis-ci.org](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
 
 High--level functionality
 -------------------------
@@ -129,7 +153,7 @@ num_of_clonal                   = 15
 # Tumour multiplicity.
 tumour_multiplicity             = None
 
-# Read depth.
+# Sequencing read depth.
 read_depth                      = 100
 
 # Fraction of cells to be sampled.
@@ -156,7 +180,7 @@ earlier run used the same seed, the run will abort. This is a safety catch to av
 ### Example 2
 
     $> mkdir sim_out
-    $> python -m casim.casim -o sim_out
+    $> python -m casim.casim -o sim_out 2
 
 Results will be stored in the newly created directory ```sim_out/```.
 
