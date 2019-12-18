@@ -130,5 +130,5 @@ The API reference manual is available at [https://cancer-sim.readthedocs.io](htt
 Examples
 --------
 See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb`. Or ([![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb))
+`docs/source/include/notebooks/quickstart_example.ipynb`. Or [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
 
