@@ -63,3 +63,12 @@ html_static_path = ['_static']
 
 # The master doc file.
 master_doc = 'index'
+
+html_theme_options = {
+    'show_powered_by': False,
+    'github_user': 'requests',
+    'github_repo': 'requests',
+    'github_banner': True,
+    'show_related': False,
+    'note_bg': '#FFF59C'
+}
