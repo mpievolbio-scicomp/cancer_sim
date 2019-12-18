@@ -30,27 +30,65 @@ After the simulation, the tumour matrix, and the  lists of lineages and frequenc
 Furthermore, the virtual tumour can be sampled and a histogram over the
  frequency of mutations will be visualised. Alternatively, a saved tumour can be loaded from file and then subjected to the sampling process.
 
-CancerSim is written in Python (version >3.5). It can be installed in various
-ways, see below. Software dependencies are listed in the `requirements.txt`
-file.
+## Installation
+CancerSim is written in Python (version >3.5). We recommend to install it
+directly from the source code. To download the code:
 
-
-### PIP
-```bash:
-$> pip install casim
+**EITHER** clone the repository:
+```
+$> git clone https://github.com/mpievolbio-scicomp/cancer_sim.git
 ```
 
-### Conda
-```bash
-$> conda install -c conda-forge casim
+**OR** download the source code archive:
+```
+$> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
+$> unzip master.zip
+$> mv cancer_sim-master cancer_sim
+```
+Change into the source code directory
+```
+$> cd cancer_sim
 ```
 
-### From the source code repository:
-```bash
-$> pip install .
+We provide for two alternatives to install the software after it was downloaded:
+### Alternative 1: Conda
+#### New conda environment
+We provide an `environment.yml` to be consumed by `conda`. To create a fully
+self-contained conda environment (named `casim`):
+```
+$> conda env create -n casim --file environment.yml
+```
+This will also install the cancer simulation code into the new environment.
+
+To activate the new conda environment:
+```
+$> source activate casim
 ```
 
-We implemented growth visualizer for two-dimensional tumour **Where is it?**
+or
+```
+$> conda activate casim
+```
+if you have set up conda appropriately.
+
+
+
+#### Install into existing and activated conda environment
+
+To install the software into an already existing environment:
+```
+$> conda activate <name_of_existing_conda_environment>
+$> conda env update --file environment.yml
+```
+
+### Alternative 2: Using pip
+The file `requirements.txt` is meant to be consumed by `pip`:
+```
+$> pip install -r requirements.txt [--user]
+```
+The option `--user` is needed to install without admin privileges.
+
+
 
 High--level functionality
 -------------------------
@@ -58,7 +96,7 @@ The parameters of the cancer simulation are given via a python module or
 programmatically via the ```CancerSimulationParameters``` class. A documented
 example `params.py` is included in the source code (under `test/params.py`) and reproduced here:
 
-```bash:
+```
 $> cat test/params.py
 # Number of mesh points in each dimension
 matrix_size                      = 100
@@ -105,7 +143,7 @@ read_depth                      = 100
 
 The simulation is started from the command line. The syntax is
 
-    $> python -m casim.py [-h] [-o DIR] seed
+    $> python -m casim.casim [-h] [-o DIR] seed
 
  The mandatory command line argument ```seed``` is the
 random seed. Using the same seed on two simulation runs with identical
@@ -123,16 +161,17 @@ earlier run used the same seed, the run will abort. This is a safety catch to av
 ### Example 2
 
     $> mkdir sim_out
-    $> python -m casim.casim.py -o sim_out
+    $> python -m casim.casim -o sim_out
 
 Results will be stored in the newly created directory ```sim_out/```.
 
 Reference Manual
 ----------------
-The API reference manual is available at [our pages site](https://c.fortmanngrote.pages.gwdg.de/cancer_sim).
+The API reference manual is available at [https://cancer-sim.readthedocs.io](https://cancer-sim.readthedocs.io).
 
 Examples
 --------
 See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb`. Or [launch it in Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
+`docs/source/include/notebooks/quickstart_example.ipynb`. Or on [mybinder.org](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb) .
+
 
