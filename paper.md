@@ -1,28 +1,28 @@
 ---
 title: 'CancerSim: A Cancer Simulation Package for python3'
 tags:
-    - Stochastic simulation
-    - Tumour growth
-    - Sampling statistics
-    - Cancer biology
+  - Stochastic simulation
+  - Tumour growth
+  - Sampling statistics
+  - Cancer biology
 authors:
-    - name: Luka Opasic
-      orcid: 0000-0001-7595-1722
-      affiliation: 1
-    - name: Jacob Scott
-      orcid: 0000-0003-2971-7673
-      affiliation:
-    - name: Arne Traulsen
-      orcid: 0000-0002-0669-5267
-      affiliation: 1
-    - name: Carsten Fortmann-Grote
-      orcid: 
-      affiliation: 1
+  - name: Luka Opasic
+    orcid: 0000-0001-7595-1722
+    affiliation: 1
+  - name: Jacob Scott
+    orcid: 0000-0003-2971-7673
+    affiliation:
+  - name: Arne Traulsen
+    orcid: 0000-0002-0669-5267
+    affiliation: 1
+  - name: Carsten Fortmann-Grote
+    orcid: 
+    affiliation: 1
 affiliations:
-    - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
-      index: 1
-    - name: Cleveland Clinic: Cleveland, OH, US
-      index: 2
+  - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
+    index: 1
+  - name: Cleveland Clinic: Cleveland, OH, US
+    index: 2
 date: 16 March 2020
 bibliography: references.bib
 ---
