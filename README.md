@@ -3,17 +3,16 @@ Background
 
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
-[@kumar:book:2017]. Its high division and mutation rates
-lead to excessive intratumour genetic heterogeneity which makes cancer
-highly adaptable to environmental pressures such as therapy
-[@turajlic:NRG:2019]. Throughout most of its existence
-tumour is inaccessible to direct observation and experimental
-evaluation. Therefore, computational modelling can be useful to study
-many aspects of cancer. Some examples where theoretical models can be of
-great use include early carcinogenesis, as lesions are clinically
-observable when they already contain millions of cells, seeding of
-metastases, and cancer cell dormancy
-[@altrock:NatRevCancer:2015].
+[@kumar:book:2017]. Its high division and mutation rates lead to
+excessive intratumour genetic heterogeneity which makes cancer highly
+adaptable to environmental pressures such as therapy
+[@turajlic:NRG:2019]. Throughout most of its existence tumour is
+inaccessible to direct observation and experimental evaluation.
+Therefore, computational modelling can be useful to study many aspects
+of cancer. Some examples where theoretical models can be of great use
+include early carcinogenesis, as lesions are clinically observable when
+they already contain millions of cells, seeding of metastases, and
+cancer cell dormancy [@altrock:NatRevCancer:2015].
 
 Here, we present CancerSim, a software that simulates somatic evolution
 of tumours. The software produces virtual spatial tumours with variable
@@ -24,9 +23,9 @@ sequencing data. This makes the software useful for studying various
 sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
-[@opasic:BMCCancer:2019]. Target users are scientists
-working in the field of mathematical oncology and students with interest
-in studying somatic evolution of cancer.
+[@opasic:BMCCancer:2019]. Target users are scientists working in the
+field of mathematical oncology and students with interest in studying
+somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type and does not
 consider a variety of biological features commonly found in neoplasm
@@ -54,8 +53,8 @@ for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (params.mut\_per\_division). In that case, variable amounts of
-sequencing noise [@williams:NG:2016] can be added to make
-the output data more biologically realistic.
+sequencing noise [@williams:NG:2016] can be added to make the output
+data more biologically realistic.
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every
@@ -76,10 +75,8 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
 
-::: {#installation}
 Installation
 ------------
-:::
 
 CancerSim is written in Python (version \>3.5). We recommend to install
 it directly from the source code. To download the code:
@@ -101,13 +98,9 @@ Change into the source code directory
 We provide for two alternatives to install the software after it was
 downloaded:
 
-::: {#alternative-1-conda}
 ### Alternative 1: Conda
-:::
 
-::: {#new-conda-environment}
 #### New conda environment
-:::
 
 We provide an `environment.yml` to be consumed by `conda`. To create a
 fully self-contained conda environment (named `casim`):
@@ -127,18 +120,14 @@ or
 
 if you have set up conda appropriately.
 
-::: {#install-into-existing-and-activated-conda-environment}
 #### Install into existing and activated conda environment
-:::
 
 To install the software into an already existing environment:
 
     $> conda activate <name_of_existing_conda_environment>
     $> conda env update --file environment.yml
 
-::: {#alternative-2-using-pip}
 ### Alternative 2: Using pip
-:::
 
 The file `requirements.txt` is meant to be consumed by `pip`:
 
@@ -146,10 +135,8 @@ The file `requirements.txt` is meant to be consumed by `pip`:
 
 The option `--user` is needed to install without admin privileges.
 
-::: {#testing}
 Testing
 -------
-:::
 
 Although not strictly required, we recommend to run the test suite after
 installation. Simply execute the `run_tests.sh` shell script:
@@ -170,10 +157,8 @@ The test suite is automatically run after each commit to the code base.
 Results are published on
 [travis-ci.org](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
 
-::: {#highlevel-functionality}
 High--level functionality
 -------------------------
-:::
 
 The parameters of the cancer simulation are given via a python module or
 programmatically via the `CancerSimulationParameters` class. A
@@ -229,45 +214,38 @@ The simulation is started from the command line. The syntax is
 
 The mandatory command line argument `seed` is the random seed. Using the
 same seed in two simulation runs with identical parameters results in
-identical results. This feature may be used for testing and debugging. The
-optional argument `DIR` specifies the directory where to store the
+identical results. This feature may be used for testing and debugging.
+The optional argument `DIR` specifies the directory where to store the
 simulation log and output data. If not given, output will be stored in
 the directory `casim_out` in the current directory. For each seed, a
 subdirectory `cancer_SEED` will be created. If that subdirectory already
 exists because an earlier run used the same seed, the run will abort.
 This is a safety catch to avoid overwriting data from previous runs.
 
-::: {#example-1}
 ### Example 1
-:::
 
     $> python -m casim.casim 1
 
-::: {#example-2}
 ### Example 2
-:::
 
     $> mkdir sim_out
     $> python -m casim.casim -o sim_out 2
 
 Results will be stored in the newly created directory `sim_out/`.
 
-::: {#reference-manual}
 Reference Manual
 ----------------
-:::
 
 The API reference manual is available at
 <https://cancer-sim.readthedocs.io>.
 
-::: {#examples}
 Examples
 --------
-:::
 
 See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb` or use the following link to [launch it in Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+`docs/source/include/notebooks/quickstart_example.ipynb` or use the
+following link to [launch it in
+Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
-References
+References {#references .unnumbered}
 ----------
-
