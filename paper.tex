@@ -1,0 +1,376 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={CancerSim: A Cancer Simulation Package for python3},
+            pdfauthor={Luka Opasic, Jacob Scott, Arne Traulsen, Carsten Fortman-Grotte},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{CancerSim: A Cancer Simulation Package for python3}
+\author{Luka Opasic, Jacob Scott, Arne Traulsen, Carsten Fortman-Grotte}
+\date{}
+
+\begin{document}
+\maketitle
+
+\hypertarget{background}{%
+\subsection{Background}\label{background}}
+
+Cancer is a group of complex diseases characterized by excessive cell
+proliferation, invasion, and destruction of the surrounding tissue
+~{[}\protect\hyperlink{ref-kumar:book:2017}{1}{]}. Its high division and
+mutation rates lead to excessive intratumour genetic heterogeneity which
+makes cancer highly adaptable to environmental pressures such as therapy
+~{[}\protect\hyperlink{ref-turajlic:NRG:2019}{2}{]}. Throughout most of
+its existence tumour is inaccessible to direct observation and
+experimental evaluation. Therefore, computational modelling can be
+useful to study many aspects of cancer. Some examples where theoretical
+models can be of great use include early carcinogenesis, as lesions are
+clinically observable when they already contain millions of cells,
+seeding of metastases, and cancer cell dormancy
+~{[}\protect\hyperlink{ref-altrock:NatRevCancer:2015}{3}{]}.
+
+Here, we present CancerSim, a software that simulates somatic evolution
+of tumours. The software produces virtual spatial tumours with variable
+extent of intratumour genetic heterogeneity and realistic mutational
+profiles. Simulated tumours can be subjected to multi-region sampling to
+obtain mutation profiles that are realistic representation of the
+sequencing data. This makes the software useful for studying various
+sampling strategies in clinical cancer diagnostics. An early version of
+this cancer evolution model was used to simulate tumours subjected to
+sampling for classification of mutations based on their abundance
+~{[}\protect\hyperlink{ref-opasic:BMCCancer:2019}{4}{]}. Target users
+are scientists working in the field of mathematical oncology and
+students with interest in studying somatic evolution of cancer.
+
+Our model is abstract, not specific to any neoplasm type and does not
+consider a variety of biological features commonly found in neoplasm
+such as vasculature, immune contexture, availability of nutrients, and
+architecture of the tumour surroundings. It resembles the most to
+superficially spreading tumours like carcinoma in situ, skin cancers, or
+gastric cancers, but it can be used to model any tumour on this abstract
+level.
+
+The tumour is simulated using a two-dimensional, on-lattice, agent-based
+model. The tumour lattice structure is established by a sparse matrix
+whose non-zero elements correspond to the individual cells. Each cell is
+surrounded by eight neighbouring cells (Moore neighbourhood). The value
+of the matrix element is an index pointing to the last mutation cell
+acquired in the list of mutations which is updated in each simulation
+step.
+
+The simulation advances in discrete time-steps. In each simulation step,
+every tumour cell in the tumour that has an unoccupied neighbour can
+divide with a certain probability (params.div\_\_probability). The
+daughter cell resulting from a cell division inherits all mutations from
+the parent cell and acquires a new mutation with a given probability
+(params.mut\_prob). Different division probabilities can be introduced
+for some cells in order to simulate variability in fitness of cells that
+acquired a beneficial or deleterious mutation. The simulation allows the
+acquisition of more than one mutational event per cell
+(params.mut\_per\_division). In that case, variable amounts of
+sequencing noise ~{[}\protect\hyperlink{ref-williams:NG:2016}{5}{]} can
+be added to make the output data more biologically realistic.
+
+Throughout the cancer growth phase, CancerSim stores information about
+the parent cell and a designation of newly acquired mutations for every
+cell. Complete mutational profiles of cells are reconstructed a
+posteriori based on the stored lineage information.
+
+The division rules which allow only cells with empty neighbouring nodes
+to divide, cause exclusively peripheral growth and complete absence of
+dynamics in the tumour centre. To allow for variable degree of growth
+inside the tumour, we introduced a death process. At every time step,
+after all cells attempt their division, a number of random cells die and
+yield their position to host a new cancer cell in a subsequent time
+step.
+
+After the simulation, the tumour matrix, and the lists of lineages and
+frequencies of each mutation in the tumour are exported to files.
+Furthermore, the virtual tumour can be sampled and a histogram over the
+frequency of mutations will be visualised. Alternatively, a saved tumour
+can be loaded from file and then subjected to the sampling process.
+
+\hypertarget{installation}{%
+\subsection{Installation}\label{installation}}
+
+CancerSim is written in Python (version \textgreater{}3.5). We recommend
+to install it directly from the source code. To download the code:
+
+\textbf{EITHER} clone the repository:
+
+\begin{verbatim}
+$> git clone https://github.com/mpievolbio-scicomp/cancer_sim.git
+\end{verbatim}
+
+\textbf{OR} download the source code archive:
+
+\begin{verbatim}
+$> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
+$> unzip master.zip
+$> mv cancer_sim-master cancer_sim
+\end{verbatim}
+
+Change into the source code directory
+
+\begin{verbatim}
+$> cd cancer_sim
+\end{verbatim}
+
+We provide for two alternatives to install the software after it was
+downloaded:
+
+\hypertarget{alternative-1-conda}{%
+\subsubsection{Alternative 1: Conda}\label{alternative-1-conda}}
+
+\hypertarget{new-conda-environment}{%
+\paragraph{New conda environment}\label{new-conda-environment}}
+
+We provide an \texttt{environment.yml} to be consumed by \texttt{conda}.
+To create a fully self-contained conda environment (named
+\texttt{casim}):
+
+\begin{verbatim}
+$> conda env create -n casim --file environment.yml
+\end{verbatim}
+
+This will also install the cancer simulation code into the new
+environment.
+
+To activate the new conda environment:
+
+\begin{verbatim}
+$> source activate casim
+\end{verbatim}
+
+or
+
+\begin{verbatim}
+$> conda activate casim
+\end{verbatim}
+
+if you have set up conda appropriately.
+
+\hypertarget{install-into-existing-and-activated-conda-environment}{%
+\paragraph{Install into existing and activated conda
+environment}\label{install-into-existing-and-activated-conda-environment}}
+
+To install the software into an already existing environment:
+
+\begin{verbatim}
+$> conda activate <name_of_existing_conda_environment>
+$> conda env update --file environment.yml
+\end{verbatim}
+
+\hypertarget{alternative-2-using-pip}{%
+\subsubsection{Alternative 2: Using pip}\label{alternative-2-using-pip}}
+
+The file \texttt{requirements.txt} is meant to be consumed by
+\texttt{pip}:
+
+\begin{verbatim}
+$> pip install -r requirements.txt [--user]
+\end{verbatim}
+
+The option \texttt{-\/-user} is needed to install without admin
+privileges.
+
+\hypertarget{testing}{%
+\subsection{Testing}\label{testing}}
+
+Although not strictly required, we recommend to run the test suite after
+installation. Simply execute the \texttt{run\_tests.sh} shell script:
+
+\begin{verbatim}
+$> ./run_tests.sh
+\end{verbatim}
+
+This will generate a test log named
+\texttt{casim\_test@\textless{}timestamp\textgreater{}.log} with
+\texttt{\textless{}timestamp\textgreater{}} being the date and time when
+the test was run. You should see an \texttt{OK} at the bottom of the
+log. If instead errors or failures are reported, something is wrong with
+the installation or the code itself. Feel free to open a github issue at
+\url{https://github.com/mpievolbio-scicomp/cancer_sim/issues} and attach
+the test log plus any information that may be useful to reproduce the
+error (version hash, computer hardware, operating system, python
+version, a dump of \texttt{conda\ env\ export} if applicable, \ldots{}).
+
+The test suite is automatically run after each commit to the code base.
+Results are published on
+\href{https://travis-ci.org/mpievolbio-scicomp/cancer_sim}{travis-ci.org}.
+
+\hypertarget{highlevel-functionality}{%
+\subsection{High--level functionality}\label{highlevel-functionality}}
+
+The parameters of the cancer simulation are given via a python module or
+programmatically via the \texttt{CancerSimulationParameters} class. A
+documented example \texttt{params.py} is included in the source code
+(under \texttt{test/params.py}) and reproduced here:
+
+\begin{verbatim}
+$> cat test/params.py
+# Number of mesh points in each dimension
+matrix_size                      = 100
+
+# Number of generations to simulate.
+num_of_generations              = 20
+
+# Number of divisions per generation.
+div_probability                 = 1
+
+# Number of division for cells with mutation.
+fittnes_advantage_div_prob      = 1
+
+# Fraction of cells that die per generation.
+dying_fraction                   = 0.1
+
+# Fraction of cells with mutation that die per generation.
+fitness_advantage_death_prob    = 0.0
+
+# Rate of mutations.
+mut_prob                        = 1
+
+# Mutation probability for the adv. cells.
+advantageous_mut_prob           = 1
+
+# Number of mutations per cell division.
+mut_per_division                = 10
+
+# Time after which adv. mutations occur.
+time_of_adv_mut                 = 2
+
+# Number of mutations present in first cancer cell.
+num_of_clonal                   = 15
+
+# Tumour multiplicity.
+tumour_multiplicity             = None
+
+# Sequencing read depth.
+read_depth                      = 100
+
+# Fraction of cells to be sampled.
+# sampling_fraction             = 0.1
+\end{verbatim}
+
+The simulation is started from the command line. The syntax is
+
+\begin{verbatim}
+$> python -m casim.casim [-h] [-o DIR] seed
+\end{verbatim}
+
+The mandatory command line argument \texttt{seed} is the random seed.
+Using the same seed on two simulation runs with identical parameters
+results in identical results, this may be used for testing and
+debugging. The optional argument \texttt{DIR} specifies the directory
+where to store the simulation log and output data. If not given, output
+will be stored in the directory \texttt{casim\_out} in the current
+directory. For each seed, a subdirectory \texttt{cancer\_SEED} will be
+created. If that subdirectory already exists because an earlier run used
+the same seed, the run will abort. This is a safety catch to avoid
+overwriting data from previous runs.
+
+\hypertarget{example-1}{%
+\subsubsection{Example 1}\label{example-1}}
+
+\begin{verbatim}
+$> python -m casim.casim 1
+\end{verbatim}
+
+\hypertarget{example-2}{%
+\subsubsection{Example 2}\label{example-2}}
+
+\begin{verbatim}
+$> mkdir sim_out
+$> python -m casim.casim -o sim_out 2
+\end{verbatim}
+
+Results will be stored in the newly created directory
+\texttt{sim\_out/}.
+
+\hypertarget{reference-manual}{%
+\subsection{Reference Manual}\label{reference-manual}}
+
+The API reference manual is available at
+\url{https://cancer-sim.readthedocs.io}.
+
+\hypertarget{examples}{%
+\subsection{Examples}\label{examples}}
+
+See our quickstart example in
+\texttt{docs/source/include/notebooks/quickstart\_example.ipynb}.
+
+\hypertarget{bibliography}{%
+\section*{References}\label{bibliography}}
+\addcontentsline{toc}{section}{References}
+
+\hypertarget{refs}{}
+\leavevmode\hypertarget{ref-kumar:book:2017}{}%
+{[}1{]} J. C. A. Vinay Kumar Abul K. Abbas, \emph{Robbins Basic
+Pathology}, 10th ed. (Elsevier, 2017).
+
+\leavevmode\hypertarget{ref-turajlic:NRG:2019}{}%
+{[}2{]} S. Turajlic, A. Sottoriva, T. Graham, and C. Swanton, Nat Rev
+Genet (2019).
+
+\leavevmode\hypertarget{ref-altrock:NatRevCancer:2015}{}%
+{[}3{]} P. M. Altrock, L. L. Liu, and F. Michor, Nat Rev Cancer
+\textbf{15}, 730 (2015).
+
+\leavevmode\hypertarget{ref-opasic:BMCCancer:2019}{}%
+{[}4{]} L. Opasic, D. Zhou, B. Werner, D. Dingli, and A. Traulsen, BMC
+Cancer \textbf{19}, 403 (2019).
+
+\leavevmode\hypertarget{ref-williams:NG:2016}{}%
+{[}5{]} M. J. Williams, B. Werner, C. P. Barnes, T. A. Graham, and A.
+Sottoriva, Nature Genetics \textbf{48}, 238 (2016).
+
+\end{document}
