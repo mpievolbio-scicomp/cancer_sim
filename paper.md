@@ -21,7 +21,7 @@ authors:
 affiliations:
   - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
     index: 1
-  - name: Cleveland Clinic: Cleveland, OH, US
+  - name: Cleveland Clinic, Cleveland, OH, US
     index: 2
 date: 16 March 2020
 bibliography: references.bib
