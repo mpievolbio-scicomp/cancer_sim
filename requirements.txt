@@ -3,7 +3,3 @@ scipy
 numpy
 seaborn
 dill
-nbsphinx
-recommonmark
-./.
-wand

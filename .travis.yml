@@ -8,8 +8,10 @@ matrix:
     allow_failures:
         - python: "nightly"
 branches:
-  only:
-  - /.*/
+  except:
+  - experimental
+  - legacy
+
 
 cache:
   apt: false

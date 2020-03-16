@@ -2,7 +2,7 @@
 <style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" version="1.0" demote-non-dropping-particle="sort-only" default-locale="en-US">
     <info>
         <!--Info from the original style-->
-        <title>American Physics Society 5 et al</title>
+        <title>American Physics Society 1 et al</title>
         <title-short>APS-5etal</title-short>
         <author>
             <name>Carsten Fortmann-Grote</name>
@@ -105,7 +105,7 @@
   </citation>
   <!-- modified by Carsten: If more than 5 authors, use first five authors followed by "et al".-->
   <!--bibliography entry-spacing="0" second-field-align="flush"-->
-  <bibliography entry-spacing="0" second-field-align="flush" et-al-min="6" et-al-use-first="5">
+  <bibliography entry-spacing="0" second-field-align="flush" et-al-min="2" et-al-use-first="1">
     <layout suffix=".">
       <text variable="citation-number" prefix="[" suffix="]"/>
       <text macro="author" suffix=", "/>

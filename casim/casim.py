@@ -315,6 +315,11 @@ class CancerSimulator(object):
         :type  outdir: str
         :raises: IOError (Directory for this seed already exists)"""
 
+        self.__outdir = './outdir'
+        self.__seeddir = './seeddir'
+        self.__logdir  = './logdir'
+        self.__simdir = './simdir'
+
         if outdir is None:
             outdir = "casim_out"
 
@@ -554,7 +559,7 @@ class CancerSimulator(object):
         """
 
         LOGGER.info('Exporting simulation data')
-
+        
         # save VAF to text file
         if len(tumour_mut_data[0])==2:
             with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vaf_ex:
@@ -568,8 +573,6 @@ class CancerSimulator(object):
                 vaf_ex.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
                 for i in tumour_mut_data:
                     vaf_ex.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
-
-
 
         # Pickle the data.
         with open(os.path.join(self.__simdir, 'mtx.p'),'wb') as fp:
