@@ -32,3 +32,4 @@ test/casim_out/
 test/profiling_20190531/
 test/profiling_20190605/
 test/profiling_out/
+generate_metadata.rb

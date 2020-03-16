@@ -1,21 +1,32 @@
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 'CancerSim: A Cancer Simulation Package for python3'
 tags:
-  - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - stochastic simulation
+  - tumour growth
+  - tumour sampling
+  - cancer biology
 authors:
-  - name: Adrian M. Price-Whelan
-    orcid: 0000-0003-0872-7098
+  - name: Luka Opasic
+    orcid: 0000-0001-7595-1722
+    affiliation: 1
+  - name: Jacob Scott
+    orcid: 0000-0003-2971-7673
+    affiliation:
+  - name: Arne Traulsen
+    orcid: 0000-0002-0669-5267
+    affiliation: 1
+  - name: Carsten Fortmann-Grote
+    orcid: 0000-0002-2579-5546
     affiliation: 1
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University
-   index: 1
-date: 13 August 2017
-bibliography: paper.bib
+  - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
+    index: 1
+  - name: Cleveland Clinic: Cleveland, OH, US
+    index: 2
+date: 16 March 2020
+bibliography: references.bib
 ---
+
 
 Background
 ----------
@@ -34,18 +45,8 @@ observable when they already contain millions of cells, seeding of
 metastases, and cancer cell dormancy
 [@Altrock2015].
 
-Here, we present CancerSim, a software that simulates somatic evolution
-of tumours. The software produces virtual spatial tumours with variable
-extent of intratumour genetic heterogeneity and realistic mutational
-profiles. Simulated tumours can be subjected to multi-region sampling to
-obtain mutation profiles that are realistic representation of the
-sequencing data. This makes the software useful for studying various
-sampling strategies in clinical cancer diagnostics. An early version of
-this cancer evolution model was used to simulate tumours subjected to
-sampling for classification of mutations based on their abundance
-[@Opasic2019]. Target users are scientists
-working in the field of mathematical oncology and students with interest
-in studying somatic evolution of cancer.
+Here, we present CancerSim, a software that simulates somatic evolution of tumours. The software produces virtual spatial tumours with variable extent of intratumour genetic heterogeneity and realistic mutational profiles. Simulated tumours can be subjected to multi-region sampling to obtain mutation profiles that are realistic representation of the sequencing data. This makes the software useful for studying various sampling strategies in clinical cancer diagnostics. An early version of this cancer evolution model was used to simulate tumours subjected to sampling for classification of mutations based on their abundance [@Opasic2019]. Target users are scientists working in the field of mathematical oncology and students with interest in studying somatic evolution of cancer.  
+
 
 Our model is abstract, not specific to any neoplasm type and does not
 consider a variety of biological features commonly found in neoplasm
