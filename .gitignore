@@ -6,7 +6,6 @@ casim/params.py
 docs/build/
 casim/params.py
 docs/build/
-docs/Makefile
 .*.*.swp
 *.*~
 *.*.bu
