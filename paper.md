@@ -33,17 +33,17 @@ Background
 
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
-[@kumar:book:2017]. Its high division and mutation rates
+[@Kumar2017]. Its high division and mutation rates
 lead to excessive intratumour genetic heterogeneity which makes cancer
 highly adaptable to environmental pressures such as therapy
-[@turajlic:NRG:2019]. Throughout most of its existence
+[@Turajlic2019]. Throughout most of its existence
 tumour is inaccessible to direct observation and experimental
 evaluation. Therefore, computational modelling can be useful to study
 many aspects of cancer. Some examples where theoretical models can be of
 great use include early carcinogenesis, as lesions are clinically
 observable when they already contain millions of cells, seeding of
 metastases, and cancer cell dormancy
-[@altrock:NatRevCancer:2015].
+[@Altrock2015].
 
 Here, we present CancerSim, a software that simulates somatic evolution
 of tumours. The software produces virtual spatial tumours with variable
@@ -54,7 +54,7 @@ sequencing data. This makes the software useful for studying various
 sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
-[@opasic:BMCCancer:2019]. Target users are scientists
+[@Opasic2019]. Target users are scientists
 working in the field of mathematical oncology and students with interest
 in studying somatic evolution of cancer.
 
@@ -84,7 +84,7 @@ for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (params.mut\_per\_division). In that case, variable amounts of
-sequencing noise [@williams:NG:2016] can be added to make
+sequencing noise [@Williams2016] can be added to make
 the output data more biologically realistic.
 
 Throughout the cancer growth phase, CancerSim stores information about
