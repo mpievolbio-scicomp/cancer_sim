@@ -254,17 +254,24 @@ Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngro
 References
 ----------
 
-<a name="#ref-kumar:book:2017"></a> \[1\] J. C. A. Vinay Kumar Abul K. Abbas,
-*Robbins Basic Pathology*, 10th ed. (Elsevier, 2017).
+<a name="ref-kumar:book:2017"></a> \[1\] J. C. A. Vinay Kumar Abul K. Abbas,
+*Robbins Basic Pathology*, 10th ed. (Elsevier, 2017). ISBN: 9780323353175. 
 
-<a name="#ref-turajlic:NRG:2019"></a> \[2\] S. Turajlic, A. Sottoriva, T. Graham,
-and C. Swanton, Nat Rev Genet (2019).
+<a name="ref-turajlic:NRG:2019"></a> \[2\] S. Turajlic, A. Sottoriva, T. Graham,
+and C. Swanton, Nat Rev Genet (2019). DOI:
+[10.1038/s41576-019-0114-6](https://dx.doi.org/10.1038/s41576-019-0114-6)
 
-<a name="#ref-altrock:NatRevCancer:2015"></a> \[3\] P. M. Altrock, L. L. Liu, and
+
+<a name="ref-altrock:NatRevCancer:2015"></a> \[3\] P. M. Altrock, L. L. Liu, and
 F. Michor, Nat Rev Cancer **15**, 730 (2015).
+ DOI:
+[10.1038/nrc4029](https://dx.doi.org/10.1038/nrc4029)
 
-<a name="#ref-opasic:BMCCancer:2019"></a> \[4\] L. Opasic, D. Zhou, B. Werner, D.
+<a name="ref-opasic:BMCCancer:2019"></a> \[4\] L. Opasic, D. Zhou, B. Werner, D.
 Dingli, and A. Traulsen, BMC Cancer **19**, 403 (2019).
+ DOI:
+[10.1186/s12885-019-5597-1](https://dx.doi.org/10.1186/s12885-019-5597-1)
 
-<a name="#ref-williams:NG:2016"></a> \[5\] M. J. Williams, B. Werner, C. P. Barnes,
-T. A. Graham, and A. Sottoriva, Nature Genetics **48**, 238 (2016).
+<a name="ref-williams:NG:2016"></a> \[5\] M. J. Williams, B. Werner, C. P. Barnes,
+T. A. Graham, and A. Sottoriva, Nature Genetics **48**, 238 (2016).  DOI:
+[10.1038/ng.3489](https://dx.doi.org/10.1038/ng.3489)
