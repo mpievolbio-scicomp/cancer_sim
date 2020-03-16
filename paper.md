@@ -1,32 +1,21 @@
 ---
-title: 'CancerSim: A Cancer Simulation Package for python3'
+title: 'Gala: A Python package for galactic dynamics'
 tags:
-  - Stochastic simulation
-  - Tumour growth
-  - Sampling statistics
-  - Cancer biology
+  - Python
+  - astronomy
+  - dynamics
+  - galactic dynamics
+  - milky way
 authors:
-  - name: Luka Opasic
-    orcid: 0000-0001-7595-1722
-    affiliation: 1
-  - name: Jacob Scott
-    orcid: 0000-0003-2971-7673
-    affiliation:
-  - name: Arne Traulsen
-    orcid: 0000-0002-0669-5267
-    affiliation: 1
-  - name: Carsten Fortmann-Grote
-    orcid: 
+  - name: Adrian M. Price-Whelan
+    orcid: 0000-0003-0872-7098
     affiliation: 1
 affiliations:
-  - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
-    index: 1
-  - name: Cleveland Clinic: Cleveland, OH, US
-    index: 2
-date: 16 March 2020
-bibliography: references.bib
+ - name: Lyman Spitzer, Jr. Fellow, Princeton University
+   index: 1
+date: 13 August 2017
+bibliography: paper.bib
 ---
-
 
 Background
 ----------
