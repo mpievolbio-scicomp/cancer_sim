@@ -248,8 +248,7 @@ Examples
 
 See our quickstart example in
 `docs/source/include/notebooks/quickstart_example.ipynb` or use the
-following link to [launch it in
-Binder](https://mybinder.org/v2/git/https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim/develop?filepath=https%3A%2F%2Fgitlab.gwdg.de%2Fc.fortmanngrote%2Fcancer_sim%2Fblob%2Fdevelop%2Fdocs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
 References
 ----------
