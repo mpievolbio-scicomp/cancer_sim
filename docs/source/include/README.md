@@ -1,1 +1,1 @@
-stub.
+../../../README.md
