@@ -17,7 +17,7 @@ dying_fraction                  = 0.1
 fitness_advantage_death_prob    = 0.0
 
 # Probability that single mutation event will occur at the time of division
-mut_prob                        = 1
+mutation_probabilty             = 1
 
 # Probability that advantageous mutation will occur in time step params.time_of_adv_mut
 advantageous_mut_prob           = 1
@@ -39,4 +39,7 @@ read_depth                      = 100
 
 # Fraction of cells to sample (from interval [0,1))
 sampling_fraction                      = 0.9
+
+# Plot the growth curve.
+plot_tumour_growth              = True
 

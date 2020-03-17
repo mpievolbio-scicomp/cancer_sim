@@ -55,6 +55,8 @@ class CancerSimulatorParameters(object):
                  tumour_multiplicity                 = None,
                  read_depth                          = None,
                  sampling_fraction                   = None,
+                 plot_tumour_growth                  = None,
+                 export_tumour                       = None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -101,6 +103,13 @@ class CancerSimulatorParameters(object):
         :param sampling_fraction: The fraction of cells to include in a sample. Allowed values are 0 <= sampling_fraction < 1. Default: 0.
         :type  sampling_fraction: float
 
+        :param plot_tumour_growth: Render graph of the tumour size as function
+        of time. Default: True.
+        :type plot_tumour_growth: bool
+
+        :param export_tumour: Dump the tumour data to file. Default: True.
+        :type export_tumour: bool
+
         """
 
         # Store parameters on the object.
@@ -118,6 +127,8 @@ class CancerSimulatorParameters(object):
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
         self.sampling_fraction = sampling_fraction
+        self.plot_tumour_growth = plot_tumour_growth
+        self.export_tumour = export_tumour
 
     @property
     def matrix_size(self):
@@ -226,6 +237,35 @@ class CancerSimulatorParameters(object):
     def sampling_fraction(self, val):
         self.__sampling_fraction = check_set_number(val, float, 0.0, 0.0, 1.0)
 
+    @property
+    def plot_tumour_growth(self):
+        return self.__plot_tumour_growth
+    @plot_tumour_growth.setter
+    def plot_tumour_growth(self, val):
+        if val is None:
+            val = True
+        try:
+            val = bool(val)
+        except:
+            raise TypeError("Incompatible type: Expected bool, got {}.".format(type(val)))
+        
+        self.__plot_tumour_growth = val
+
+    @property
+    def export_tumour(self):
+        return self.__export_tumour
+    @export_tumour.setter
+    def export_tumour(self, val):
+        if val is None:
+            val = True
+        try:
+            val = bool(val)
+        except:
+            raise TypeError("Incompatible type: Expected bool, got {}.".format(type(val)))
+        
+        self.__export_tumour = val
+
+
 
 class CancerSimulator(object):
     """
@@ -265,8 +305,6 @@ class CancerSimulator(object):
         self.__growth_plot_data = None
         self.__mutation_counter = None
         self.__s = self.parameters.mutations_per_division
-        self.__export_tumour = True
-        self.__export_tumour_growth = False
         self.__tumour_multiplicity = self.parameters.tumour_multiplicity
 
         # Handle direct parameters.
@@ -322,9 +360,6 @@ class CancerSimulator(object):
 
         if outdir is None:
             outdir = "casim_out"
-
-        # Not None, so we want to store output. Set flag accordingly.
-        self.__export_tumour = True
 
         # Create top-level outdir.
         if not os.path.exists(outdir):
@@ -447,8 +482,8 @@ class CancerSimulator(object):
         #output variable (true_vaf) is list of tuples with mutation id and frequency of mutation in the tumour [(mut_id, frequency),...]
         true_vaf=self.tumour_growth()
 
-        #export a graph containing change in tumour size over time
-        if self.__export_tumour_growth is True:
+        # Export a graph containing change in tumour size over time
+        if self.parameters.plot_tumour_growth:
             self.growth_plot()
 
 
@@ -557,6 +592,8 @@ class CancerSimulator(object):
         :type  tumour_matrix: array like
 
         """
+        if not self.parameters.export_tumour:
+            return 
 
         LOGGER.info('Exporting simulation data')
         
@@ -566,7 +603,6 @@ class CancerSimulator(object):
                 vaf_ex.write('mutation_id'+'\t'+'frequency'+'\n')
                 for i in tumour_mut_data:
                     vaf_ex.write(str(i[0])+'\t'+str(i[1])+'\n')
-
 
         if len(tumour_mut_data[0])==3:
             with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vaf_ex:

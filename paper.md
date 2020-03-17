@@ -157,7 +157,7 @@ dying_fraction                   = 0.1
 fitness_advantage_death_prob    = 0.0
 
 # Rate of mutations.
-mut_prob                        = 1
+mutation_probabilty              = 1
 
 # Mutation probability for the adv. cells.
 advantageous_mut_prob           = 1
@@ -178,7 +178,13 @@ tumour_multiplicity             = None
 read_depth                      = 100
 
 # Fraction of cells to be sampled.
-# sampling_fraction             = 0.9
+sampling_fraction             = 0.9
+
+# Plot the tumour growth curve.
+plot_tumour_growth            = True
+        
+# Export the tumour growth data to file.
+export_tumour                 = True
 ```
 
 The simulation is started from the command line. The syntax is

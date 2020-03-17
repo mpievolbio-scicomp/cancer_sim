@@ -64,6 +64,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.tumour_multiplicity,              'single')
         self.assertEqual(parameters.read_depth,                         100  )
         self.assertEqual(parameters.sampling_fraction,                         0.0  )
+        self.assertTrue(parameters.plot_tumour_growth)
+        self.assertTrue(parameters.export_tumour)
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
@@ -83,6 +85,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 tumour_multiplicity =                'single',
                                 read_depth = 200,
                                 sampling_fraction = 0.3,
+                                export_tumour = False,
+                                plot_tumour_growth = False,
                                                 )
 
         self.assertEqual(parameters.matrix_size,                          20  )
@@ -99,6 +103,8 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.tumour_multiplicity,               'single' )
         self.assertEqual(parameters.read_depth,              200 )
         self.assertEqual(parameters.sampling_fraction,              0.3 )
+        self.assertFalse(parameters.plot_tumour_growth)
+        self.assertFalse(parameters.export_tumour)
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -173,10 +179,10 @@ class CancerSimulatorTest(unittest.TestCase):
         # Set to a different dir.
         cancer_sim.outdir = tmpdir
 
-        # Check export_tumour flag
-        self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
+        # Check export_tumour flag.
+        self.assertTrue(cancer_sim.parameters.export_tumour)
 
-        # But not twice.
+        # Check exception is thrown if same O dir is used twice.
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
 
@@ -387,6 +393,8 @@ class CancerSimulatorTest(unittest.TestCase):
                                             mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.5,
+                                            plot_tumour_growth=True,
+                                            export_tumour=True,
                                             )
 
         simulator = CancerSimulator(parameters=parameters, seed=1, outdir="casim_out")
@@ -399,6 +407,7 @@ class CancerSimulatorTest(unittest.TestCase):
         # Check sampling file was written.
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sample_out_[0-9]{3}_[0-9]{3}.txt"))
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sampleHistogram_[0-9]{3}_[0-9]{3}.pdf"))
+        self.assertIn('growthCurve.pdf', os.listdir(simulator._CancerSimulator__simdir))
 
 
 class casim_test(unittest.TestCase):
