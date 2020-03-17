@@ -22,7 +22,7 @@ copyright = '2019, Luka Opasic, Carsten Fortmann-Grote'
 author = 'Luka Opasic, Carsten Fortmann-Grote'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,6 +36,9 @@ extensions = [
         'recommonmark',
 
 ]
+
+# Set index document.
+master_doc = 'index'
 
 # Document both class and __init__.
 autoclass_content = 'both'
