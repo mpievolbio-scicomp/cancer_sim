@@ -1,5 +1,10 @@
-matplotlib
-scipy
-numpy
-seaborn
 dill
+matplotlib
+nbsphinx
+notebook
+numpy
+pandas
+recommonmark
+scipy
+seaborn
+sphinx

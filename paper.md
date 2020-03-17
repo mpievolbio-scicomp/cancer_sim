@@ -11,7 +11,7 @@ authors:
     affiliation: 1
   - name: Jacob Scott
     orcid: 0000-0003-2971-7673
-    affiliation:
+    affiliation: 2
   - name: Arne Traulsen
     orcid: 0000-0002-0669-5267
     affiliation: 1
@@ -21,7 +21,7 @@ authors:
 affiliations:
   - name: Max-Planck-Institute for Evolutionary Biology, Plön, Germany
     index: 1
-  - name: Cleveland Clinic: Cleveland, OH, US
+  - name: Cleveland Clinic, Cleveland, OH, US
     index: 2
 date: 16 March 2020
 bibliography: references.bib
