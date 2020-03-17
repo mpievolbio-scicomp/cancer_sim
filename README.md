@@ -237,12 +237,6 @@ This is a safety catch to avoid overwriting data from previous runs.
 
 Results will be stored in the newly created directory `sim_out/`.
 
-Reference Manual
-----------------
-
-The API reference manual is available at
-<https://cancer-sim.readthedocs.io>.
-
 Examples
 --------
 

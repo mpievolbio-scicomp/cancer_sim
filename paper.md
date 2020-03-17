@@ -23,12 +23,12 @@ affiliations:
     index: 1
   - name: Cleveland Clinic, Cleveland, OH, US
     index: 2
-date: 16 March 2020
+date: 17 March 2020
 bibliography: references.bib
 ---
 
 
-Background
+Summary
 ----------
 
 Cancer is a group of complex diseases characterized by excessive cell
@@ -45,7 +45,17 @@ observable when they already contain millions of cells, seeding of
 metastases, and cancer cell dormancy
 [@Altrock2015].
 
-Here, we present CancerSim, a software that simulates somatic evolution of tumours. The software produces virtual spatial tumours with variable extent of intratumour genetic heterogeneity and realistic mutational profiles. Simulated tumours can be subjected to multi-region sampling to obtain mutation profiles that are realistic representation of the sequencing data. This makes the software useful for studying various sampling strategies in clinical cancer diagnostics. An early version of this cancer evolution model was used to simulate tumours subjected to sampling for classification of mutations based on their abundance [@Opasic2019]. Target users are scientists working in the field of mathematical oncology and students with interest in studying somatic evolution of cancer.  
+Here, we present CancerSim, a software that simulates somatic evolution of
+tumours. The software produces virtual spatial tumours with variable extent of
+intratumour genetic heterogeneity and realistic mutational profiles. Simulated
+tumours can be subjected to multi-region sampling to obtain mutation profiles
+that are realistic representation of the sequencing data. This makes the
+software useful for studying various sampling strategies in clinical cancer
+diagnostics. An early version of this cancer evolution model was used to
+simulate tumours subjected to sampling for classification of mutations based on
+their abundance [@Opasic2019]. Target users are scientists working in the field
+of mathematical oncology and students with interest in studying somatic
+evolution of cancer.  
 
 
 Our model is abstract, not specific to any neoplasm type and does not
@@ -96,65 +106,14 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
 
-Installation
-------------
+Download and Installation
+-------------------------
 
 CancerSim is written in Python (version \>3.5). We recommend to install
-it directly from the source code. To download the code:
+it directly from the source code hosted at github <https://github.com/mpievolbio-scicomp/cancer_sim>.
 
-**EITHER** clone the repository:
-
-    $> git clone https://github.com/mpievolbio-scicomp/cancer_sim.git
-
-**OR** download the source code archive:
-
-    $> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
-    $> unzip master.zip
-    $> mv cancer_sim-master cancer_sim
-
-Change into the source code directory
-
-    $> cd cancer_sim
-
-We provide for two alternatives to install the software after it was
-downloaded:
-
-### Alternative 1: Conda
-
-#### New conda environment
-
-We provide an `environment.yml` to be consumed by `conda`. To create a
-fully self-contained conda environment (named `casim`):
-
-    $> conda env create -n casim --file environment.yml
-
-This will also install the cancer simulation code into the new
-environment.
-
-To activate the new conda environment:
-
-    $> source activate casim
-
-or
-
-    $> conda activate casim
-
-if you have set up conda appropriately.
-
-#### Install into existing and activated conda environment
-
-To install the software into an already existing environment:
-
-    $> conda activate <name_of_existing_conda_environment>
-    $> conda env update --file environment.yml
-
-### Alternative 2: Using pip
-
-The file `requirements.txt` is meant to be consumed by `pip`:
-
-    $> pip install -r requirements.txt [--user]
-
-The option `--user` is needed to install without admin privileges.
+ Detailed instructions including creation of a
+`conda` environment are given in the online documentation at <https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
 
 Testing
 -------
@@ -165,14 +124,7 @@ installation. Simply execute the `run_tests.sh` shell script:
     $> ./run_tests.sh
 
 This will generate a test log named `casim_test@<timestamp>.log` with
-`<timestamp>` being the date and time when the test was run. You should
-see an `OK` at the bottom of the log. If instead errors or failures are
-reported, something is wrong with the installation or the code itself.
-Feel free to open a github issue at
-<https://github.com/mpievolbio-scicomp/cancer_sim/issues> and attach the
-test log plus any information that may be useful to reproduce the error
-(version hash, computer hardware, operating system, python version, a
-dump of `conda env export` if applicable, ...).
+`<timestamp>` being the date and time when the test was run.
 
 The test suite is automatically run after each commit to the code base.
 Results are published on
@@ -182,77 +134,59 @@ High--level functionality
 -------------------------
 
 The parameters of the cancer simulation are given via a python module or
-programmatically via the `CancerSimulationParameters` class. A
-documented example `params.py` is included in the source code (under
-`test/params.py`) and reproduced here:
+programmatically via the `CancerSimulationParameters` class. The file
+`params.py` is a documented parameter module:
 
-    $> cat test/params.py
-    # Number of mesh points in each dimension
-    matrix_size                      = 100
+```    
+# Number of mesh points in each dimension
+matrix_size                      = 100
 
-    # Number of generations to simulate.
-    num_of_generations              = 20
+# Number of generations to simulate.
+num_of_generations              = 20
 
-    # Number of divisions per generation.
-    div_probability                 = 1
+# Number of divisions per generation.
+div_probability                 = 1
 
-    # Number of division for cells with mutation.
-    fittnes_advantage_div_prob      = 1
+# Number of division for cells with mutation.
+fittnes_advantage_div_prob      = 1
 
-    # Fraction of cells that die per generation.
-    dying_fraction                   = 0.1
+# Fraction of cells that die per generation.
+dying_fraction                   = 0.1
 
-    # Fraction of cells with mutation that die per generation.
-    fitness_advantage_death_prob    = 0.0
+# Fraction of cells with mutation that die per generation.
+fitness_advantage_death_prob    = 0.0
 
-    # Rate of mutations.
-    mut_prob                        = 1
+# Rate of mutations.
+mut_prob                        = 1
 
-    # Mutation probability for the adv. cells.
-    advantageous_mut_prob           = 1
+# Mutation probability for the adv. cells.
+advantageous_mut_prob           = 1
 
-    # Number of mutations per cell division.
-    mut_per_division                = 10
+# Number of mutations per cell division.
+mut_per_division                = 10
 
-    # Time after which adv. mutations occur.
-    time_of_adv_mut                 = 10
+# Time after which adv. mutations occur.
+time_of_adv_mut                 = 10
 
-    # Number of mutations present in first cancer cell.
-    num_of_clonal                   = 150
+# Number of mutations present in first cancer cell.
+num_of_clonal                   = 150
 
-    # Tumour multiplicity.
-    tumour_multiplicity             = None
+# Tumour multiplicity.
+tumour_multiplicity             = None
 
-    # Sequencing read depth.
-    read_depth                      = 100
+# Sequencing read depth.
+read_depth                      = 100
 
-    # Fraction of cells to be sampled.
-    # sampling_fraction             = 0.9
+# Fraction of cells to be sampled.
+# sampling_fraction             = 0.9
+```
 
 The simulation is started from the command line. The syntax is
 
     $> python -m casim.casim [-h] [-o DIR] seed
 
-The mandatory command line argument `seed` is the random seed. Using the
-same seed in two simulation runs with identical parameters results in
-identical results. This feature may be used for testing and debugging. The
-optional argument `DIR` specifies the directory where to store the
-simulation log and output data. If not given, output will be stored in
-the directory `casim_out` in the current directory. For each seed, a
-subdirectory `cancer_SEED` will be created. If that subdirectory already
-exists because an earlier run used the same seed, the run will abort.
-This is a safety catch to avoid overwriting data from previous runs.
-
-### Example 1
-
-    $> python -m casim.casim 1
-
-### Example 2
-
-    $> mkdir sim_out
-    $> python -m casim.casim -o sim_out 2
-
-Results will be stored in the newly created directory `sim_out/`.
+The mandatory command line argument `seed` is the random seed. The optional
+`DIR` specifies the output directory.
 
 Reference Manual
 ----------------
