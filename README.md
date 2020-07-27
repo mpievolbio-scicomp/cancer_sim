@@ -247,8 +247,21 @@ Examples
 --------
 
 See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb` or use the
+`docs/source/include/notebooks/quickstart_example.ipynb` or use the 
 following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+
+Community Guidelines
+--------------------
+As an Open Source project, we welcome all contributions to CancerSim. We
+recommend the usual github workflow: Create a fork of this repository, commit
+your changes and additions to the fork and make a pull request back to the
+master branch on this repository. If uncertain about anything, please create an
+issue at [https://github.com/mpievolbio-scicomp/cancer_sim/issues](https://github.com/mpievolbio-scicomp/cancer_sim/issues).
+
+On the same token, comments, bug reports or other issues as well as all requests
+for support should be submitted as a [github
+issue](https://github.com/mpievolbio-scicomp/cancer_sim/issues). Please check
+the [list of issues](https://github.com/mpievolbio-scicomp/cancer_sim/issues?q=is%3Aissue) if your problem has already been addressed. We will do our best to respond in a timely manner.
 
 References
 ----------
