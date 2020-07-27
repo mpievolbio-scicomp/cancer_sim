@@ -9,3 +9,4 @@ scipy
 seaborn
 sphinx
 wand
+.
