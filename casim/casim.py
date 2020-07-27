@@ -21,6 +21,7 @@ import os
 import pickle
 import random as prng
 import sys
+from importlib.util import spec_from_file_location, module_from_spec
 
 np = numpy
 
@@ -995,35 +996,26 @@ def main(arguments):
 
     parameters = CancerSimulatorParameters()
 
-    if "params.py" in os.listdir(os.getcwd()):
+    if os.path.isfile(arguments.params):
 
-        sys.path.insert(0, os.getcwd())
-        import params
+        spec = spec_from_file_location("params", arguments.params)
+        params = module_from_spec(spec)
+        spec.loader.exec_module(params)
 
-        # Catch legacy issue
-        ms = None
-        if hasattr(params, "matrix_size"):
-            ms = params.matrix_size
-        else:
-            ms = params.matrix_size
-
-        rd = 100
-        if hasattr(params, "read_depth"):
-            rd = params.read_depth
-
-        parameters = CancerSimulatorParameters(matrix_size = ms,
-                number_of_generations = params.number_of_generations,
-                division_probability = params.division_probability,
-                adv_mutant_division_probability = params.adv_mutant_division_probability,
-                death_probability = params.death_probability,
-                adv_mutant_death_probability = params.adv_mutant_death_probability,
-                mutation_probability = params.mutation_probability,
-                adv_mutant_mutation_probability = params.adv_mutant_mutation_probability,
-                mutations_per_division = params.number_of_mutations_per_division,
-                adv_mutation_interval = params.adv_mutation_interval,
-                number_of_initital_mutations = params.number_of_initital_mutations,
-                tumour_multiplicity = params.tumour_multiplicity,
-                read_depth=rd
+        parameters = CancerSimulatorParameters(
+                matrix_size=params.matrix_size,
+                number_of_generations=params.number_of_generations,
+                division_probability=params.division_probability,
+                adv_mutant_division_probability=params.adv_mutant_division_probability,
+                death_probability=params.death_probability,
+                adv_mutant_death_probability=params.adv_mutant_death_probability,
+                mutation_probability=params.mutation_probability,
+                adv_mutant_mutation_probability=params.adv_mutant_mutation_probability,
+                mutations_per_division=params.number_of_mutations_per_division,
+                adv_mutation_interval=params.adv_mutation_interval,
+                number_of_initital_mutations=params.number_of_initital_mutations,
+                tumour_multiplicity=params.tumour_multiplicity,
+                read_depth=params.read_depth,
                 )
 
     # Set loglevel.
@@ -1084,10 +1076,26 @@ if __name__ == "__main__":
     parser = ArgumentParser()
 
     # Seed parameter.
-    parser.add_argument("seed",
+    parser.add_argument("-p",
+                        "--params",
+                        help="""Path to the python file holding the simulation
+                        parameters. Defaults to `params.py` in the current working
+                        directory. If no file is found, default parameters will
+                        be chosen, see the API for CancerSimulatorParameters for
+                        details.""",
+                        default="params.py",
+                        type=str,
+                        metavar="PARAMS",
+                        )
+
+    parser.add_argument("-s",
+                        "--seed",
                         help="The prng seed.",
                         type=int,
+                        default=1,
+                        metavar="SEED",
                         )
+
     parser.add_argument("-o",
                         "--outdir",
                         dest="outdir",

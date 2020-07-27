@@ -167,9 +167,9 @@ High--level functionality
 The parameters of the cancer simulation are given via a python module or
 programmatically via the `CancerSimulationParameters` class. A
 documented example `params.py` is included in the source code (under
-`test/params.py`) and reproduced here:
+`casim/params.py`) and reproduced here:
 
-    $> cat test/params.py
+    $> cat casim/params.py
     # Number of mesh points in each dimension
     matrix_size = 100
 

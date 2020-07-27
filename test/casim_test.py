@@ -439,41 +439,53 @@ class casim_test(unittest.TestCase):
     def test_cli(self):
         """ Test the command line interface. """
         # Setup command.
-        python = "python"
-        module = casim.__file__
+        self._test_files.append("casim_out")
+        self._test_files.append("cancer_sim_output")
 
-        # Run with seed only.
-        args = ['1']
+        # Run with only default parameters.
+        args = []
 
-        proc = Popen([python, module] + args)
+        proc = Popen("python -m casim.casim", shell=True)
         proc.wait()
         self.assertEqual(proc.returncode, 0)
-
-        # Run with positional argument.
-        outdir = 'cancer_sim_output'
-        self._test_files.append(outdir)
-        args += ['-o', outdir ]
-        proc = Popen([python, module] + args)
+        
+        params_path = os.path.join(os.path.dirname("__FILE__"),"..","casim","params.py")
+        out_path = "cancer_sim_output"
+        seed = 2
+        proc = Popen("python -m casim.casim -p {0:s} -s {1:d} -o {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
         # run with positional argument (long version).
-        args = ['2', '--outdir', outdir]
-        proc = Popen([python, module] + args)
+        seed = 3
+        proc = Popen("python -m casim.casim --params {0:s} --seed {1:d} --outdir {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
-
-        # run with positional argument (long version).
-        args = ['3', '--outdir', outdir, '-vv']
-        proc = Popen([python, module] + args)
+        
+        # run with positional argument (long version) and verbosity.
+        seed = 4
+        proc = Popen("python -m casim.casim --params {0:s} --seed {1:d} --outdir {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
-        arguments = namedtuple('arguments', ('seed', 'outdir', 'loglevel'))
+        arguments = namedtuple('arguments', ('params', 'seed', 'outdir', 'loglevel'))
         arguments.seed = 1
+        arguments.params = '../casim/params.py'
         arguments.outdir='cancer_sim_out'
         arguments.loglevel = 2
         self._test_files.append(arguments.outdir)
