@@ -167,56 +167,56 @@ High--level functionality
 The parameters of the cancer simulation are given via a python module or
 programmatically via the `CancerSimulationParameters` class. A
 documented example `params.py` is included in the source code (under
-`test/params.py`) and reproduced here:
+`casim/params.py`) and reproduced here:
 
-    $> cat test/params.py
+    $> cat casim/params.py
     # Number of mesh points in each dimension
-    matrix_size                      = 100
+    matrix_size = 100
 
     # Number of generations to simulate.
-    num_of_generations              = 20
+    number_of_generations = 20
 
     # Number of divisions per generation.
-    div_probability                 = 1
+    division_probability = 1
 
     # Number of division for cells with mutation.
-    fittnes_advantage_div_prob      = 1
+    adv_mutant_division_probability = 1
 
     # Fraction of cells that die per generation.
-    dying_fraction                   = 0.1
+    death_probability = 0.1
 
     # Fraction of cells with mutation that die per generation.
-    fitness_advantage_death_prob    = 0.0
+    adv_mutant_death_probability = 0.0
 
     # Rate of mutations.
-    mutation_probability            = 1
+    mutation_probability = 1
 
     # Mutation probability for the adv. cells.
-    advantageous_mut_prob           = 1
+    adv_mutant_mutation_probability = 1
 
     # Number of mutations per cell division.
-    mut_per_division                = 10
+    number_of_mutations_per_division = 10
 
     # Time after which adv. mutations occur.
-    time_of_adv_mut                 = 10
+    adv_mutation_interval = 10
 
     # Number of mutations present in first cancer cell.
-    num_of_clonal                   = 150
+    number_of_initital_mutations = 150
 
     # Tumour multiplicity.
-    tumour_multiplicity             = None
+    tumour_multiplicity = None
 
     # Sequencing read depth.
-    read_depth                      = 100
+    read_depth = 100
 
     # Fraction of cells to be sampled.
-    # sampling_fraction             = 0.9
+    sampling_fraction = 0.9
         
     # Plot the tumour growth curve.
-    plot_tumour_growth            = True
+    plot_tumour_growth = True
         
     # Export the tumour growth data to file.
-    export_tumour                 = True
+    export_tumour = True
 
 The simulation is started from the command line. The syntax is
 

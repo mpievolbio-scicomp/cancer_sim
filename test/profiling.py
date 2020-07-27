@@ -22,14 +22,14 @@ for dp in divprobs:
             matrix_size =                          4096,
             number_of_generations =                 g  , # vary
             division_probability =                    dp, # 1 => exp. growth
-            advantageous_division_probability =       0.3,
+            adv_mutant_division_probability =       0.3,
             death_probability =                       0.0,
-            fitness_advantage_death_probability =     0.0,
+            adv_mutant_death_probabilityability =     0.0,
             mutation_rate =                           1.0, # 1 =>
-            advantageous_mutation_probability =       0.8,
+            adv_mutant_mutation_probability =       0.8,
             mutations_per_division =                 10  , # if mutation event occurs, have this number of mutation
-            time_of_advantageous_mutation =       30000  , # large to not kick in
-            number_of_clonal =                        2  , # initial number of mutations in first cancer cell
+            adv_mutation_interval =       30000  , # large to not kick in
+            number_of_initital_mutations =                        2  , # initial number of mutations in first cancer cell
             tumour_multiplicity =                'single',
                                               )
 
