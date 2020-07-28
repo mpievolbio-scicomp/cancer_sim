@@ -259,13 +259,12 @@ After the run has finished, you should find the results in
     death_list.p     mtx.p        mut_container.p              sample_out_502_488.txt
     growthCurve.pdf  mtx_VAF.txt  sampleHistogram_502_488.pdf  wholeTumourVAFHistogram.pdf
    
-Files with the extension `.p` are binary files (python pickles) needed to
-restart a simulation. Let's take a look at the `.txt`  files. They contain the simulation output:
+Let's take a look at the `.txt`  files. They contain the simulation output:
 `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
 each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
 a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
 
-The file `sample_out_502_488.txt` lists all mutations of the artificial sample
+The file `sample_out_502_488.txt` (numerals may change) lists all mutations of the artificial sample
 taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
  
 The two `.pdf` files are plots of the whole tumour histogram and the sampled
@@ -276,6 +275,11 @@ tumour histogram, respectively. You should see figures similar to these:
 
 Even though we sample at a rather high sampling rate of 90%, we miss
 out on all mutations with a frequency below 0.3.
+
+The remaining output files are serialized versions ("pickles") of the tumour
+geometry as a 2D matrix (`mtx.p`), the death list (`death_list.p`), and the
+mutation list (list of tuples listing the parent and the mutation ID of each
+tumour cell, `mut_container.p`).
 
 ### Example notebook
 Another example demonstrating how to parametrize the simulation through the
