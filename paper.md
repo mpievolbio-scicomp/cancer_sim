@@ -189,22 +189,27 @@ export_tumour                 = True
 
 The simulation is started from the command line. The syntax is
 
-    $> python -m casim.casim [-h] [-o DIR] seed
+    $> python -m casim.casim [-h] [-s SEED] [-p PARAMS] [-o DIR]
 
-The mandatory command line argument `seed` is the random seed. The optional
-`DIR` specifies the output directory.
+`SEED` is the random seed. If not given, `SEED` defaults to 1. `PARAMS` should point to
+a python parameter file. If not given, it defaults to `params.py` in the current
+working directory. If that file does not exist, default parameters are assumed.
+`DIR` specifies the directory where to store the
+simulation log and output data. If not given, output will be stored in
+the directory `casim_out` in the current directory. 
+Further details and explanation of the example can be found in the online
+documentation.
 
-Reference Manual
-----------------
+A smaller example is also provided in the jupyter notebook
+`docs/source/include/notebooks/quickstart_example.ipynb`. Use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
-The API reference manual is available at
-<https://cancer-sim.readthedocs.io>.
 
-Examples
---------
+Documentation and support
+-------------------------
 
-See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb` or use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+The API reference manual and community guidelines including directions
+for contributors and bug reports are given in the online documentation at
+<https://cancer-sim.readthedocs.io>. 
 
 References
 ----------
