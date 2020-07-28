@@ -263,7 +263,7 @@ Files with the extension `.p` are binary files (python pickles) needed to
 restart a simulation. Let's take a look at the `.txt`  files. They contain the simulation output:
 `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
 each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
-a given `mutation_id`; `frequency` is the frequency at a given mutation occurs.
+a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
 
 The file `sample_out_502_488.txt` lists all mutations of the artificial sample
 taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
@@ -274,6 +274,8 @@ tumour histogram, respectively. You should see figures similar to these:
 ![Whole tumour histogram](img/image_2020-07-28-09-58-52.png)
 ![Sampled tumour histogram](img/image_2020-07-28-09-59-50.png)
 
+Even though we sample at a rather high sampling rate of 90%, we miss
+out on all mutations with a frequency below 0.3.
 
 ### Example notebook
 Another example demonstrating how to parametrize the simulation through the
