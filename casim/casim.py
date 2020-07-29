@@ -436,7 +436,34 @@ class CancerSimulator(object):
             dill.dump(self, fp)
 
     def run(self):
-        """ Run the simulation. """
+        """ Run the simulation.
+        
+        :return: 0 if the run finishes successfully.
+
+        After a successful run, simulation output and log will be written to
+        the output directory `<DIR>/cancer_<SEED>/simOutput` and
+        `<DIR>/cancer_<SEED>/log`, respectively. Simulation output is split into
+        several files:
+
+        - `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
+        each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
+        a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
+
+        - `sample_out_XXX_YYY.txt` lists all mutations of the artificial sample
+        taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
+         
+        - `wholeTumourVAFHistogram.pdf` contains a histogram plot of the
+          mutation frequencies for the  whole tumour
+        - `sampleHistogram_XXX_YYY.pdf` is the mutation frequency histogram for
+          the sampled portion of the tumour.
+
+        - `mtx.p` is the serialized (aka "pickled") 2D tumour matrix in sparse
+          matrix format.
+        - `death_list.p` is the serialized (aka "pickled") 2D matrix listing the
+          cell death events on each tumour site.
+        - `mut_container.p` is the serialized (aka "pickled") mutation list (list of tuples listing the parent and the mutation ID of each tumour cell).
+
+        """
 
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
