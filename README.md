@@ -145,6 +145,12 @@ The file `requirements.txt` is meant to be consumed by `pip`:
 
 The option `--user` is needed to install without admin privileges.
 
+### Installed module
+After installation, CancerSim is available in python as the `casim` module.
+E.g. in a python script, one would import the module as:
+
+    >>> from casim import casim
+
 Testing
 -------
 
