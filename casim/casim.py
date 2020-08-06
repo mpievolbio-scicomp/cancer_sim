@@ -455,16 +455,18 @@ class CancerSimulator(object):
         - `wholeTumourVAFHistogram.pdf` contains a histogram plot of the
           mutation frequencies for the  whole tumour
         - `sampleHistogram_XXX_YYY.pdf` is the mutation frequency histogram for
-          the sampled portion of the tumour.
+          the sampled portion of the tumour. The two numbers XXX and YYY are the
+          positional coordinates (grid indices) in the tumour matrix.
 
         - `mtx.p` is the serialized (aka "pickled") 2D tumour matrix in sparse
           matrix format.
         - `death_list.p` is the serialized (aka "pickled") 2D matrix listing the
           cell death events on each tumour site.
-        - `mut_container.p` is the serialized (aka "pickled") mutation list (list of tuples listing the parent and the mutation ID of each tumour cell).
-
-        """
-
+        - `mut_container.p` is the serialized (aka "pickled") mutation list, a
+          list of tuples [t_i]. Each tuple t_i consists of two values, t_i =
+          (c_i, m_i). The first element c_i is the cell number in which the i'th mutation
+          occurs. The second element, m_i, is the mutation index m_i=i. 
+        """ 
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
 

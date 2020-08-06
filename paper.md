@@ -203,6 +203,9 @@ documentation.
 A smaller example is also provided in the jupyter notebook
 `docs/source/include/notebooks/quickstart_example.ipynb`. Use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
+Content and format of the simulation output data are described in detail in the
+[reference
+manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
 Documentation and support
 -------------------------

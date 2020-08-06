@@ -2,6 +2,11 @@
 [![Documentation Status](https://readthedocs.org/projects/cancer-sim/badge/?version=latest)](https://cancer-sim.readthedocs.io/en/latest/?badge=latest)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
 
+## Documentation
+Documentation for CancerSim, including this README and the API reference manual
+ is hosted on [readthedocs](https://cancer-sim.readthedocs.io).
+
+
 
 Background
 ----------
@@ -79,6 +84,7 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then be subjected to the sampling process.
 
+
 Installation
 ------------
 
@@ -155,7 +161,7 @@ Feel free to open a github issue at
 <https://github.com/mpievolbio-scicomp/cancer_sim/issues> and attach the
 test log plus any information that may be useful to reproduce the error
 (version hash, computer hardware, operating system, python version, a
-dump of `conda env export` if applicable, ...).
+dump of `conda env export` if applicable).
 
 The test suite is automatically run after each commit to the code base.
 Results are published on
@@ -278,7 +284,7 @@ out on all mutations with a frequency below 0.3.
 
 The remaining output files are serialized versions ("pickles") of the tumour
 geometry as a 2D matrix (`mtx.p`), the death list (`death_list.p`), and the
-mutation list (list of tuples listing the parent and the mutation ID of each
+mutation list (list of tuples listing the cancer cell index and the mutation ID of each
 tumour cell, `mut_container.p`).
 
 ### Example notebook
