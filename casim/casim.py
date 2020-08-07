@@ -51,7 +51,7 @@ class CancerSimulatorParameters(object):
                  mutation_probability=None,
                  adv_mutant_mutation_probability=None,
                  number_of_mutations_per_division=None,
-                 adv_mutation_interval=None,
+                 adv_mutation_wait_time=None,
                  number_of_initital_mutations=None,
                  tumour_multiplicity=None,
                  read_depth=None,
@@ -62,47 +62,47 @@ class CancerSimulatorParameters(object):
         """
         Construct a new CancerSimulationParameters object.
 
-        :param matrix_size: The size of the (square) grid in each dimension.
-        :type  matrix_size: int
+        :param matrix_size: The size of the (square) grid in each dimension. 
+        :type  matrix_size: int (matrix_size > 0)
 
         :param number_of_generations: The number of generations to simulate.
-        :type  number_of_generations: int
+        :type  number_of_generations: int (number_of_generations > 0)
 
         :param division_probability: The probability for a cell division to occur during one generation.
         :type  division_probability: float (0.0 <= division_probability <= 1.0)
 
         :param adv_mutant_division_probability: The probability for the division of a cell with advantageous mutation to occur during one generation.
-        :type  adv_mutant_division_probability: float (0.0 <= division_probability <= 1.0)
+        :type  adv_mutant_division_probability: float (0.0 <= adv_mutant_division_probability <= 1.0)
 
         :param death_probability: The probability for a cell to die during one generation.
-        :type  death_probability: float (0.0 <= division_probability <= 1.0)
+        :type  death_probability: float (0.0 <= death_probability <= 1.0)
 
         :param adv_mutant_death_probability: The probability for a cell with advantageous mutation to die during one generation.
-        :type  adv_mutant_death_probability: float (0.0 <= division_probability <= 1.0)
+        :type  adv_mutant_death_probability: float (0.0 <= adv_mutant_death_probability <= 1.0)
 
         :param mutation_probability: The probalitiy of mutation.
-        :type  mutation_probability: float (0.0 <= division_probability <= 1.0)
+        :type  mutation_probability: float (0.0 <= mutation_probability <= 1.0)
 
         :param adv_mutant_mutation_probability: The rate for an advantageous mutation to occur during one generation.
-        :type  adv_mutant_mutation_probability: float (0.0 <= division_probability <= 1.0)
+        :type  adv_mutant_mutation_probability: float (0.0 <= adv_mutant_mutation_probability <= 1.0)
 
         :param number_of_mutations_per_division: The number of mutations per division
-        :type  number_of_mutations_per_division: int
+        :type  number_of_mutations_per_division: int (0 < number_of_mutations_per_division)
 
-        :param adv_mutation_interval: The number of generations after which an advantageous mutation can occur.
-        :type  adv_mutation_interval: int
+        :param adv_mutation_wait_time: The number of generations into the simulation after which the advantageous mutation is inserted.
+        :type  adv_mutation_wait_time: int (adv_mutation_wait_time > 0)
 
         :param number_of_initital_mutations: Number of mutations present in first cancer cell.
-        :type  number_of_initital_mutations: int
+        :type  number_of_initital_mutations: int (number_of_initital_mutations >= 0)
 
         :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
         :type  tumour_multiplicity: str
 
-        :param read_depth: The sequencing depth (read length * number of reads / genome length). Default: 100.
-        :type  read_depth: int
+        :param read_depth: The sequencing read depth (read length * number of reads / genome length). Default: 100.
+        :type  read_depth: int (read_depth >= 0)
 
-        :param sampling_fraction: The fraction of cells to include in a sample. Allowed values are 0 <= sampling_fraction < 1. Default: 0.
-        :type  sampling_fraction: float
+        :param sampling_fraction: The fraction of cells to include in a sample. Default: 0.
+        :type  sampling_fraction: float  (0 <= sampling_fraction <= 1)
 
         :param plot_tumour_growth: Render graph of the tumour size as function
         of time. Default: True.
@@ -123,7 +123,7 @@ class CancerSimulatorParameters(object):
         self.mutation_probability = mutation_probability
         self.adv_mutant_mutation_probability = adv_mutant_mutation_probability
         self.number_of_mutations_per_division = number_of_mutations_per_division
-        self.adv_mutation_interval = adv_mutation_interval
+        self.adv_mutation_wait_time = adv_mutation_wait_time
         self.number_of_initital_mutations = number_of_initital_mutations
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
@@ -195,11 +195,11 @@ class CancerSimulatorParameters(object):
         self.__number_of_mutations_per_division = check_set_number(val, int, 1, 0)
 
     @property
-    def adv_mutation_interval(self):
-        return self.__adv_mutation_interval
-    @adv_mutation_interval.setter
-    def adv_mutation_interval(self, val):
-        self.__adv_mutation_interval = check_set_number(val, int, 50000, 0)
+    def adv_mutation_wait_time(self):
+        return self.__adv_mutation_wait_time
+    @adv_mutation_wait_time.setter
+    def adv_mutation_wait_time(self, val):
+        self.__adv_mutation_wait_time = check_set_number(val, int, 50000, 0)
 
     @property
     def number_of_initital_mutations(self):
@@ -998,7 +998,7 @@ class CancerSimulator(object):
                 # Decide whether an advantageous mutation occurs.
                 if prng.random()<self.parameters.adv_mutant_mutation_probability \
                         and len(self.__beneficial_mutation)==0 \
-                        and step==self.parameters.adv_mutation_interval:
+                        and step==self.parameters.adv_mutation_wait_time:
                     LOGGER.info('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
@@ -1043,7 +1043,7 @@ def main(arguments):
                 mutation_probability=params.mutation_probability,
                 adv_mutant_mutation_probability=params.adv_mutant_mutation_probability,
                 number_of_mutations_per_division=params.number_of_mutations_per_division,
-                adv_mutation_interval=params.adv_mutation_interval,
+                adv_mutation_wait_time=params.adv_mutation_wait_time,
                 number_of_initital_mutations=params.number_of_initital_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
                 read_depth=params.read_depth,
