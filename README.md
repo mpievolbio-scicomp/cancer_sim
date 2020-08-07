@@ -10,8 +10,9 @@ Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
  \[[1](#ref-kumar:book:2017)\]. Its high division and mutation rates lead to excessive
 intratumour genetic heterogeneity which makes cancer highly adaptable to
-environmental pressures such as therapy  \[[2](#ref-turajlic:NRG:2019)\]. Throughout most
-of its existence tumour is inaccessible to direct observation and
+environmental pressures such as therapy  \[[2](#ref-turajlic:NRG:2019)\]. 
+This process is known as somatic evolution of cancer. Throughout most
+of its existence a tumour is inaccessible to direct observation and
 experimental evaluation. Therefore, computational modelling can be
 useful to study many aspects of cancer. Some examples where theoretical
 models can be of great use include early carcinogenesis, as lesions are
@@ -28,22 +29,22 @@ sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
 \[[4](#ref-opasic:BMCCancer:2019)\]. Target users are scientists working in the field of
-mathematical oncology and students with interest in studying somatic
-evolution of cancer.
+mathematical oncology. Simplicity of our model in comparrisson to more advanced models like  makes it
+specifically suitable students with interest in studying somatic evolution of cancer.
 
-Our model is abstract, not specific to any neoplasm type and does not
+Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
 such as vasculature, immune contexture, availability of nutrients, and
-architecture of the tumour surroundings. It resembles the most to
+architecture of the tumour surroundings. It most closely resembles the 
 superficially spreading tumours like carcinoma in situ, skin cancers, or
 gastric cancers, but it can be used to model any tumour on this abstract
-level.
+level. 
 
 The tumour is simulated using a two-dimensional, on-lattice, agent-based
 model. The tumour lattice structure is established by a sparse matrix
 whose non-zero elements correspond to the individual cells. Each cell is
 surrounded by eight neighbouring cells (Moore neighbourhood). The value
-of the matrix element is an index pointing to the last mutation cell
+of the matrix element is an index pointing to the last mutation the cell
 acquired in the list of mutations which is updated in each simulation
 step.
 
@@ -52,13 +53,19 @@ every tumour cell in the tumour that has an unoccupied neighbour can
 divide with a certain probability (params.div\_\_probability). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mut\_prob). Different division probabilities can be introduced
+(params.mut\_prob). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
-acquired a beneficial or deleterious mutation. The simulation allows the
+acquired a beneficial or deleterious mutation.  The simulation allows the
 acquisition of more than one mutational event per cell
 (params.mut\_per\_division). In that case, variable amounts of
 sequencing noise \[[5](#ref-williams:NG:2016)\] can be added to make the output data
-more biologically realistic.
+more biologically realistic. Key parameters params.number\_of\_generation, 
+params.division\_probability and params.death\_probability
+determine the final size of the tumour, while the degree of intratumour heterogeneity can 
+be varied by changing the params.mutation\_probability parameter. 
+For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
+and params.adv\_mutant_death\_probability must be the same as params.division\_probability
+and params.death\_probability.
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every
@@ -78,6 +85,7 @@ frequencies of each mutation in the tumour are exported to files.
 Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
+
 
 Installation
 ------------
