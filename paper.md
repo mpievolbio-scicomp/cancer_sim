@@ -91,7 +91,7 @@ determine the final size of the tumour, while the degree of intratumour heteroge
 be varied by changing the params.mutation\_probability parameter. 
 For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
 and params.adv\_mutant_death\_probability must be the same as params.division\_probability
-and params.death\_probability.
+and params.death\_probability. Test
 
 
 
@@ -213,6 +213,7 @@ Examples
 
 See our quickstart example in
 `docs/source/include/notebooks/quickstart_example.ipynb` or use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+Example is set to simulate a 20 generations of cancer cell divisions where both normal and mutant cancer cells have the same division rate but different death rate.
 
 References
 ----------
