@@ -51,7 +51,7 @@ class CancerSimulatorParameters(object):
                  mutation_probability=None,
                  adv_mutant_mutation_probability=None,
                  number_of_mutations_per_division=None,
-                 adv_mutation_interval=None,
+                 adv_mutation_wait_time=None,
                  number_of_initital_mutations=None,
                  tumour_multiplicity=None,
                  read_depth=None,
@@ -89,8 +89,8 @@ class CancerSimulatorParameters(object):
         :param number_of_mutations_per_division: The number of mutations per division
         :type  number_of_mutations_per_division: int (0 < number_of_mutations_per_division)
 
-        :param adv_mutation_interval: The number of generations after which an advantageous mutation can occur.
-        :type  adv_mutation_interval: int (adv_mutation_interval > 0)
+        :param adv_mutation_wait_time: The number of generations into the simulation after which the advantageous mutation is inserted.
+        :type  adv_mutation_wait_time: int (adv_mutation_wait_time > 0)
 
         :param number_of_initital_mutations: Number of mutations present in first cancer cell.
         :type  number_of_initital_mutations: int (number_of_initital_mutations >= 0)
@@ -123,7 +123,7 @@ class CancerSimulatorParameters(object):
         self.mutation_probability = mutation_probability
         self.adv_mutant_mutation_probability = adv_mutant_mutation_probability
         self.number_of_mutations_per_division = number_of_mutations_per_division
-        self.adv_mutation_interval = adv_mutation_interval
+        self.adv_mutation_wait_time = adv_mutation_wait_time
         self.number_of_initital_mutations = number_of_initital_mutations
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
@@ -195,11 +195,11 @@ class CancerSimulatorParameters(object):
         self.__number_of_mutations_per_division = check_set_number(val, int, 1, 0)
 
     @property
-    def adv_mutation_interval(self):
-        return self.__adv_mutation_interval
-    @adv_mutation_interval.setter
-    def adv_mutation_interval(self, val):
-        self.__adv_mutation_interval = check_set_number(val, int, 50000, 0)
+    def adv_mutation_wait_time(self):
+        return self.__adv_mutation_wait_time
+    @adv_mutation_wait_time.setter
+    def adv_mutation_wait_time(self, val):
+        self.__adv_mutation_wait_time = check_set_number(val, int, 50000, 0)
 
     @property
     def number_of_initital_mutations(self):
@@ -968,7 +968,7 @@ class CancerSimulator(object):
                 # Decide whether an advantageous mutation occurs.
                 if prng.random()<self.parameters.adv_mutant_mutation_probability \
                         and len(self.__beneficial_mutation)==0 \
-                        and step==self.parameters.adv_mutation_interval:
+                        and step==self.parameters.adv_mutation_wait_time:
                     LOGGER.info('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
@@ -1012,7 +1012,7 @@ def main(arguments):
                 mutation_probability=params.mutation_probability,
                 adv_mutant_mutation_probability=params.adv_mutant_mutation_probability,
                 number_of_mutations_per_division=params.number_of_mutations_per_division,
-                adv_mutation_interval=params.adv_mutation_interval,
+                adv_mutation_wait_time=params.adv_mutation_wait_time,
                 number_of_initital_mutations=params.number_of_initital_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
                 read_depth=params.read_depth,

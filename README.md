@@ -206,8 +206,8 @@ documented example `params.py` is included in the source code (under
     # Number of mutations per cell division (>=0).
     number_of_mutations_per_division = 10
 
-    # Number of generation after which adv. mutations occur ([>=0]).
-    adv_mutation_interval = 10
+    # Number of generation after which adv. mutation occurs (>=0).
+    [adv_mutation_wait_time](adv_mutation_wait_time) = 10
 
     # Number of mutations present in first cancer cell (>=0).
     number_of_initital_mutations = 150
