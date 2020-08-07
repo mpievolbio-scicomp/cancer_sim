@@ -236,10 +236,10 @@ On average, both healthy and mutant cells divide once per generation. The first
 cancer cell carries 150 mutations.
 Mutant cells with advantageous mutations live on forever while healthy cells die with a rate of 0.1 per generation.
 Both healthy and mutant cells aquire 10 new mutations in
-each generation with a certainty of 100%. Every 10th generation, a mutation is
-advantageous (i.e. cancerogenic).
+each generation with a certainty of 100%. The advantageous mutation happens in
+the 10th generation.
 
-90% of all cells are sampled on a random basis and sequenced with a read depth
+A spatial sample containing 90% closely positioned tumour cells is sampled and sequenced with a read depth
 of 100. The data is written to disk and a plot showing the tumour growth in
 generated.
  
@@ -284,9 +284,6 @@ tumour histogram, respectively. You should see figures similar to these:
 
 ![Whole tumour histogram](img/image_2020-07-28-09-58-52.png)
 ![Sampled tumour histogram](img/image_2020-07-28-09-59-50.png)
-
-Even though we sample at a rather high sampling rate of 90%, we miss
-out on all mutations with a frequency below 0.3.
 
 The remaining output files are serialized versions ("pickles") of the tumour
 geometry as a 2D matrix (`mtx.p`), the death list (`death_list.p`), and the

@@ -44,5 +44,5 @@ sampling_fraction = 0.9
 plot_tumour_growth = True
 
 # Write the tumour data to file.
-export_tumour = False
+export_tumour = True
 

@@ -50,7 +50,7 @@ class CancerSimulatorParameters(object):
                  adv_mutant_death_probability=None,
                  mutation_probability=None,
                  adv_mutant_mutation_probability=None,
-                 mutations_per_division=None,
+                 number_of_mutations_per_division=None,
                  adv_mutation_interval=None,
                  number_of_initital_mutations=None,
                  tumour_multiplicity=None,
@@ -86,8 +86,8 @@ class CancerSimulatorParameters(object):
         :param adv_mutant_mutation_probability: The rate for an advantageous mutation to occur during one generation.
         :type  adv_mutant_mutation_probability: float (0.0 <= division_probability <= 1.0)
 
-        :param mutations_per_division: The number of mutations per division
-        :type  mutations_per_division: int
+        :param number_of_mutations_per_division: The number of mutations per division
+        :type  number_of_mutations_per_division: int
 
         :param adv_mutation_interval: The number of generations after which an advantageous mutation can occur.
         :type  adv_mutation_interval: int
@@ -122,7 +122,7 @@ class CancerSimulatorParameters(object):
         self.adv_mutant_death_probability = adv_mutant_death_probability
         self.mutation_probability = mutation_probability
         self.adv_mutant_mutation_probability = adv_mutant_mutation_probability
-        self.mutations_per_division = mutations_per_division
+        self.number_of_mutations_per_division = number_of_mutations_per_division
         self.adv_mutation_interval = adv_mutation_interval
         self.number_of_initital_mutations = number_of_initital_mutations
         self.tumour_multiplicity = tumour_multiplicity
@@ -188,11 +188,11 @@ class CancerSimulatorParameters(object):
         self.__adv_mutant_mutation_probability = check_set_number(val, float, 1.0, 0.0, 1.0)
 
     @property
-    def mutations_per_division(self):
-        return self.__mutations_per_division
-    @mutations_per_division.setter
-    def mutations_per_division(self, val):
-        self.__mutations_per_division = check_set_number(val, int, 1, 0)
+    def number_of_mutations_per_division(self):
+        return self.__number_of_mutations_per_division
+    @number_of_mutations_per_division.setter
+    def number_of_mutations_per_division(self, val):
+        self.__number_of_mutations_per_division = check_set_number(val, int, 1, 0)
 
     @property
     def adv_mutation_interval(self):
@@ -305,7 +305,7 @@ class CancerSimulator(object):
         self.__beneficial_mutation = []
         self.__growth_plot_data = None
         self.__mutation_counter = None
-        self.__s = self.parameters.mutations_per_division
+        self.__s = self.parameters.number_of_mutations_per_division
         self.__tumour_multiplicity = self.parameters.tumour_multiplicity
 
         # Handle direct parameters.
@@ -516,7 +516,6 @@ class CancerSimulator(object):
         if self.parameters.plot_tumour_growth:
             self.growth_plot()
 
-
         # Sampling
         # Setup list of coordinates that serve as center of sampling [(x,y)]
         # Pick a random cell from the pool.
@@ -524,6 +523,7 @@ class CancerSimulator(object):
         random_index = numpy.random.randint(len(self.__pool))
         samples_coordinates_list=[self.__pool[random_index]]
 
+        import pdb; pdb.set_trace()
         #iterate over each sample from the list of samples
         for center_cell_coordinates in samples_coordinates_list:
             #get sample of certain size
@@ -535,13 +535,13 @@ class CancerSimulator(object):
             #count the number of detected mutations and calculate frequency of each mutation (getFrequencies=False gives count for each mutation)
             counted_sample=self.count_mutations(dna_from_sample, get_frequencies=True)
 
-            if self.parameters.mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
+            if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
                 #export mutational profile of the sample
                 self.export_sample(counted_sample, center_cell_coordinates)
 
 
-            if self.parameters.mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
-                #increases number of mutations in the tumour by factor from params.number_of_mutations_per_division
+            if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
+                #increases number of mutations in the tumour by factor from params.number_of_number_of_mutations_per_division
                 increased_mut_number_sample=self.increase_mut_number(counted_sample)
 
                 #additional mutation serves to distinguish different mutations that occured
@@ -549,6 +549,7 @@ class CancerSimulator(object):
                 #introduce sequencing noise, works only with increased number of mutations
                 noisy_data=self.simulate_seq_depth(increased_mut_number_sample)
                 self.export_sample(noisy_data, center_cell_coordinates)
+
                 #creates and exports histogram of mutational frequencies
                 self.export_histogram(noisy_data, center_cell_coordinates)
 
@@ -871,13 +872,13 @@ class CancerSimulator(object):
 
                 mutation_counts=self.count_mutations(reconstructed, get_frequencies=True)
 
-                if self.parameters.mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
+                if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
                     self.export_tumour_matrix(mutation_counts)
                     return mutation_counts
 
-                if self.parameters.mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
+                if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
 
-                    increased_mut_number_tumour=self.increase_mut_number(mutation_counts)    #increases number of mutations in the tumour by factor from params.number_of_mutations_per_division
+                    increased_mut_number_tumour=self.increase_mut_number(mutation_counts)    #increases number of mutations in the tumour by factor from params.number_of_number_of_mutations_per_division
 
                     noisy_data=self.simulate_seq_depth(increased_mut_number_tumour)       #introduce sequencing noise, works only with increased number of mutations
 
@@ -1025,6 +1026,7 @@ def main(arguments):
 
     parameters = CancerSimulatorParameters()
 
+    import pdb; pdb.set_trace()
     if os.path.isfile(arguments.params):
 
         spec = spec_from_file_location("params", arguments.params)
@@ -1040,11 +1042,13 @@ def main(arguments):
                 adv_mutant_death_probability=params.adv_mutant_death_probability,
                 mutation_probability=params.mutation_probability,
                 adv_mutant_mutation_probability=params.adv_mutant_mutation_probability,
-                mutations_per_division=params.number_of_mutations_per_division,
+                number_of_mutations_per_division=params.number_of_mutations_per_division,
                 adv_mutation_interval=params.adv_mutation_interval,
                 number_of_initital_mutations=params.number_of_initital_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
                 read_depth=params.read_depth,
+                export_tumour=params.export_tumour,
+                plot_tumour_growth=params.plot_tumour_growth,
                 )
 
     # Set loglevel.
