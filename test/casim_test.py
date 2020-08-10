@@ -59,7 +59,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutation_probability, 0.8)
         self.assertEqual(parameters.adv_mutant_mutation_probability, 1)
         self.assertEqual(parameters.number_of_mutations_per_division, 1)
-        self.assertEqual(parameters.adv_mutation_interval, 50000)
+        self.assertEqual(parameters.adv_mutation_wait_time, 50000)
         self.assertEqual(parameters.number_of_initital_mutations, 1)
         self.assertEqual(parameters.tumour_multiplicity, 'single')
         self.assertEqual(parameters.read_depth, 100)
@@ -80,7 +80,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 mutation_probability=0.2,
                                 adv_mutant_mutation_probability=0.8,
                                 number_of_mutations_per_division=10  ,
-                                adv_mutation_interval=30000  ,
+                                adv_mutation_wait_time=30000  ,
                                 number_of_initital_mutations=2  ,
                                 tumour_multiplicity='single',
                                 read_depth=200,
@@ -98,7 +98,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.mutation_probability, 0.2)
         self.assertEqual(parameters.adv_mutant_mutation_probability, 0.8)
         self.assertEqual(parameters.number_of_mutations_per_division, 10)
-        self.assertEqual(parameters.adv_mutation_interval, 30000)
+        self.assertEqual(parameters.adv_mutation_wait_time, 30000)
         self.assertEqual(parameters.number_of_initital_mutations, 2)
         self.assertEqual(parameters.tumour_multiplicity, 'single' )
         self.assertEqual(parameters.read_depth, 200 )
@@ -199,7 +199,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
-                                            adv_mutation_interval=10,
+                                            adv_mutation_wait_time=10,
                                             number_of_initital_mutations=150,
                                             number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
@@ -229,7 +229,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
-                                            adv_mutation_interval=10,
+                                            adv_mutation_wait_time=10,
                                             number_of_initital_mutations=150,
                                             number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
@@ -280,7 +280,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
-                                            adv_mutation_interval=10,
+                                            adv_mutation_wait_time=10,
                                             number_of_initital_mutations=150,
                                             number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
@@ -345,7 +345,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
         self.assertEqual(loaded_parameters.adv_mutant_mutation_probability,    parameters.adv_mutant_mutation_probability)
         self.assertEqual(loaded_parameters.number_of_mutations_per_division,               parameters.number_of_mutations_per_division)
-        self.assertEqual(loaded_parameters.adv_mutation_interval,        parameters.adv_mutation_interval)
+        self.assertEqual(loaded_parameters.adv_mutation_wait_time,        parameters.adv_mutation_wait_time)
         self.assertEqual(loaded_parameters.number_of_initital_mutations,                     parameters.number_of_initital_mutations)
         self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
         self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
@@ -388,7 +388,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
-                                            adv_mutation_interval=10,
+                                            adv_mutation_wait_time=10,
                                             number_of_initital_mutations=150,
                                             number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,

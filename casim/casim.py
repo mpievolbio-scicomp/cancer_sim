@@ -523,7 +523,6 @@ class CancerSimulator(object):
         random_index = numpy.random.randint(len(self.__pool))
         samples_coordinates_list=[self.__pool[random_index]]
 
-        import pdb; pdb.set_trace()
         #iterate over each sample from the list of samples
         for center_cell_coordinates in samples_coordinates_list:
             #get sample of certain size
@@ -1026,7 +1025,6 @@ def main(arguments):
 
     parameters = CancerSimulatorParameters()
 
-    import pdb; pdb.set_trace()
     if os.path.isfile(arguments.params):
 
         spec = spec_from_file_location("params", arguments.params)
