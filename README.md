@@ -31,8 +31,9 @@ sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
 \[[4](#ref-opasic:BMCCancer:2019)\]. Target users are scientists working in the field of
-mathematical oncology. Simplicity of our model in comparrisson to more advanced models like  makes it
-specifically suitable students with interest in studying somatic evolution of cancer.
+mathematical oncology. Simplicity of our model in comparison to more advanced models like 
+\[[5](#ref-waclaw2015)\]
+makes it specifically suitable students with interest in studying somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
@@ -52,7 +53,7 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (`division_probability`). The
+divide with a certain probability (set by the parameter `division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
 `mutation_probability`). Different division probabilities can be introduced in the beginning
@@ -60,7 +61,7 @@ for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
-sequencing noise \[[5](#ref-williams:NG:2016)\] can be added to make
+sequencing noise \[[6](#ref-williams:NG:2016)\] can be added to make
 the output data more biologically realistic. The key parameters
 `number_of_generations`, 
 `division_probability` and `death_probability`
@@ -342,6 +343,9 @@ Dingli, and A. Traulsen, BMC Cancer **19**, 403 (2019).
  DOI:
 [10.1186/s12885-019-5597-1](https://dx.doi.org/10.1186/s12885-019-5597-1)
 
-<a name="ref-williams:NG:2016"></a> \[5\] M. J. Williams, B. Werner, C. P. Barnes,
+<a name="ref-williams:NG:2016"></a> \[6\] M. J. Williams, B. Werner, C. P. Barnes,
 T. A. Graham, and A. Sottoriva, Nature Genetics **48**, 238 (2016).  DOI:
 [10.1038/ng.3489](https://dx.doi.org/10.1038/ng.3489)
+
+<a name=ref-waclaw2015></a> \[5\] B. Waclaw, I. Bozic, M. E. Pittman, R. H.
+Hruban, B. Vogelstein, and M. A. Nowak, Nature **525**, 261 (2015). DOI: [10.1038/nature14971](https://dx.doi.org/10.1038/nature14971)

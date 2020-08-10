@@ -54,7 +54,7 @@ diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early v
 cancer evolution model was used to simulate tumours subjected to sampling for 
 classification of mutations based on their abundance [@Opasic2019]. Target users 
 are scientists working in the field of mathematical oncology. Simplicity of our model 
-in comparrisson to more advanced models like [@waclaw2015] makes it
+in comparison to more advanced models like [@waclaw2015] makes it
 specifically suitable students with interest in studying somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
