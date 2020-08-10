@@ -112,7 +112,7 @@ Change into the source code directory
 We provide for two alternatives to install the software after it was
 downloaded:
 
-### Alternative 1: Conda
+### Alternative 1: `conda`
 #### New conda environment
 We [provide](provide) an `environment.yml` to be consumed by `conda`. To create a
 fully self-contained conda environment (named `casim`):
@@ -138,7 +138,7 @@ To install the software into an already existing environment:
     $> conda activate <name_of_existing_conda_environment>
     $> conda env update --file environment.yml
 
-### Alternative 2: Using pip
+### Alternative 2: `pip`
 The file `requirements.txt` is meant to be consumed by `pip`:
 
     $> pip install -r requirements.txt [--user]
