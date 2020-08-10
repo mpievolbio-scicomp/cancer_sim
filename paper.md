@@ -75,23 +75,23 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (params.division\_\_probability). The
+divide with a certain probability (`division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mutation\_probability). Different division probabilities can be introduced in the beginning
+(`mutation_probability`). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
-(params.number\_of\_mutations\_per\_division). In that case, variable amounts of
+(`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
 the output data more biologically realistic. Key parameters
-params.number\_of\_generations, 
-params.division\_probability and params.death\_probability
+`number_of_generations`, 
+`division_probability` and `death_probability`
 determine the final size of the tumour, while the degree of intratumour heterogeneity can 
-be varied by changing the params.mutation\_probability parameter. 
-For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
-and params.adv\_mutant_death\_probability must be the same as params.division\_probability
-and params.death\_probability. 
+be varied by changing the `mutation_probability` parameter. 
+For neutral tumour evolution, parameter `adv_mutant_division_probability`
+and `adv_mutant_death_probability` must be the same as `division_probability`
+and `death_probability`. 
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every

@@ -241,7 +241,7 @@ documented example `params.py` is included in the source code (under
 Here, we simulate a single 2D tumour on a 1000x1000 grid (`matrix_size=1000`) for a total of
 20 generations (`number_of_generations=20`).
 On average, both healthy and mutant cells divide once per generation
-(division_probability`). The first cancer cell carries 150 mutations
+(`division_probability`). The first cancer cell carries 150 mutations
 (`number_of_initial_mutations=150`); both healthy and mutant cells aquire 10 new
 mutations (`number_of_mutations_per_division=10`) in
 each generation with a certainty of 100% (`mutation_probability=0.1`). The advantageous mutation happens in
@@ -252,7 +252,7 @@ Mutant cells with advantageous mutations live on forever
 per generation (`death_probability=0.1`).
 
 A spatial sample containing 10% closely positioned tumour cells
-(`sampling_fraction=0.1)` is sampled and sequenced with a read depth
+(`sampling_fraction=0.1`) is sampled and sequenced with a read depth
 of 100 (`read_depth=100`). The data is written to disk (`export_tumour=True`)
 and plots showing the mutation histograms for the whole tumour as well as for the sampled part of the
 tumour are generated. Furthermore, a plot showing the tumour growth over time is
@@ -288,7 +288,8 @@ Let's take a look at the `.txt`  files. They contain the simulation output:
 each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
 a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
 
-The file `sample_out_502_488.txt` (numerals may change) lists all mutations of the artificial sample
+The file `sample_out_502_488.txt` (the numbers, indicating the x and y
+coordinates of the sampling position, may change) lists all mutations of the artificial sample
 taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
  
 The two `.pdf` files are plots of the whole tumour histogram and the sampled
