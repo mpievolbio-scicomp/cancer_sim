@@ -36,29 +36,29 @@ proliferation, invasion, and destruction of the surrounding tissue
 [@Kumar2017]. Its high division and mutation rates
 lead to excessive intratumour genetic heterogeneity which makes cancer
 highly adaptable to environmental pressures such as therapy
-[@Turajlic2019]. Throughout most of its existence
-tumour is inaccessible to direct observation and experimental
-evaluation. Therefore, computational modelling can be useful to study
-many aspects of cancer. Some examples where theoretical models can be of
-great use include early carcinogenesis, as lesions are clinically
-observable when they already contain millions of cells, seeding of
-metastases, and cancer cell dormancy
-[@Altrock2015].
+[@Turajlic2019]. This process is known as somatic evolution of cancer.
+Throughout most of its existence a tumour is inaccessible to direct 
+observation and experimental evaluation. Therefore, computational modelling
+ can be useful to study many aspects of cancer. Some examples where theoretical 
+ models can be of great use include early carcinogenesis, as lesions are clinically
+observable when they already contain millions of cells, seeding of metastases, 
+and cancer cell dormancy [@Altrock2015].
 
 Here, we present CancerSim, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intratumour genetic heterogeneity and realistic mutational profiles. Simulated
-tumours can be subjected to multi-region sampling to obtain mutation profiles
-that are realistic representation of the sequencing data. This makes the
-software useful for studying various sampling strategies in clinical cancer
-diagnostics. An early version of this cancer evolution model was used to
-simulate tumours subjected to sampling for classification of mutations based on
-their abundance [@Opasic2019]. Target users are scientists working in the field
-of mathematical oncology and students with interest in studying somatic
-evolution of cancer.  
+intratumour genetic heterogeneity and realistic mutational profiles. 
+Simulated tumours can be subjected to spatial sampling to obtain mutation profiles 
+from different tumour regions that are realistic representation of the sequencing data. 
+This makes the software useful for studying various sampling strategies in clinical cancer
+diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
+cancer evolution model was used to simulate tumours subjected to sampling for 
+classification of mutations based on their abundance [@Opasic2019]. Target users 
+are scientists working in the field of mathematical oncology. Simplicity of our model 
+in comparrisson to more advanced models like [@waclaw2015] makes it
+specifically suitable students with interest in studying somatic evolution of cancer.
 
 
-Our model is abstract, not specific to any neoplasm type and does not
+Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
 such as vasculature, immune contexture, availability of nutrients, and
 architecture of the tumour surroundings. It resembles the most to
@@ -79,13 +79,21 @@ every tumour cell in the tumour that has an unoccupied neighbour can
 divide with a certain probability (params.div\_\_probability). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mut\_prob). Different division probabilities can be introduced
+(params.mut\_prob). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (params.mut\_per\_division). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
-the output data more biologically realistic.
+the output data more biologically realistic. Key parameters params.number\_of\_generation, 
+params.division\_probability and params.death\_probability
+determine the final size of the tumour, while the degree of intratumour heterogeneity can 
+be varied by changing the params.mutation\_probability parameter. 
+For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
+and params.adv\_mutant_death\_probability must be the same as params.division\_probability
+and params.death\_probability. Test
+
+
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every
@@ -210,9 +218,15 @@ manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.Canc
 Documentation and support
 -------------------------
 
+<<<<<<< HEAD
 The API reference manual and community guidelines including directions
 for contributors and bug reports are given in the online documentation at
 <https://cancer-sim.readthedocs.io>. 
+=======
+See our quickstart example in
+`docs/source/include/notebooks/quickstart_example.ipynb` or use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+Example is set to simulate a 20 generations of cancer cell divisions where both normal and mutant cancer cells have the same division rate but different death rate.
+>>>>>>> luka_review
 
 References
 ----------
