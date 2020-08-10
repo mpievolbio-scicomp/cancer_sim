@@ -390,7 +390,6 @@ class CancerSimulator(object):
         root_logger = logging.getLogger()
         fhandler = logging.FileHandler(os.path.join(logdir, "casim.log"))
         fhandler.setFormatter(root_logger.handlers[0].formatter)
-        import ipdb; ipdb.set_trace()
         root_logger.addHandler(fhandler)
 
     def extend_sample(self, sample_center, sample_size):
