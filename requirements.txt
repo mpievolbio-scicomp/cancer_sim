@@ -8,3 +8,5 @@ recommonmark
 scipy
 seaborn
 sphinx
+wand
+.
