@@ -10,16 +10,21 @@ Background
 ----------
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
- \[[1](#ref-kumar:book:2017)\]. Its high division and mutation rates lead to excessive
+ \[[1](#ref-kumar:book:2017)\]
+. Its high division and mutation rates lead to excessive
 intratumour genetic heterogeneity which makes cancer highly adaptable to
-environmental pressures such as therapy  \[[2](#ref-turajlic:NRG:2019)\]. 
+environmental pressures such as therapy 
+\[[2](#ref-turajlic:NRG:2019)\]
+. 
 This process is known as somatic evolution of cancer. Throughout most
 of its existence a tumour is inaccessible to direct observation and
 experimental evaluation. Therefore, computational modelling can be
 useful to study many aspects of cancer. Some examples where theoretical
 models can be of great use include early carcinogenesis, as lesions are
 clinically observable when they already contain millions of cells,
-seeding of metastases, and cancer cell dormancy \[[3](#ref-altrock:NatRevCancer:2015)\].
+seeding of metastases, and cancer cell dormancy 
+\[[3](#ref-altrock:NatRevCancer:2015)\]
+.
 
 Here, we present CancerSim, a software that simulates somatic evolution
 of tumours. The software produces virtual spatial tumours with variable
@@ -30,7 +35,8 @@ sequencing data. This makes the software useful for studying various
 sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
-\[[4](#ref-opasic:BMCCancer:2019)\]. Target users are scientists working in the field of
+\[[4](#ref-opasic:BMCCancer:2019)\].
+Target users are scientists working in the field of
 mathematical oncology. Simplicity of our model in comparison to more advanced models like 
 \[[5](#ref-waclaw2015)\]
 makes it specifically suitable students with interest in studying somatic evolution of cancer.
@@ -61,7 +67,9 @@ for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
-sequencing noise \[[6](#ref-williams:NG:2016)\] can be added to make
+sequencing noise
+\[[6](#ref-williams:NG:2016)\]
+can be added to make
 the output data more biologically realistic. The key parameters
 `number_of_generations`, 
 `division_probability` and `death_probability`
