@@ -50,55 +50,61 @@ class CancerSimulatorParametersTest(unittest.TestCase):
 
         parameters = CancerSimulatorParameters()
 
-        self.assertEqual(parameters.matrix_size,                          10  )
-        self.assertEqual(parameters.number_of_generations,                 2  )
-        self.assertEqual(parameters.division_probability,                  1  )
-        self.assertEqual(parameters.advantageous_division_probability,     1  )
-        self.assertEqual(parameters.death_probability,                     0  )
-        self.assertEqual(parameters.advantageous_death_probability,   0.0)
-        self.assertEqual(parameters.mutation_probability,                         0.8)
-        self.assertEqual(parameters.advantageous_mutation_probability,     1  )
-        self.assertEqual(parameters.mutations_per_division,                1  )
-        self.assertEqual(parameters.time_of_advantageous_mutation,     50000  )
-        self.assertEqual(parameters.number_of_clonal,                     1   )
-        self.assertEqual(parameters.tumour_multiplicity,              'single')
-        self.assertEqual(parameters.read_depth,                         100  )
-        self.assertEqual(parameters.sampling_fraction,                         0.0  )
+        self.assertEqual(parameters.matrix_size, 10)
+        self.assertEqual(parameters.number_of_generations, 2)
+        self.assertEqual(parameters.division_probability, 1)
+        self.assertEqual(parameters.adv_mutant_division_probability, 1)
+        self.assertEqual(parameters.death_probability, 0)
+        self.assertEqual(parameters.adv_mutant_death_probability, 0.0)
+        self.assertEqual(parameters.mutation_probability, 0.8)
+        self.assertEqual(parameters.adv_mutant_mutation_probability, 1)
+        self.assertEqual(parameters.number_of_mutations_per_division, 1)
+        self.assertEqual(parameters.adv_mutation_wait_time, 50000)
+        self.assertEqual(parameters.number_of_initital_mutations, 1)
+        self.assertEqual(parameters.tumour_multiplicity, 'single')
+        self.assertEqual(parameters.read_depth, 100)
+        self.assertEqual(parameters.sampling_fraction, 0.0)
+        self.assertTrue(parameters.plot_tumour_growth)
+        self.assertTrue(parameters.export_tumour)
 
     def test_shaped_constructor (self):
         """ Test initialization with arguments. """
 
-        parameters = CancerSimulatorParameters(
-                                matrix_size =                           20  ,
-                                number_of_generations =                 10  ,
-                                division_probability =                   0.5,
-                                advantageous_division_probability =      0.3,
-                                death_probability =                      0.1,
-                                advantageous_death_probability =    0.4,
-                                mutation_probability =                          0.2,
-                                advantageous_mutation_probability =      0.8,
-                                mutations_per_division =                10  ,
-                                time_of_advantageous_mutation =      30000  ,
-                                number_of_clonal =                       2  ,
-                                tumour_multiplicity =                'single',
-                                read_depth = 200,
-                                sampling_fraction = 0.3,
+        parameters=CancerSimulatorParameters(
+                                matrix_size=20  ,
+                                number_of_generations=10  ,
+                                division_probability=0.5,
+                                adv_mutant_division_probability=0.3,
+                                death_probability=0.1,
+                                adv_mutant_death_probability=0.4,
+                                mutation_probability=0.2,
+                                adv_mutant_mutation_probability=0.8,
+                                number_of_mutations_per_division=10  ,
+                                adv_mutation_wait_time=30000  ,
+                                number_of_initital_mutations=2  ,
+                                tumour_multiplicity='single',
+                                read_depth=200,
+                                sampling_fraction=0.3,
+                                export_tumour=False,
+                                plot_tumour_growth=False,
                                                 )
 
-        self.assertEqual(parameters.matrix_size,                          20  )
-        self.assertEqual(parameters.number_of_generations,                10  )
-        self.assertEqual(parameters.division_probability,                  0.5)
-        self.assertEqual(parameters.advantageous_division_probability,     0.3)
-        self.assertEqual(parameters.death_probability,                     0.1)
-        self.assertEqual(parameters.advantageous_death_probability,   0.4)
-        self.assertEqual(parameters.mutation_probability,                         0.2)
-        self.assertEqual(parameters.advantageous_mutation_probability,     0.8)
-        self.assertEqual(parameters.mutations_per_division,               10  )
-        self.assertEqual(parameters.time_of_advantageous_mutation,     30000  )
-        self.assertEqual(parameters.number_of_clonal,                      2  )
-        self.assertEqual(parameters.tumour_multiplicity,               'single' )
-        self.assertEqual(parameters.read_depth,              200 )
-        self.assertEqual(parameters.sampling_fraction,              0.3 )
+        self.assertEqual(parameters.matrix_size, 20)
+        self.assertEqual(parameters.number_of_generations, 10)
+        self.assertEqual(parameters.division_probability, 0.5)
+        self.assertEqual(parameters.adv_mutant_division_probability, 0.3)
+        self.assertEqual(parameters.death_probability, 0.1)
+        self.assertEqual(parameters.adv_mutant_death_probability, 0.4)
+        self.assertEqual(parameters.mutation_probability, 0.2)
+        self.assertEqual(parameters.adv_mutant_mutation_probability, 0.8)
+        self.assertEqual(parameters.number_of_mutations_per_division, 10)
+        self.assertEqual(parameters.adv_mutation_wait_time, 30000)
+        self.assertEqual(parameters.number_of_initital_mutations, 2)
+        self.assertEqual(parameters.tumour_multiplicity, 'single' )
+        self.assertEqual(parameters.read_depth, 200 )
+        self.assertEqual(parameters.sampling_fraction, 0.3 )
+        self.assertFalse(parameters.plot_tumour_growth)
+        self.assertFalse(parameters.export_tumour)
 
     def test_check_set_number(self):
         """ Test the numer checking utility. """
@@ -173,10 +179,10 @@ class CancerSimulatorTest(unittest.TestCase):
         # Set to a different dir.
         cancer_sim.outdir = tmpdir
 
-        # Check export_tumour flag
-        self.assertTrue(cancer_sim._CancerSimulator__export_tumour)
+        # Check export_tumour flag.
+        self.assertTrue(cancer_sim.parameters.export_tumour)
 
-        # But not twice.
+        # Check exception is thrown if same O dir is used twice.
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
 
@@ -188,14 +194,14 @@ class CancerSimulatorTest(unittest.TestCase):
                                             matrix_size=1000,
                                             number_of_generations=20,
                                             division_probability=1,
-                                            advantageous_division_probability=1,
+                                            adv_mutant_division_probability=1,
                                             death_probability=0.1,
-                                            advantageous_death_probability=0.0,
+                                            adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
-                                            advantageous_mutation_probability=1,
-                                            time_of_advantageous_mutation=10,
-                                            number_of_clonal=150,
-                                            mutations_per_division=50,
+                                            adv_mutant_mutation_probability=1,
+                                            adv_mutation_wait_time=10,
+                                            number_of_initital_mutations=150,
+                                            number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
                                             read_depth=100,
                                             sampling_fraction=0.9,
@@ -218,14 +224,14 @@ class CancerSimulatorTest(unittest.TestCase):
                                             matrix_size=1000,
                                             number_of_generations=20,
                                             division_probability=1,
-                                            advantageous_division_probability=1,
+                                            adv_mutant_division_probability=1,
                                             death_probability=0.1,
-                                            advantageous_death_probability=0.0,
+                                            adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
-                                            advantageous_mutation_probability=1,
-                                            time_of_advantageous_mutation=10,
-                                            number_of_clonal=150,
-                                            mutations_per_division=50,
+                                            adv_mutant_mutation_probability=1,
+                                            adv_mutation_wait_time=10,
+                                            number_of_initital_mutations=150,
+                                            number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.1,
                                             )
@@ -269,14 +275,14 @@ class CancerSimulatorTest(unittest.TestCase):
                                             matrix_size=1000,
                                             number_of_generations=20,
                                             division_probability=1,
-                                            advantageous_division_probability=1,
+                                            adv_mutant_division_probability=1,
                                             death_probability=0.1,
-                                            advantageous_death_probability=0.0,
+                                            adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
-                                            advantageous_mutation_probability=1,
-                                            time_of_advantageous_mutation=10,
-                                            number_of_clonal=150,
-                                            mutations_per_division=1,
+                                            adv_mutant_mutation_probability=1,
+                                            adv_mutation_wait_time=10,
+                                            number_of_initital_mutations=150,
+                                            number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.1,
                                             )
@@ -333,14 +339,14 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
         self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
         self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
-        self.assertEqual(loaded_parameters.advantageous_division_probability,    parameters.advantageous_division_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_division_probability,    parameters.adv_mutant_division_probability)
         self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.advantageous_death_probability,  parameters.advantageous_death_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_death_probability,  parameters.adv_mutant_death_probability)
         self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
-        self.assertEqual(loaded_parameters.advantageous_mutation_probability,    parameters.advantageous_mutation_probability)
-        self.assertEqual(loaded_parameters.mutations_per_division,               parameters.mutations_per_division)
-        self.assertEqual(loaded_parameters.time_of_advantageous_mutation,        parameters.time_of_advantageous_mutation)
-        self.assertEqual(loaded_parameters.number_of_clonal,                     parameters.number_of_clonal)
+        self.assertEqual(loaded_parameters.adv_mutant_mutation_probability,    parameters.adv_mutant_mutation_probability)
+        self.assertEqual(loaded_parameters.number_of_mutations_per_division,               parameters.number_of_mutations_per_division)
+        self.assertEqual(loaded_parameters.adv_mutation_wait_time,        parameters.adv_mutation_wait_time)
+        self.assertEqual(loaded_parameters.number_of_initital_mutations,                     parameters.number_of_initital_mutations)
         self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
         self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
         self.assertEqual(loaded_parameters.sampling_fraction,              parameters.sampling_fraction)
@@ -377,16 +383,18 @@ class CancerSimulatorTest(unittest.TestCase):
                                             matrix_size=1000,
                                             number_of_generations=20,
                                             division_probability=1,
-                                            advantageous_division_probability=1,
+                                            adv_mutant_division_probability=1,
                                             death_probability=0.1,
-                                            advantageous_death_probability=0.0,
+                                            adv_mutant_death_probability=0.0,
                                             mutation_probability=1,
-                                            advantageous_mutation_probability=1,
-                                            time_of_advantageous_mutation=10,
-                                            number_of_clonal=150,
-                                            mutations_per_division=1,
+                                            adv_mutant_mutation_probability=1,
+                                            adv_mutation_wait_time=10,
+                                            number_of_initital_mutations=150,
+                                            number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.5,
+                                            plot_tumour_growth=True,
+                                            export_tumour=True,
                                             )
 
         simulator = CancerSimulator(parameters=parameters, seed=1, outdir="casim_out")
@@ -399,6 +407,7 @@ class CancerSimulatorTest(unittest.TestCase):
         # Check sampling file was written.
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sample_out_[0-9]{3}_[0-9]{3}.txt"))
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sampleHistogram_[0-9]{3}_[0-9]{3}.pdf"))
+        self.assertIn('growthCurve.pdf', os.listdir(simulator._CancerSimulator__simdir))
 
 
 class casim_test(unittest.TestCase):
@@ -430,41 +439,53 @@ class casim_test(unittest.TestCase):
     def test_cli(self):
         """ Test the command line interface. """
         # Setup command.
-        python = "python"
-        module = casim.__file__
+        self._test_files.append("casim_out")
+        self._test_files.append("cancer_sim_output")
 
-        # Run with seed only.
-        args = ['1']
+        # Run with only default parameters.
+        args = []
 
-        proc = Popen([python, module] + args)
+        proc = Popen("python -m casim.casim", shell=True)
         proc.wait()
         self.assertEqual(proc.returncode, 0)
-
-        # Run with positional argument.
-        outdir = 'cancer_sim_output'
-        self._test_files.append(outdir)
-        args += ['-o', outdir ]
-        proc = Popen([python, module] + args)
+        
+        params_path = os.path.join(os.path.dirname("__FILE__"),"..","casim","params.py")
+        out_path = "cancer_sim_output"
+        seed = 2
+        proc = Popen("python -m casim.casim -p {0:s} -s {1:d} -o {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
         # run with positional argument (long version).
-        args = ['2', '--outdir', outdir]
-        proc = Popen([python, module] + args)
+        seed = 3
+        proc = Popen("python -m casim.casim --params {0:s} --seed {1:d} --outdir {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
-
-        # run with positional argument (long version).
-        args = ['3', '--outdir', outdir, '-vv']
-        proc = Popen([python, module] + args)
+        
+        # run with positional argument (long version) and verbosity.
+        seed = 4
+        proc = Popen("python -m casim.casim --params {0:s} --seed {1:d} --outdir {2:s}".format(params_path,
+                                                                               seed,
+                                                                               out_path),
+                                                                               shell=True
+                                                                               )
         proc.wait()
         self.assertEqual(proc.returncode, 0)
 
     def test_10x10_seed_1(self):
         """ Run a test case with 10x10 cells and prng seed 1. """
 
-        arguments = namedtuple('arguments', ('seed', 'outdir', 'loglevel'))
+        arguments = namedtuple('arguments', ('params', 'seed', 'outdir', 'loglevel'))
         arguments.seed = 1
+        arguments.params = '../casim/params.py'
         arguments.outdir='cancer_sim_out'
         arguments.loglevel = 2
         self._test_files.append(arguments.outdir)

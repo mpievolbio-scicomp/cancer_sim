@@ -1,42 +1,56 @@
-# Number of mesh points in each dimension
-matrixSize                      = 1000
+################################################################################
+#                                                                              #
+# Commented casim parameter input file.                                        #
+# Valid settings are indicated in parentheses at the end of each comment line. #
+# [0,1] stands for the closed interval from 0 to 1, including the limits; ||   #
+# means "or".                                                                  #
+#                                                                              #
+################################################################################
 
-# Number of generations to simulate.
-num_of_generations              = 20
+# Number of mesh points in each dimension (>0)
+matrix_size = 1000
 
-# Probability that single cell will divide
-div_probability                 = 1
+# Number of generations to simulate (>0).
+number_of_generations = 20
 
-# Probability that single cell with advantageous/deleterious mutation will divide
-fittnes_advantage_div_prob      = 1
+# Probability of cell division per generation ([0,1]).
+division_probability = 1
 
-# Fraction of cells that die per generation.
-dying_fraction                  = 0.1
+# Probability of division for cells with advantageous mutation ([0,1]).
+adv_mutant_division_probability = 1
 
-# Fraction of cells with advantageous/deleterious mutation that die per generation.
-fitness_advantage_death_prob    = 0.0
+# Fraction of cells that die per generation ([0,1]).
+death_probability = 0.1
 
-# Probability that single mutation event will occur at the time of division
-mut_prob                        = 1
+# Fraction of cells with advantageous mutation that die per generation ([0,1]).
+adv_mutant_death_probability = 0.0
 
-# Probability that advantageous mutation will occur in time step params.time_of_adv_mut
-advantageous_mut_prob           = 1
+# Probability of mutations ([0,1]).
+mutation_probability = 1
 
-# Time after which advantageous/deleterious mutations occur.
-time_of_adv_mut                 = 10
+# Mutation probability for the adv. cells ([0,1]).
+adv_mutant_mutation_probability = 1
 
-# Number of mutations present in the first cancer cell
-num_of_clonal                   = 150
+# Number of mutations per cell division (>=0).
+number_of_mutations_per_division = 10
 
-# Number of mutations per cell division.
-mut_per_division                = 50
+# Number of generations after which adv. mutation occurs (>=0).
+adv_mutation_wait_time = 10
 
-# Tumour multiplicity.
-tumour_multiplicity             = None
+# Number of mutations present in first cancer cell (>=0).
+number_of_initital_mutations = 150
 
-# Read depth
-read_depth                      = 100
+# Tumour multiplicity ("single" || "double").
+tumour_multiplicity = "double"
 
-# Fraction of cells to sample (from interval [0,1))
-sampling_fraction                      = 0.9
+# Sequencing read depth (read length * number of reads / genome length).
+read_depth = 100
 
+# Fraction of cells to be sampled ([0,1]).
+sampling_fraction = 0.9
+    
+# Plot the tumour growth curve (True || False).
+plot_tumour_growth = True
+    
+# Export the tumour growth data to file (True || False).
+export_tumour = True
