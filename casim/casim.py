@@ -1080,8 +1080,6 @@ def main(arguments):
         arguments.loglevel = 0
 
     logging.getLogger().setLevel(loglevel[arguments.loglevel])
-    # HANDLER.setLevel(loglevel[arguments.loglevel])
-
     casim = CancerSimulator(parameters, seed=arguments.seed, outdir=arguments.outdir)
 
     return (casim.run())
