@@ -60,7 +60,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.adv_mutant_mutation_probability, 1)
         self.assertEqual(parameters.number_of_mutations_per_division, 1)
         self.assertEqual(parameters.adv_mutation_wait_time, 50000)
-        self.assertEqual(parameters.number_of_initital_mutations, 1)
+        self.assertEqual(parameters.number_of_initial_mutations, 1)
         self.assertEqual(parameters.tumour_multiplicity, 'single')
         self.assertEqual(parameters.read_depth, 100)
         self.assertEqual(parameters.sampling_fraction, 0.0)
@@ -81,7 +81,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 adv_mutant_mutation_probability=0.8,
                                 number_of_mutations_per_division=10  ,
                                 adv_mutation_wait_time=30000  ,
-                                number_of_initital_mutations=2  ,
+                                number_of_initial_mutations=2  ,
                                 tumour_multiplicity='single',
                                 read_depth=200,
                                 sampling_fraction=0.3,
@@ -99,7 +99,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.adv_mutant_mutation_probability, 0.8)
         self.assertEqual(parameters.number_of_mutations_per_division, 10)
         self.assertEqual(parameters.adv_mutation_wait_time, 30000)
-        self.assertEqual(parameters.number_of_initital_mutations, 2)
+        self.assertEqual(parameters.number_of_initial_mutations, 2)
         self.assertEqual(parameters.tumour_multiplicity, 'single' )
         self.assertEqual(parameters.read_depth, 200 )
         self.assertEqual(parameters.sampling_fraction, 0.3 )
@@ -185,7 +185,89 @@ class CancerSimulatorTest(unittest.TestCase):
         # Check exception is thrown if same O dir is used twice.
         with self.assertRaises(IOError) as exc:
             cancer_sim.outdir = tmpdir
+    
+    def test_params_module(self):
+        """ Check that starting a run with params.py paramters sets all
+        parameters correctly. """
 
+        arguments = namedtuple('arguments', ('params', 'seed', 'outdir', 'loglevel'))
+        arguments.seed = 1
+        arguments.params = '../casim/params.py'
+        arguments.outdir='cancer_sim_out'
+        arguments.loglevel = 1
+        self._test_files.append(arguments.outdir)
+
+        # Capture stdout.
+        stream = StringIO()
+        log = LOGGER
+        for handler in log.handlers:
+           log.removeHandler(handler)
+        myhandler = logging.StreamHandler(stream)
+        myhandler.setLevel(logging.DEBUG)
+        log.addHandler(myhandler)
+
+        # Run the simulation.
+        casim.main(arguments)
+
+        # Flush log.
+        myhandler.flush()
+
+        # Read stdout.
+        sim_out = stream.getvalue()
+
+        # Reset stdout.
+        log.removeHandler(myhandler)
+        handler.close()
+
+        # target = re.compile(r"^.*sampling_fraction\s=\s0\.1.*$")
+        target = re.compile(r'matrix_size\s=\s1000')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'number_of_generations\s=\s20')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'division_probability\s=\s1\.0')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'adv_mutant_division_probability\s=\s1\.0')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'death_probability\s=\s0\.1')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'adv_mutant_death_probability\s=\s0\.0')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'mutation_probability\s=\s1\.0')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'adv_mutant_mutation_probability\s=\s1\.0')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'number_of_mutations_per_division\s=\s10')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'adv_mutation_wait_time\s=\s10')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'number_of_initial_mutations\s=\s150')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'tumour_multiplicity\s=\ssingle')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'read_depth\s=\s100')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'sampling_fraction\s=\s0\.1')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'plot_tumour_growth\s=\sTrue')
+        self.assertRegex(sim_out, target)
+
+        target = re.compile(r'export_tumour\s=\sTrue')
+        self.assertRegex(sim_out, target)
+        
     def test_high_sampling_fraction(self):
         """ Test run with sampling_fraction=0.9 """
 
@@ -200,7 +282,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
                                             adv_mutation_wait_time=10,
-                                            number_of_initital_mutations=150,
+                                            number_of_initial_mutations=150,
                                             number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
                                             read_depth=100,
@@ -230,7 +312,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
                                             adv_mutation_wait_time=10,
-                                            number_of_initital_mutations=150,
+                                            number_of_initial_mutations=150,
                                             number_of_mutations_per_division=50,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.1,
@@ -281,7 +363,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
                                             adv_mutation_wait_time=10,
-                                            number_of_initital_mutations=150,
+                                            number_of_initial_mutations=150,
                                             number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.1,
@@ -346,7 +428,7 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertEqual(loaded_parameters.adv_mutant_mutation_probability,    parameters.adv_mutant_mutation_probability)
         self.assertEqual(loaded_parameters.number_of_mutations_per_division,               parameters.number_of_mutations_per_division)
         self.assertEqual(loaded_parameters.adv_mutation_wait_time,        parameters.adv_mutation_wait_time)
-        self.assertEqual(loaded_parameters.number_of_initital_mutations,                     parameters.number_of_initital_mutations)
+        self.assertEqual(loaded_parameters.number_of_initial_mutations,                     parameters.number_of_initial_mutations)
         self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
         self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
         self.assertEqual(loaded_parameters.sampling_fraction,              parameters.sampling_fraction)
@@ -389,7 +471,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             mutation_probability=1,
                                             adv_mutant_mutation_probability=1,
                                             adv_mutation_wait_time=10,
-                                            number_of_initital_mutations=150,
+                                            number_of_initial_mutations=150,
                                             number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.5,

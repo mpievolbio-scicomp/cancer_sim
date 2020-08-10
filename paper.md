@@ -54,9 +54,8 @@ diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early v
 cancer evolution model was used to simulate tumours subjected to sampling for 
 classification of mutations based on their abundance [@Opasic2019]. Target users 
 are scientists working in the field of mathematical oncology. Simplicity of our model 
-in comparrisson to more advanced models like [@waclaw2015] makes it
-specifically suitable students with interest in studying somatic evolution of cancer.
-
+in comparison to more advanced models like [@waclaw2015] makes it
+specifically suitable for students with interest in somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
@@ -76,24 +75,23 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (params.div\_\_probability). The
+divide with a certain probability (controlled through the parameter `division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mut\_prob). Different division probabilities can be introduced in the beginning
+(`mutation_probability`). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
-(params.mut\_per\_division). In that case, variable amounts of
+(`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
-the output data more biologically realistic. Key parameters params.number\_of\_generation, 
-params.division\_probability and params.death\_probability
+the output data more biologically realistic. Key parameters
+`number_of_generations`, 
+`division_probability` and `death_probability`
 determine the final size of the tumour, while the degree of intratumour heterogeneity can 
-be varied by changing the params.mutation\_probability parameter. 
-For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
-and params.adv\_mutant_death\_probability must be the same as params.division\_probability
-and params.death\_probability. Test
-
-
+be varied by changing the `mutation_probability` parameter. 
+For neutral tumour evolution, parameter `adv_mutant_division_probability`
+and `adv_mutant_death_probability` must be the same as `division_probability`
+and `death_probability`. 
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every
@@ -116,7 +114,6 @@ can be loaded from file and then subjected to the sampling process.
 
 Download and Installation
 -------------------------
-
 CancerSim is written in Python (version \>3.5). We recommend to install
 it directly from the source code hosted at github <https://github.com/mpievolbio-scicomp/cancer_sim>.
 
@@ -125,7 +122,6 @@ it directly from the source code hosted at github <https://github.com/mpievolbio
 
 Testing
 -------
-
 Although not strictly required, we recommend to run the test suite after
 installation. Simply execute the `run_tests.sh` shell script:
 
@@ -140,7 +136,7 @@ Results are published on
 
 High--level functionality
 -------------------------
-
+### Setting up the cancer simulation parameters
 The parameters of the cancer simulation are given via a python module or
 programmatically via the `CancerSimulationParameters` class. The file
 `params.py` is a documented parameter module:
@@ -177,16 +173,16 @@ number_of_mutations_per_division = 10
 adv_mutation_wait_time = 10
 
 # Number of mutations present in first cancer cell (>=0).
-number_of_initital_mutations = 150
+number_of_initial_mutations = 150
 
-# Tumour multiplicity ("single" || "double").
-tumour_multiplicity = "double"
+# Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
+tumour_multiplicity = "single"
 
 # Sequencing read depth (read length * number of reads / genome length).
 read_depth = 100
 
 # Fraction of cells to be sampled ([0,1]).
-sampling_fraction = 0.9
+sampling_fraction = 0.1
     
 # Plot the tumour growth curve (True || False).
 plot_tumour_growth = True
@@ -194,7 +190,21 @@ plot_tumour_growth = True
 # Export the tumour growth data to file (True || False).
 export_tumour = True
 ```
+The example is set to simulate 20 generations of cancer cell divisions in a
+single tumour discretized  on a
+1000x1000 grid where both normal and mutant cancer cells have the same division
+rate but different death rates.
+The first cancer cell carries 150 mutations; both healthy and mutant cells aquire 10 new mutations in
+each generation with a certainty of 100%. The advantageous mutation happens in
+the 10th generation.
 
+Mutant cells with advantageous mutations live on forever while healthy cells die with a rate of 0.1 per generation.
+A spatial sample containing 10% closely positioned tumour cells is sampled and sequenced with a read depth
+of 100. The data is written to disk and plots showing the tumour growth and
+mutation histograms for the whole tumour as well as for the sampled part of the
+tumour are generated.
+
+### Run the simulation
 The simulation is started from the command line. The syntax is
 
     $> python -m casim.casim [-h] [-s SEED] [-p PARAMS] [-o DIR]
@@ -205,28 +215,19 @@ working directory. If that file does not exist, default parameters are assumed.
 `DIR` specifies the directory where to store the
 simulation log and output data. If not given, output will be stored in
 the directory `casim_out` in the current directory. 
-Further details and explanation of the example can be found in the online
-documentation.
+Further details and explanation of the simulation output can be found in the [online
+documentation](https://cancer-sim.readthedocs.io/en/latest/include/README.html#output)
+and in the [reference manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
-A smaller example is also provided in the jupyter notebook
+A smaller example (gridsize 20x20) is also provided in the jupyter notebook
 `docs/source/include/notebooks/quickstart_example.ipynb`. Use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
-
-Content and format of the simulation output data are described in detail in the
-[reference
-manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
 Documentation and support
 -------------------------
 
-<<<<<<< HEAD
 The API reference manual and community guidelines including directions
 for contributors and bug reports are given in the online documentation at
 <https://cancer-sim.readthedocs.io>. 
-=======
-See our quickstart example in
-`docs/source/include/notebooks/quickstart_example.ipynb` or use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
-Example is set to simulate a 20 generations of cancer cell divisions where both normal and mutant cancer cells have the same division rate but different death rate.
->>>>>>> luka_review
 
 References
 ----------
