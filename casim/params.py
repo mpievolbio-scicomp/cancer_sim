@@ -54,5 +54,3 @@ plot_tumour_growth = True
     
 # Export the tumour growth data to file (True || False).
 export_tumour = True
-
-

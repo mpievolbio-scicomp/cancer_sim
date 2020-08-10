@@ -436,8 +436,37 @@ class CancerSimulator(object):
             dill.dump(self, fp)
 
     def run(self):
-        """ Run the simulation. """
+        """ Run the simulation.
+        
+        :return: 0 if the run finishes successfully.
 
+        After a successful run, simulation output and log will be written to
+        the output directory `<DIR>/cancer_<SEED>/simOutput` and
+        `<DIR>/cancer_<SEED>/log`, respectively. Simulation output is split into
+        several files:
+
+        - `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
+        each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
+        a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
+
+        - `sample_out_XXX_YYY.txt` lists all mutations of the artificial sample
+        taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
+         
+        - `wholeTumourVAFHistogram.pdf` contains a histogram plot of the
+          mutation frequencies for the  whole tumour
+        - `sampleHistogram_XXX_YYY.pdf` is the mutation frequency histogram for
+          the sampled portion of the tumour. The two numbers XXX and YYY are the
+          positional coordinates (grid indices) in the tumour matrix.
+
+        - `mtx.p` is the serialized (aka "pickled") 2D tumour matrix in sparse
+          matrix format.
+        - `death_list.p` is the serialized (aka "pickled") 2D matrix listing the
+          cell death events on each tumour site.
+        - `mut_container.p` is the serialized (aka "pickled") mutation list, a
+          list of tuples [t_i]. Each tuple t_i consists of two values, t_i =
+          (c_i, m_i). The first element c_i is the cell number in which the i'th mutation
+          occurs. The second element, m_i, is the mutation index m_i=i. 
+        """ 
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
 
@@ -487,7 +516,6 @@ class CancerSimulator(object):
         if self.parameters.plot_tumour_growth:
             self.growth_plot()
 
-
         # Sampling
         # Setup list of coordinates that serve as center of sampling [(x,y)]
         # Pick a random cell from the pool.
@@ -520,6 +548,7 @@ class CancerSimulator(object):
                 #introduce sequencing noise, works only with increased number of mutations
                 noisy_data=self.simulate_seq_depth(increased_mut_number_sample)
                 self.export_sample(noisy_data, center_cell_coordinates)
+
                 #creates and exports histogram of mutational frequencies
                 self.export_histogram(noisy_data, center_cell_coordinates)
 
@@ -848,7 +877,7 @@ class CancerSimulator(object):
 
                 if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
 
-                    increased_mut_number_tumour=self.increase_mut_number(mutation_counts)    #increases number of mutations in the tumour by factor from params.number_of_mutations_per_division
+                    increased_mut_number_tumour=self.increase_mut_number(mutation_counts)    #increases number of mutations in the tumour by factor from params.number_of_number_of_mutations_per_division
 
                     noisy_data=self.simulate_seq_depth(increased_mut_number_tumour)       #introduce sequencing noise, works only with increased number of mutations
 
@@ -1016,6 +1045,8 @@ def main(arguments):
                 number_of_initital_mutations=params.number_of_initital_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
                 read_depth=params.read_depth,
+                export_tumour=params.export_tumour,
+                plot_tumour_growth=params.plot_tumour_growth,
                 )
 
     # Set loglevel.
