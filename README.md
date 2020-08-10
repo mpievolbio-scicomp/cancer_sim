@@ -10,11 +10,11 @@ Background
 ----------
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
- \[[1](#ref-kumar:book:2017)\]
+ \[[1](#ref-kumar2017)\]
 . Its high division and mutation rates lead to excessive
 intratumour genetic heterogeneity which makes cancer highly adaptable to
 environmental pressures such as therapy 
-\[[2](#ref-turajlic:NRG:2019)\]
+\[[2](#ref-turajlic2019)\]
 . 
 This process is known as somatic evolution of cancer. Throughout most
 of its existence a tumour is inaccessible to direct observation and
@@ -23,7 +23,7 @@ useful to study many aspects of cancer. Some examples where theoretical
 models can be of great use include early carcinogenesis, as lesions are
 clinically observable when they already contain millions of cells,
 seeding of metastases, and cancer cell dormancy 
-\[[3](#ref-altrock:NatRevCancer:2015)\]
+\[[3](#ref-altrock2015)\]
 .
 
 Here, we present CancerSim, a software that simulates somatic evolution
@@ -35,7 +35,7 @@ sequencing data. This makes the software useful for studying various
 sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
-\[[4](#ref-opasic:BMCCancer:2019)\].
+\[[4](#ref-opasic2019)\].
 Target users are scientists working in the field of
 mathematical oncology. Simplicity of our model in comparison to more advanced models like 
 \[[5](#ref-waclaw2015)\]
@@ -68,7 +68,7 @@ acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise
-\[[6](#ref-williams:NG:2016)\]
+\[[6](#ref-williams2016)\]
 can be added to make
 the output data more biologically realistic. The key parameters
 `number_of_generations`, 
@@ -333,25 +333,25 @@ the [list of issues](https://github.com/mpievolbio-scicomp/cancer_sim/issues?q=i
 
 References
 ----------
-<a name=ref-kumar:book:2017></a> \[1\] J. C. A. Vinay Kumar Abul K. Abbas,
+<a name=ref-kumar2017></a> \[1\] J. C. A. Vinay Kumar Abul K. Abbas,
 *Robbins Basic Pathology*, 10th ed. (Elsevier, 2017). ISBN: 9780323353175. 
 
-<a name=ref-turajlic:NRG:2019></a> \[2\] S. Turajlic, A. Sottoriva, T. Graham,
+<a name=ref-turajlic2019></a> \[2\] S. Turajlic, A. Sottoriva, T. Graham,
 and C. Swanton, Nat Rev Genet (2019). DOI:
 [10.1038/s41576-019-0114-6](https://dx.doi.org/10.1038/s41576-019-0114-6)
 
 
-<a name=ref-altrock:NatRevCancer:2015></a> \[3\] P. M. Altrock, L. L. Liu, and
+<a name=ref-altrock2015></a> \[3\] P. M. Altrock, L. L. Liu, and
 F. Michor, Nat Rev Cancer **15**, 730 (2015).
  DOI:
 [10.1038/nrc4029](https://dx.doi.org/10.1038/nrc4029)
 
-<a name=ref-opasic:BMCCancer:2019></a> \[4\] L. Opasic, D. Zhou, B. Werner, D.
+<a name=ref-opasic2019></a> \[4\] L. Opasic, D. Zhou, B. Werner, D.
 Dingli, and A. Traulsen, BMC Cancer **19**, 403 (2019).
  DOI:
 [10.1186/s12885-019-5597-1](https://dx.doi.org/10.1186/s12885-019-5597-1)
 
-<a name=ref-williams:NG:2016></a> \[6\] M. J. Williams, B. Werner, C. P. Barnes,
+<a name=ref-williams2016></a> \[6\] M. J. Williams, B. Werner, C. P. Barnes,
 T. A. Graham, and A. Sottoriva, Nature Genetics **48**, 238 (2016).  DOI:
 [10.1038/ng.3489](https://dx.doi.org/10.1038/ng.3489)
 
