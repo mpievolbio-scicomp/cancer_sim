@@ -6,8 +6,6 @@
 Documentation for CancerSim, including this README and the API reference manual
  is hosted on [readthedocs](https://cancer-sim.readthedocs.io).
 
-
-
 Background
 ----------
 
@@ -55,16 +53,17 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (params.div\_\_probability). The
+divide with a certain probability (params.division\_\_probability). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mut\_prob). Different division probabilities can be introduced in the beginning
+(params.mutation\_probability). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
-acquired a beneficial or deleterious mutation.  The simulation allows the
+acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
-(params.mut\_per\_division). In that case, variable amounts of
-sequencing noise \[[5](#ref-williams:NG:2016)\] can be added to make the output data
-more biologically realistic. Key parameters params.number\_of\_generation, 
+(params.number\_of\_mutations\_per\_division). In that case, variable amounts of
+sequencing noise \[[5](#ref-williams:NG:2016)\] can be added to make
+the output data more biologically realistic. Key parameters
+params.number\_of\_generations, 
 params.division\_probability and params.death\_probability
 determine the final size of the tumour, while the degree of intratumour heterogeneity can 
 be varied by changing the params.mutation\_probability parameter. 
@@ -228,19 +227,19 @@ documented example `params.py` is included in the source code (under
     number_of_mutations_per_division = 10
 
     # Number of generation after which adv. mutation occurs (>=0).
-    [adv_mutation_wait_time](adv_mutation_wait_time) = 10
+    adv_mutation_wait_time = 10
 
     # Number of mutations present in first cancer cell (>=0).
-    number_of_initital_mutations = 150
+    number_of_initial_mutations = 150
 
-    # Tumour multiplicity ("single" || "double").
-    tumour_multiplicity = "double"
+    # Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
+    tumour_multiplicity = "single"
 
     # Sequencing read depth (read length * number of reads / genome length).
     read_depth = 100
 
     # Fraction of cells to be sampled ([0,1]).
-    sampling_fraction = 0.9
+    sampling_fraction = 0.1
         
     # Plot the tumour growth curve (True || False).
     plot_tumour_growth = True
@@ -248,18 +247,28 @@ documented example `params.py` is included in the source code (under
     # Export the tumour growth data to file (True || False).
     export_tumour = True
 
-Here, we simulate a 2D tumour on a 100x100 grid for a total of 20 generations.
-On average, both healthy and mutant cells divide once per generation. The first
-cancer cell carries 150 mutations.
-Mutant cells with advantageous mutations live on forever while healthy cells die with a rate of 0.1 per generation.
-Both healthy and mutant cells aquire 10 new mutations in
-each generation with a certainty of 100%. The advantageous mutation happens in
-the 10th generation.
+Here, we simulate a single 2D tumour on a 1000x1000 grid (`matrix_size=1000`) for a total of
+20 generations (`number_of_generations=20`).
+On average, both healthy and mutant cells divide once per generation
+(division_probability`). The first cancer cell carries 150 mutations
+(`number_of_initial_mutations=150`); both healthy and mutant cells aquire 10 new
+mutations (`number_of_mutations_per_division=10`) in
+each generation with a certainty of 100% (`mutation_probability=0.1`). The advantageous mutation happens in
+the 10th generation (`adv_mutation_wait_time=10`). 
 
-A spatial sample containing 90% closely positioned tumour cells is sampled and sequenced with a read depth
-of 100. The data is written to disk and a plot showing the tumour growth in
-generated.
+Mutant cells with advantageous mutations live on forever
+(`adv_mutant_death_probability=0`) while healthy cells die with a rate of 0.1
+per generation (`death_probability=0.1`).
+
+A spatial sample containing 10% closely positioned tumour cells
+(`sampling_fraction=0.1)` is sampled and sequenced with a read depth
+of 100 (`read_depth=100`). The data is written to disk (`export_tumour=True`)
+and plots showing the mutation histograms for the whole tumour as well as for the sampled part of the
+tumour are generated. Furthermore, a plot showing the tumour growth over time is
+saved (`plot_tumour_growth=True`).
  
+### Run the example
+
 The simulation is started from the command line. The syntax is
 
     $> python -m casim.casim [-h] [-s SEED] [-p PARAMS] [-o DIR]
@@ -275,10 +284,6 @@ the directory `casim_out` in the current directory. For each seed, a
 subdirectory `cancer_SEED` will be created. If that subdirectory already
 exists because an earlier run used the same seed, the run will abort.
 This is a safety catch to avoid overwriting data from previous runs.
-
-### Run the example
-
-    $> python -m casim.casim 1 -p casim/params.py -o cancer_sim_example
 
 ### Output
 After the run has finished, you should find the results in

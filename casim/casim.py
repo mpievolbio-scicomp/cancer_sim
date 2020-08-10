@@ -26,7 +26,7 @@ from importlib.util import spec_from_file_location, module_from_spec
 np = numpy
 
 # Configure logging.
-LEVEL = logging.WARNING
+LEVEL = logging.INFO
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(LEVEL)
 HANDLER = logging.StreamHandler()
@@ -52,7 +52,7 @@ class CancerSimulatorParameters(object):
                  adv_mutant_mutation_probability=None,
                  number_of_mutations_per_division=None,
                  adv_mutation_wait_time=None,
-                 number_of_initital_mutations=None,
+                 number_of_initial_mutations=None,
                  tumour_multiplicity=None,
                  read_depth=None,
                  sampling_fraction=None,
@@ -92,10 +92,11 @@ class CancerSimulatorParameters(object):
         :param adv_mutation_wait_time: The number of generations into the simulation after which the advantageous mutation is inserted.
         :type  adv_mutation_wait_time: int (adv_mutation_wait_time > 0)
 
-        :param number_of_initital_mutations: Number of mutations present in first cancer cell.
-        :type  number_of_initital_mutations: int (number_of_initital_mutations >= 0)
+        :param number_of_initial_mutations: Number of mutations present in first cancer cell.
+        :type  number_of_initial_mutations: int (number_of_initial_mutations >= 0)
 
-        :param tumour_multiplicity: Run in single or double tumour mode. Possible values: "single", "double".
+        :param tumour_multiplicity: Run in single or double tumour mode (i.e.
+        consider growth of one single tumour or two tumours simultaneously). Possible values: "single", "double".
         :type  tumour_multiplicity: str
 
         :param read_depth: The sequencing read depth (read length * number of reads / genome length). Default: 100.
@@ -112,7 +113,6 @@ class CancerSimulatorParameters(object):
         :type export_tumour: bool
 
         """
-
         # Store parameters on the object.
         self.matrix_size = matrix_size
         self.number_of_generations = number_of_generations
@@ -124,13 +124,13 @@ class CancerSimulatorParameters(object):
         self.adv_mutant_mutation_probability = adv_mutant_mutation_probability
         self.number_of_mutations_per_division = number_of_mutations_per_division
         self.adv_mutation_wait_time = adv_mutation_wait_time
-        self.number_of_initital_mutations = number_of_initital_mutations
+        self.number_of_initial_mutations = number_of_initial_mutations
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
         self.sampling_fraction = sampling_fraction
         self.plot_tumour_growth = plot_tumour_growth
         self.export_tumour = export_tumour
-
+    
     @property
     def matrix_size(self):
         return self.__matrix_size
@@ -202,11 +202,11 @@ class CancerSimulatorParameters(object):
         self.__adv_mutation_wait_time = check_set_number(val, int, 50000, 0)
 
     @property
-    def number_of_initital_mutations(self):
-        return self.__number_of_initital_mutations
-    @number_of_initital_mutations.setter
-    def number_of_initital_mutations(self, val):
-        self.__number_of_initital_mutations = check_set_number(val, int, 1, 0)
+    def number_of_initial_mutations(self):
+        return self.__number_of_initial_mutations
+    @number_of_initial_mutations.setter
+    def number_of_initial_mutations(self, val):
+        self.__number_of_initial_mutations = check_set_number(val, int, 1, 0)
 
     @property
     def tumour_multiplicity(self):
@@ -498,6 +498,7 @@ class CancerSimulator(object):
         lq_bipsy=[]
         self.__growth_plot_data=[]
 
+        self.__pre_run_log()
         LOGGER.info('Tumour growth in progress.')
 
         death_list=[]
@@ -534,18 +535,18 @@ class CancerSimulator(object):
             #count the number of detected mutations and calculate frequency of each mutation (getFrequencies=False gives count for each mutation)
             counted_sample=self.count_mutations(dna_from_sample, get_frequencies=True)
 
-            if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
+            if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initial_mutations==1:
                 #export mutational profile of the sample
                 self.export_sample(counted_sample, center_cell_coordinates)
 
 
-            if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
+            if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initial_mutations>1:
                 #increases number of mutations in the tumour by factor from params.number_of_number_of_mutations_per_division
                 increased_mut_number_sample=self.increase_mut_number(counted_sample)
-
-                #additional mutation serves to distinguish different mutations that occured
+                # Additional mutation serves to distinguish different mutations that occured
                 # in the same cell at the same time.
-                #introduce sequencing noise, works only with increased number of mutations
+
+                # Introduce sequencing noise, works only with increased number of mutations
                 noisy_data=self.simulate_seq_depth(increased_mut_number_sample)
                 self.export_sample(noisy_data, center_cell_coordinates)
 
@@ -553,9 +554,24 @@ class CancerSimulator(object):
                 self.export_histogram(noisy_data, center_cell_coordinates)
 
         end=timer()
+
+        self.__post_run_log()
+
         LOGGER.info("Consumed Wall time of this run: %f s.", end - start)
 
         return 0
+
+    def __pre_run_log(self):
+        message = ""
+
+        LOGGER.info("Ready to start CancerSim run with these parameters:")
+        for k,v in self.parameters.__dict__.items():
+            LOGGER.info("%s = %s", k.split("__")[-1], v)
+    
+    def __post_run_log(self):
+        LOGGER.info("CancerSim run has finished.")
+        LOGGER.info("Simulation output written to: %s.", self.__simdir)
+        LOGGER.info("Log files written to: %s.""", self.__logdir)
 
     def export_histogram(self, sample_data, sample_coordinates):
         """ Create and export histogram of mutational frequencies (aka variant allelic frequencies)
@@ -712,7 +728,7 @@ class CancerSimulator(object):
         return [(extended_vaf[i][0], VAF[i], extended_vaf[i][2]) for i in range(len(extended_vaf)) if VAF[i]!=0]
 
     def increase_mut_number(self, original_mut_list):
-        """ Scale up the number of mutations according to the 'number_of_initital_mutations' 'and number_of_mutations_per_division' parameter.
+        """ Scale up the number of mutations according to the 'number_of_initial_mutations' 'and number_of_mutations_per_division' parameter.
 
         :param solid_pre_vaf: The list of mutations to scale.
         :type  solid_pre_vaf: list
@@ -728,7 +744,7 @@ class CancerSimulator(object):
             # adding additional clonal mutations
 
             if i[0]==1:
-                for j in range(self.parameters.number_of_initital_mutations):
+                for j in range(self.parameters.number_of_initial_mutations):
                     extended_mut_list.append((i[0] , float(i[1]),j))
 
             else:
@@ -871,11 +887,11 @@ class CancerSimulator(object):
 
                 mutation_counts=self.count_mutations(reconstructed, get_frequencies=True)
 
-                if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initital_mutations==1:
+                if self.parameters.number_of_mutations_per_division==1 and self.parameters.number_of_initial_mutations==1:
                     self.export_tumour_matrix(mutation_counts)
                     return mutation_counts
 
-                if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initital_mutations>1:
+                if self.parameters.number_of_mutations_per_division>1 or self.parameters.number_of_initial_mutations>1:
 
                     increased_mut_number_tumour=self.increase_mut_number(mutation_counts)    #increases number of mutations in the tumour by factor from params.number_of_number_of_mutations_per_division
 
@@ -1042,8 +1058,9 @@ def main(arguments):
                 adv_mutant_mutation_probability=params.adv_mutant_mutation_probability,
                 number_of_mutations_per_division=params.number_of_mutations_per_division,
                 adv_mutation_wait_time=params.adv_mutation_wait_time,
-                number_of_initital_mutations=params.number_of_initital_mutations,
+                number_of_initial_mutations=params.number_of_initial_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
+                sampling_fraction=params.sampling_fraction,
                 read_depth=params.read_depth,
                 export_tumour=params.export_tumour,
                 plot_tumour_growth=params.plot_tumour_growth,

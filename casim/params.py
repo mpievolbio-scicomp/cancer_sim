@@ -38,16 +38,16 @@ number_of_mutations_per_division = 10
 adv_mutation_wait_time = 10
 
 # Number of mutations present in first cancer cell (>=0).
-number_of_initital_mutations = 150
+number_of_initial_mutations = 150
 
-# Tumour multiplicity ("single" || "double").
-tumour_multiplicity = "double"
+# Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
+tumour_multiplicity = "single"
 
 # Sequencing read depth (read length * number of reads / genome length).
 read_depth = 100
 
 # Fraction of cells to be sampled ([0,1]).
-sampling_fraction = 0.9
+sampling_fraction = 0.1
     
 # Plot the tumour growth curve (True || False).
 plot_tumour_growth = True
