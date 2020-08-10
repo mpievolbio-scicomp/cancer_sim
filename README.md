@@ -39,7 +39,7 @@ sampling for classification of mutations based on their abundance
 Target users are scientists working in the field of
 mathematical oncology. Simplicity of our model in comparison to more advanced models like 
 \[[5](#ref-waclaw2015)\]
-makes it specifically suitable students with interest in studying somatic evolution of cancer.
+makes it specifically suitable for students with interest in somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
@@ -351,9 +351,9 @@ Dingli, and A. Traulsen, BMC Cancer **19**, 403 (2019).
  DOI:
 [10.1186/s12885-019-5597-1](https://dx.doi.org/10.1186/s12885-019-5597-1)
 
+<a name=ref-waclaw2015></a> \[5\] B. Waclaw, I. Bozic, M. E. Pittman, R. H.  Hruban, B. Vogelstein, and M. A. Nowak, Nature **525**, 261 (2015). DOI: [10.1038/nature14971](https://dx.doi.org/10.1038/nature14971)
+
 <a name=ref-williams2016></a> \[6\] M. J. Williams, B. Werner, C. P. Barnes,
 T. A. Graham, and A. Sottoriva, Nature Genetics **48**, 238 (2016).  DOI:
 [10.1038/ng.3489](https://dx.doi.org/10.1038/ng.3489)
 
-<a name=ref-waclaw2015></a> \[5\] B. Waclaw, I. Bozic, M. E. Pittman, R. H.
-Hruban, B. Vogelstein, and M. A. Nowak, Nature **525**, 261 (2015). DOI: [10.1038/nature14971](https://dx.doi.org/10.1038/nature14971)

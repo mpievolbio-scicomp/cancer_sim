@@ -55,7 +55,7 @@ cancer evolution model was used to simulate tumours subjected to sampling for
 classification of mutations based on their abundance [@Opasic2019]. Target users 
 are scientists working in the field of mathematical oncology. Simplicity of our model 
 in comparison to more advanced models like [@waclaw2015] makes it
-specifically suitable students with interest in studying somatic evolution of cancer.
+specifically suitable for students with interest in somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
@@ -75,7 +75,7 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (`division_probability`). The
+divide with a certain probability (controlled through the parameter `division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
 (`mutation_probability`). Different division probabilities can be introduced in the beginning
