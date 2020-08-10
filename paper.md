@@ -138,15 +138,6 @@ programmatically via the `CancerSimulationParameters` class. The file
 `params.py` is a documented parameter module:
 
 ```    
-################################################################################
-#                                                                              #
-# Commented casim parameter input file.                                        #
-# Valid settings are indicated in parentheses at the end of each comment line. #
-# [0,1] stands for the closed interval from 0 to 1, including the limits; ||   #
-# means "or".                                                                  #
-#                                                                              #
-################################################################################
-
 # Number of mesh points in each dimension (>0)
 matrix_size = 1000
 
