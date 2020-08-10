@@ -215,15 +215,12 @@ working directory. If that file does not exist, default parameters are assumed.
 `DIR` specifies the directory where to store the
 simulation log and output data. If not given, output will be stored in
 the directory `casim_out` in the current directory. 
-Further details and explanation of the example can be found in the online
-documentation.
+Further details and explanation of the simulation output can be found in the [online
+documentation](https://cancer-sim.readthedocs.io/en/latest/include/README.html#output)
+and in the [reference manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
 A smaller example (gridsize 20x20) is also provided in the jupyter notebook
 `docs/source/include/notebooks/quickstart_example.ipynb`. Use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
-
-Content and format of the simulation output data are described in detail in the
-[reference
-manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
 Documentation and support
 -------------------------

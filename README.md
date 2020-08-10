@@ -8,7 +8,6 @@ Documentation for CancerSim, including this README and the API reference manual
 
 Background
 ----------
-
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
  \[[1](#ref-kumar:book:2017)\]. Its high division and mutation rates lead to excessive
@@ -53,23 +52,23 @@ step.
 
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
-divide with a certain probability (params.division\_\_probability). The
+divide with a certain probability (`division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(params.mutation\_probability). Different division probabilities can be introduced in the beginning
+`mutation_probability`). Different division probabilities can be introduced in the beginning
 for some cells in order to simulate variability in fitness of cells that
 acquired a beneficial or deleterious mutation. The simulation allows the
 acquisition of more than one mutational event per cell
-(params.number\_of\_mutations\_per\_division). In that case, variable amounts of
+(`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise \[[5](#ref-williams:NG:2016)\] can be added to make
-the output data more biologically realistic. Key parameters
-params.number\_of\_generations, 
-params.division\_probability and params.death\_probability
+the output data more biologically realistic. The key parameters
+`number_of_generations`, 
+`division_probability` and `death_probability`
 determine the final size of the tumour, while the degree of intratumour heterogeneity can 
-be varied by changing the params.mutation\_probability parameter. 
-For neutral tumour evolution, parameter params.adv\_mutant\_division\_probability
-and params.adv\_mutant_death\_probability must be the same as params.division\_probability
-and params.death\_probability.
+be varied by changing the `mutation_probability` parameter. 
+For neutral tumour evolution, parameter `adv_mutant_division_probability`
+and `adv_mutant_death_probability` must be the same as `division_probability`
+and `death_probability`.
 
 Throughout the cancer growth phase, CancerSim stores information about
 the parent cell and a designation of newly acquired mutations for every
@@ -91,10 +90,8 @@ frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then be subjected to the sampling process.
 
 
-
 Installation
 ------------
-
 CancerSim is written in Python (version \>3.5). We recommend to install
 it directly from the source code. To download the code:
 
@@ -116,10 +113,8 @@ We provide for two alternatives to install the software after it was
 downloaded:
 
 ### Alternative 1: Conda
-
 #### New conda environment
-
-We provide an `environment.yml` to be consumed by `conda`. To create a
+We [provide](provide) an `environment.yml` to be consumed by `conda`. To create a
 fully self-contained conda environment (named `casim`):
 
     $> conda env create -n casim --file environment.yml
@@ -138,14 +133,12 @@ or
 if you have set up conda appropriately.
 
 #### Install into existing and activated conda environment
-
 To install the software into an already existing environment:
 
     $> conda activate <name_of_existing_conda_environment>
     $> conda env update --file environment.yml
 
 ### Alternative 2: Using pip
-
 The file `requirements.txt` is meant to be consumed by `pip`:
 
     $> pip install -r requirements.txt [--user]
@@ -160,7 +153,6 @@ E.g. in a python script, one would import the module as:
 
 Testing
 -------
-
 Although not strictly required, we recommend to run the test suite after
 installation. Simply execute the `run_tests.sh` shell script:
 
@@ -182,7 +174,6 @@ Results are published on
 
 High-level functionality
 -------------------------
-
 ### Setting the simulation parameters
 The parameters of the cancer simulation are given via a python module or
 programmatically via the `CancerSimulationParameters` class. A
@@ -268,7 +259,6 @@ tumour are generated. Furthermore, a plot showing the tumour growth over time is
 saved (`plot_tumour_growth=True`).
  
 ### Run the example
-
 The simulation is started from the command line. The syntax is
 
     $> python -m casim.casim [-h] [-s SEED] [-p PARAMS] [-o DIR]
@@ -304,8 +294,8 @@ taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
 The two `.pdf` files are plots of the whole tumour histogram and the sampled
 tumour histogram, respectively. You should see figures similar to these:
 
-![Whole tumour histogram](img/image_2020-07-28-09-58-52.png)
-![Sampled tumour histogram](img/image_2020-07-28-09-59-50.png)
+![Whole tumour histogram](img/example_whole_tumour.png)
+![Sampled tumour histogram](img/example_sampled_tumour.png)
 
 The remaining output files are serialized versions ("pickles") of the tumour
 geometry as a 2D matrix (`mtx.p`), the death list (`death_list.p`), and the
@@ -333,7 +323,6 @@ the [list of issues](https://github.com/mpievolbio-scicomp/cancer_sim/issues?q=i
 
 References
 ----------
-
 <a name="ref-kumar:book:2017"></a> \[1\] J. C. A. Vinay Kumar Abul K. Abbas,
 *Robbins Basic Pathology*, 10th ed. (Elsevier, 2017). ISBN: 9780323353175. 
 
