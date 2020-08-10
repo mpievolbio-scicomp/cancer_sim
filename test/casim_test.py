@@ -267,9 +267,6 @@ class CancerSimulatorTest(unittest.TestCase):
 
         target = re.compile(r'export_tumour\s=\sTrue')
         self.assertRegex(sim_out, target)
-
-        target = re.compile(r'sampling_fraction\s=\s0\.1')
-        self.assertRegex(sim_out, target)
         
     def test_high_sampling_fraction(self):
         """ Test run with sampling_fraction=0.9 """
