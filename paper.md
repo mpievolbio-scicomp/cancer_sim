@@ -34,11 +34,14 @@ Summary
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
 [@Kumar2017]. Its high division and mutation rates
-lead to excessive intratumour genetic heterogeneity which makes cancer
-highly adaptable to environmental pressures such as therapy
-[@Turajlic2019]. This process is known as somatic evolution of cancer.
+lead to excessive genetic diversity among tumour cells (intratumour genetic
+heterogeneity). As a consequence, tumours can adapt very efficiently to
+environmental pressures, in particular to cancer therapy [@Turajlic2019].
+This process is known as somatic evolution of cancer.  
+
 Throughout most of its existence a tumour is inaccessible to direct 
-observation and experimental evaluation. Therefore, computational modelling
+observation and experimental evaluation through genetic sequencing of tumour
+samples. Therefore, computational modelling
  can be useful to study many aspects of cancer. Some examples where theoretical 
  models can be of great use include early carcinogenesis, as lesions are clinically
 observable when they already contain millions of cells, seeding of metastases, 
@@ -46,9 +49,11 @@ and cancer cell dormancy [@Altrock2015].
 
 Here, we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intratumour genetic heterogeneity and realistic mutational profiles. 
+intratumour genetic heterogeneity and realistic mutational profiles (i.e. order
+of appearance of mutations and their distribution among tumour cells)
 Simulated tumours can be subjected to spatial sampling to obtain mutation profiles 
-from different tumour regions that are realistic representation of the sequencing data. 
+from different tumour regions to 
+yield a realistic representation of the sequencing data. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
@@ -58,7 +63,7 @@ in comparison to more advanced models (see e.g. Ref. [@waclaw2015]) makes it
 specifically suitable for students with interest in somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
-consider a variety of biological features commonly found in neoplasm
+consider a variety of biological features commonly found in the neoplasm
 such as blood vessels, immune cells, availability of nutrients, and
 architecture of the tumour surroundings. It resembles the most to
 superficially spreading tumours like carcinoma in situ, skin cancers, or
@@ -191,6 +196,16 @@ Furthermore, the output contains serialized versions ("pickles") of the tumour
 geometry as a 2D matrix, the death list, and the
 mutation list. Another directory contains all logged information from the run.
 The amount of logged information depends on the chosen loglevel.
+
+As an example and possible starting point for further investigations beyond the
+produced plots, the quickstart example notebook demonstrates how to load the
+tumour matrix into memory and how to visualize the mutational profile as a
+heatmap:
+
+![mutation profile](img/mutation_profile.png)
+
+
+
 
 Documentation and support
 -------------------------
