@@ -209,9 +209,8 @@ template parameter file `params.py` on the X-Y grid with
 colors indicating the order in which mutations appear. 0 (deep purple) indicates
 no mutation in this cell.
 
-
-TODO Luka: add more suggestion for more 
-
+Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
+in a specific spatial pattern. Additionally, the effects of chemotherapy can be modelled by the introduction of different modes of cell death.
 
 
 Documentation and support
