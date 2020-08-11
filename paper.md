@@ -200,10 +200,17 @@ The amount of logged information depends on the chosen loglevel.
 As an example and possible starting point for further investigations beyond the
 produced plots, the quickstart example notebook demonstrates how to load the
 tumour matrix into memory and how to visualize the mutational profile as a
-heatmap:
+heatmap as shown in figure 1.
 
-![mutation profile](img/mutation_profile.png)
+![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.]([img mutation_profile png](img/mutation_profile.png))
 
+The figure shows the central part of the tumour matrix that results from the
+template parameter file `params.py` on the X-Y grid with
+colors indicating the order in which mutations appear. 0 (deep purple) indicates
+no mutation in this cell.
+
+
+TODO Luka: add more suggestion for more 
 
 
 
