@@ -149,18 +149,14 @@ Parameter name | function | valid options
 `matrix_size` | Number of mesh points in each dimension  | >0
 `number_of_generations` | Number of generations to simulate  | >0
 `division_probability` | Probability of cell division per generation  | [0,1]
-`adv_mutant_division_probability` | Probability of division for cells with
-advantageous mutation  | [0,1]
+`adv_mutant_division_probability` | Probability of division for cells with advantageous mutation  | [0,1]
 `death_probability` | Fraction of cells that die per generation  | [0,1]
-`adv_mutant_death_probability` | Fraction of cells with advantageous mutation
-that die per generation  | [0,1]
+`adv_mutant_death_probability` | Fraction of cells with advantageous mutation that die per generation  | [0,1]
 `mutation_probability` | Probability of mutations  | [0,1]
 `adv_mutant_mutation_probability` | Mutation probability for the adv. cells  | [0,1]
 `number_of_mutations_per_division` | Number of mutations per cell division  | >=0
-`adv_mutation_wait_time` | Number of generations after which adv. mutation
-occurs  | >=0
-`number_of_initial_mutations` | Number of mutations present in first cancer cell
-| >=0
+`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >=0
+`number_of_initial_mutations` | Number of mutations present in first cancer cell | >=0
 `tumour_multiplicity` | Tumour multiplicity  | "single", "double"
 `read_depth` | Sequencing read depth  | read length * number of reads / genome length
 `sampling_fraction` | Fraction of cells to be sampled  | [0,1]
