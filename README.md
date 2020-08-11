@@ -3,7 +3,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb)
 
 ## Documentation
-Documentation for CancerSim, including this README and the API reference manual
+Documentation for `CancerSim`, including this README and the API reference manual
  is hosted on [readthedocs](https://cancer-sim.readthedocs.io).
 
 Background
@@ -26,7 +26,7 @@ seeding of metastases, and cancer cell dormancy
 \[[3](#ref-altrock2015)\]
 .
 
-Here, we present CancerSim, a software that simulates somatic evolution
+Here, we present `CancerSim`, a software that simulates somatic evolution
 of tumours. The software produces virtual spatial tumours with variable
 extent of intratumour genetic heterogeneity and realistic mutational
 profiles. Simulated tumours can be subjected to multi-region sampling to
@@ -36,9 +36,9 @@ sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
 \[[4](#ref-opasic2019)\].
-Target users are scientists working in the field of
-mathematical oncology. Simplicity of our model in comparison to more advanced models like 
-\[[5](#ref-waclaw2015)\]
+Target users of `CancerSim` are scientists working in the field of
+mathematical oncology. Simplicity of our model in comparison to more advanced
+models (see e.g.  Ref. \[[5](#ref-waclaw2015)\])
 makes it specifically suitable for students with interest in somatic evolution of cancer.
 
 Our model is abstract, not specific to any neoplasm type, and does not
@@ -79,7 +79,7 @@ For neutral tumour evolution, parameter `adv_mutant_division_probability`
 and `adv_mutant_death_probability` must be the same as `division_probability`
 and `death_probability`.
 
-Throughout the cancer growth phase, CancerSim stores information about
+Throughout the cancer growth phase, `CancerSim` stores information about
 the parent cell and a designation of newly acquired mutations for every
 cell. Complete mutational profiles of cells are reconstructed a
 posteriori based on the stored lineage information.
@@ -88,7 +88,8 @@ The division rules which allow only cells with empty neighbouring nodes
 to divide, cause exclusively peripheral growth and complete absence of
 dynamics in the tumour centre. To allow for variable degree of growth
 inside the tumour, we introduced a death process. At every time step,
-after all cells attempt their division, a number of random cells die and
+after all cells attempt their division, a number of random cells die according
+to `death_probability` and `adv_mutant_death_probability` and
 yield their position to host a new cancer cell in a subsequent time
 step.
 
@@ -101,7 +102,7 @@ can be loaded from file and then be subjected to the sampling process.
 
 Installation
 ------------
-CancerSim is written in Python (version \>3.5). We recommend to install
+`CancerSim` is written in Python (version \>3.5). We recommend to install
 it directly from the source code. To download the code:
 
 **EITHER** clone the repository:
@@ -155,7 +156,7 @@ The file `requirements.txt` is meant to be consumed by `pip`:
 The option `--user` is needed to install without admin privileges.
 
 ### Installed module
-After installation, CancerSim is available in python as the `casim` module.
+After installation, `CancerSim` is available in python as the `casim` module.
 E.g. in a python script, one would import the module as:
 
     >>> from casim import casim
@@ -184,7 +185,7 @@ Results are published on
 High-level functionality
 -------------------------
 ### Setting the simulation parameters
-The parameters of the cancer simulation are given via a python module or
+The parameters of the cancer simulation are specified in a python module or
 programmatically via the `CancerSimulationParameters` class. A
 documented example `params.py` is included in the source code (under
 `casim/params.py`) and reproduced here:
@@ -226,13 +227,13 @@ documented example `params.py` is included in the source code (under
     # Number of mutations per cell division (>=0).
     number_of_mutations_per_division = 10
 
-    # Number of generation after which adv. mutation occurs (>=0).
+    # Number of generations after which adv. mutation occurs (>=0).
     adv_mutation_wait_time = 10
 
     # Number of mutations present in first cancer cell (>=0).
     number_of_initial_mutations = 150
 
-    # Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
+    # Tumour multiplicity ("single" || "double").
     tumour_multiplicity = "single"
 
     # Sequencing read depth (read length * number of reads / genome length).
@@ -254,9 +255,7 @@ On average, both healthy and mutant cells divide once per generation
 (`number_of_initial_mutations=150`); both healthy and mutant cells aquire 10 new
 mutations (`number_of_mutations_per_division=10`) in
 each generation with a certainty of 100% (`mutation_probability=0.1`). The advantageous mutation happens in
-the 10th generation (`adv_mutation_wait_time=10`). 
-
-Mutant cells with advantageous mutations live on forever
+the 10th generation (`adv_mutation_wait_time=10`). Mutant cells with advantageous mutations live on forever
 (`adv_mutant_death_probability=0`) while healthy cells die with a rate of 0.1
 per generation (`death_probability=0.1`).
 
@@ -320,7 +319,7 @@ Another example demonstrating how to parametrize the simulation through the
 
 Community Guidelines
 --------------------
-As an Open Source project, we welcome all contributions to CancerSim. We
+As an Open Source project, we welcome all contributions to `CancerSim`. We
 recommend the usual github workflow: Fork this repository, commit
 your changes and additions to the fork and create a pull request back to the
 master branch on this repository. If uncertain about anything, please create an
