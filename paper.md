@@ -202,8 +202,7 @@ produced plots, the quickstart example notebook demonstrates how to load the
 tumour matrix into memory and how to visualize the mutational profile as a
 heatmap as shown in figure 1.
 
-![Tumour matrix as a 2D grid with colored cells indicating the order in which
-mutations appear.]([img mutation_profile png](img/mutation_profile.png =300))
+![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.]([img mutation_profile png](img/mutation_profile.png))
 
 The figure shows the central part of the tumour matrix that results from the
 template parameter file `params.py` on the X-Y grid with
