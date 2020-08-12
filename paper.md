@@ -58,9 +58,9 @@ This makes the software useful for studying various sampling strategies in clini
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
 classification of mutations based on their abundance [@Opasic2019]. Target users
-of `CancerSim` are scientists working in the field of mathematical oncology. Simplicity of our model 
-in comparison to more advanced models (see e.g. Ref. [@waclaw2015]) makes it
-specifically suitable for students with interest in somatic evolution of cancer.
+of `CancerSim` are scientists working in the field of mathematical oncology. Simplicity 
+and accessibility of our model, in comparison to more advanced models (see e.g. Ref. [@waclaw2015]), 
+makes it particularly suitable for students with interest in somatic evolution of cancer.  
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in the neoplasm
@@ -79,14 +79,19 @@ acquired in the list of mutations which is updated in each simulation
 step.
 
 The simulation advances in discrete time-steps. In each simulation step,
-every tumour cell in the tumour that has an unoccupied neighbour can
+every tumour cell on the lattice that has an unoccupied neighbour can
 divide with a certain probability (controlled through the parameter `division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(`mutation_probability`). Different division probabilities can be introduced in the beginning
-for some cells in order to simulate variability in fitness of cells that
-acquired a beneficial or deleterious mutation. The simulation allows the
-acquisition of more than one mutational event per cell
+(`mutation_probability`). 
+A new mutation that changes death and birth probability of cell can be introduced
+at into random cell at the specific time step defined by `adv_mutation_wait_time`.
+By changing fitness parameters of a mutant cell `adv_mutant_division_probability`
+and `adv_mutant_death_probability` one can model various evolutionary processes
+like emergence of a faster dividing sub-clone or selective effects of a drug treatment.
+
+
+The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
 the output data more biologically realistic. Key parameters
