@@ -1018,7 +1018,7 @@ class CancerSimulator(object):
                 if prng.random()<self.parameters.adv_mutant_mutation_probability \
                         and len(self.__beneficial_mutation)==0 \
                         and step==self.parameters.adv_mutation_wait_time:
-                    logging.info('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
+                    logging.debug('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
@@ -1030,7 +1030,7 @@ class CancerSimulator(object):
 
         # No new mutation.
         else:
-            logging.info('No new mutation in normal division, inheriting from parent')
+            logging.debug('No new mutation in normal division, inheriting from parent')
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
         return mutation_counter
