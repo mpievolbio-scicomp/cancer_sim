@@ -595,10 +595,10 @@ class CancerSimulator(object):
 
         #plots all mutations with frequences above detection threshold
         fig, ax = plt.subplots()
-        ax.hist([s[1] for s in sample_data if s[1]>detection_limit], bins=xaxis_histogram)
+        _ = ax.hist([s[1] for s in sample_data if s[1]>detection_limit], bins=xaxis_histogram)
 
-        ax.set_xlabel('Mutation frequency')
-        ax.set_ylabel('Number of mutations')
+        _ = ax.set_xlabel('Mutation frequency')
+        _ = ax.set_ylabel('Number of mutations')
 
         #export VAF histogram of the whole tumour
         if sample_coordinates=='whole_tumour':
@@ -609,6 +609,7 @@ class CancerSimulator(object):
             figure_path = os.path.join(self.__simdir,'sampleHistogram_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.pdf')
 
         fig.savefig(figure_path)
+        plt.close(fig)
 
     def export_sample(self, sample_data, sample_coordinates):
         """ Export (write to disk) frequencies of samples.
@@ -673,12 +674,13 @@ class CancerSimulator(object):
             return
 
         fig, ax = plt.subplots()
-        ax.plot([x/2 for x in range(len(self.__growth_plot_data))], self.__growth_plot_data)
+        _ = ax.plot([x/2 for x in range(len(self.__growth_plot_data))], self.__growth_plot_data)
 
-        ax.set_xlabel('Division cycle')
-        ax.set_ylabel('Number of tumour cells')
+        _ = ax.set_xlabel('Division cycle')
+        _ = ax.set_ylabel('Number of tumour cells')
         figure_path = os.path.join(self.__simdir,'growthCurve.pdf')
         fig.savefig(figure_path)
+        plt.close(fig)
 
         logging.info("Growth curve graph written to %s.", figure_path)
 
@@ -841,7 +843,7 @@ class CancerSimulator(object):
         # Loop over time steps.
         for step in range(self.__init_step, self.__init_step+self.parameters.number_of_generations):
             logging.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
-            logging.debug('%d/%d generation started', step, self.__init_step + self.parameters.number_of_generations)
+            logging.debug('%d/%d generation started', step+1, self.__init_step + self.parameters.number_of_generations + 1)
 
             # setup a temporary list to store the mutated cells in this iteration.
             temp_pool=[]
