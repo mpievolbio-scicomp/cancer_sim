@@ -90,7 +90,6 @@ By changing fitness parameters of a mutant cell `adv_mutant_division_probability
 and `adv_mutant_death_probability` one can model various evolutionary processes
 like emergence of a faster dividing sub-clone or selective effects of a drug treatment.
 
-
 The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
@@ -132,20 +131,6 @@ it directly from the source code hosted at github <https://github.com/mpievolbio
 `conda` environment are given in the online documentation at
 <https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
 After installation, the software is available as a python module `casim`.
-
-Testing
--------
-Although not strictly required, we recommend to run the test suite after
-installation. Simply execute the `run_tests.sh` shell script:
-
-    $> ./run_tests.sh
-
-This will generate a test log named `casim_test@<timestamp>.log` with
-`<timestamp>` being the date and time when the test was run.
-
-The test suite is automatically run after each commit to the code base.
-Results are published on
-[travis-ci.org](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
 
 High--level functionality
 -------------------------
@@ -189,6 +174,10 @@ version of the above example (gridsize 20x20) at
 `docs/source/include/notebooks/quickstart_example.ipynb`. An interactive version
 can be launched on the [Binder service](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
+A further notebook demonstrates the possibility to dump a simulation to disk,
+reload it and continue the simulation with optionally changed parameters. This
+feature could be exploited to simulate cancer dormancy with `CancerSim`.
+
 ### Output
 After the run has finished, all output is found in the specified output
 directory.
@@ -224,6 +213,12 @@ Documentation and support
 The API reference manual and community guidelines including directions
 for contributors and bug reports are given in the online documentation at
 <https://cancer-sim.readthedocs.io>. 
+
+Testing and continuous integration
+----------------------------------
+Each commit to the code base triggers a build and test run on
+https://travis-ci.org. The build and test status can be observed at [https://travis-ci.org/mpievolbio-scicomp/cancer_sim](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
+
 
 References
 ----------

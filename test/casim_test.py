@@ -2,7 +2,7 @@
 
 # Import class to be tested.
 from casim import casim
-from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation, LOGGER
+from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation
 
 from collections import namedtuple
 from test_utilities import _remove_test_files
@@ -17,6 +17,8 @@ import unittest
 import pickle
 import pandas
 from tempfile import mkdtemp
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 
 class CancerSimulatorParametersTest(unittest.TestCase):
@@ -199,7 +201,7 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Capture stdout.
         stream = StringIO()
-        log = LOGGER
+        log = logging.getLogger()
         for handler in log.handlers:
            log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
@@ -401,37 +403,36 @@ class CancerSimulatorTest(unittest.TestCase):
     def test_serialize(self):
         """ The the serialization of the entire object. """
         parameters = CancerSimulatorParameters()
-        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+        cancer_sim = CancerSimulator(parameters, seed=2, outdir=mkdtemp())
 
         # Cleanup.
         self._test_files.append(cancer_sim.outdir)
 
-        # dump before run.
+        # Dump.
         cancer_sim.dump()
 
         # Reload
         loaded_simulation = load_cancer_simulation(cancer_sim.dumpfile)
-
         self.assertIsInstance(loaded_simulation, CancerSimulator)
 
         # Check parameters.
         loaded_parameters = loaded_simulation.parameters
 
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_division_probability,    parameters.adv_mutant_division_probability)
-        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_death_probability,  parameters.adv_mutant_death_probability)
-        self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_mutation_probability,    parameters.adv_mutant_mutation_probability)
-        self.assertEqual(loaded_parameters.number_of_mutations_per_division,               parameters.number_of_mutations_per_division)
-        self.assertEqual(loaded_parameters.adv_mutation_wait_time,        parameters.adv_mutation_wait_time)
-        self.assertEqual(loaded_parameters.number_of_initial_mutations,                     parameters.number_of_initial_mutations)
-        self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
-        self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
-        self.assertEqual(loaded_parameters.sampling_fraction,              parameters.sampling_fraction)
+        self.assertEqual(loaded_parameters.number_of_generations, parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size, parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations, parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability, parameters.division_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_division_probability, parameters.adv_mutant_division_probability)
+        self.assertEqual(loaded_parameters.death_probability, parameters.death_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_death_probability, parameters.adv_mutant_death_probability)
+        self.assertEqual(loaded_parameters.mutation_probability, parameters.mutation_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_mutation_probability, parameters.adv_mutant_mutation_probability)
+        self.assertEqual(loaded_parameters.number_of_mutations_per_division, parameters.number_of_mutations_per_division)
+        self.assertEqual(loaded_parameters.adv_mutation_wait_time, parameters.adv_mutation_wait_time)
+        self.assertEqual(loaded_parameters.number_of_initial_mutations, parameters.number_of_initial_mutations)
+        self.assertEqual(loaded_parameters.tumour_multiplicity, parameters.tumour_multiplicity)
+        self.assertEqual(loaded_parameters.read_depth, parameters.read_depth)
+        self.assertEqual(loaded_parameters.sampling_fraction, parameters.sampling_fraction)
 
         # Check we can run.
         loaded_simulation.run()
@@ -441,9 +442,35 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Load again
         loaded_again_simulation = load_cancer_simulation(loaded_simulation.dumpfile)
+        
+        # Check that the internal state is the same as in the dump.
+        self.assertAlmostEqual(numpy.linalg.norm(loaded_simulation._CancerSimulator__mtx.toarray()
+            - loaded_again_simulation._CancerSimulator__mtx.toarray()), 0.0) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mut_container, loaded_again_simulation._CancerSimulator__mut_container) 
+        self.assertEqual(loaded_simulation._CancerSimulator__xaxis_histogram, loaded_again_simulation._CancerSimulator__xaxis_histogram) 
+        self.assertEqual(loaded_simulation._CancerSimulator__death_list, loaded_again_simulation._CancerSimulator__death_list) 
+        self.assertEqual(loaded_simulation._CancerSimulator__biopsy_timing, loaded_again_simulation._CancerSimulator__biopsy_timing) 
+        self.assertEqual(loaded_simulation._CancerSimulator__beneficial_mutation, loaded_again_simulation._CancerSimulator__beneficial_mutation) 
+        self.assertEqual(loaded_simulation._CancerSimulator__growth_plot_data, loaded_again_simulation._CancerSimulator__growth_plot_data) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mutation_counter, loaded_again_simulation._CancerSimulator__mutation_counter) 
+        self.assertEqual(loaded_simulation._CancerSimulator__s, loaded_again_simulation._CancerSimulator__s) 
+        self.assertEqual(loaded_simulation._CancerSimulator__ploidy, loaded_again_simulation._CancerSimulator__ploidy) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mut_multiplier, loaded_again_simulation._CancerSimulator__mut_multiplier) 
+        self.assertEqual(loaded_simulation._CancerSimulator__pool, loaded_again_simulation._CancerSimulator__pool) 
 
         # Run once more.
         loaded_again_simulation.run()
+
+    def test_init_step_increases(self):
+        """ Check the the internal step counter is propely updated. """
+
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir = mkdtemp())
+
+        self.assertEqual(cancer_sim._CancerSimulator__init_step, 0)
+        cancer_sim.run()
+        self.assertEqual(cancer_sim._CancerSimulator__init_step, 2)
+
 
     def test_export_tumour_matrix(self):
         """ Test exporting the tumour matrix. """
@@ -574,7 +601,7 @@ class casim_test(unittest.TestCase):
 
         # Capture stdout.
         stream = StringIO()
-        log = LOGGER
+        log = logging.getLogger()
         for handler in log.handlers:
            log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
@@ -596,6 +623,12 @@ class casim_test(unittest.TestCase):
 
         mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         # self.assertRegex(sim_out, mut_container_regex)
+    
+    def test_death_list(self):
+        """ Check that the death list is populated with cells that were removed.
+        """
+
+        self.assertFalse(True)
 
 
 if __name__ == "__main__":
