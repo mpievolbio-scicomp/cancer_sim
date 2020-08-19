@@ -288,7 +288,7 @@ After the run has finished, you should find the results in
 `cancer_sim_example/cancer_1/simOutput`.
 
     $> ls cancer_sim_example/cancer_1/simOutput
-    death_list.p     mtx.p        mut_container.p              sample_out_502_488.txt
+    mtx.p        mut_container.p              sample_out_502_488.txt
     growthCurve.pdf  mtx_VAF.txt  sampleHistogram_502_488.pdf  wholeTumourVAFHistogram.pdf
    
 Let's take a look at the `.txt`  files. They contain the simulation output:
@@ -307,7 +307,7 @@ tumour histogram, respectively. You should see figures similar to these:
 ![Sampled tumour histogram](img/example_sampled_tumour.png)
 
 The remaining output files are serialized versions ("pickles") of the tumour
-geometry as a 2D matrix (`mtx.p`), the death list (`death_list.p`), and the
+geometry as a 2D matrix (`mtx.p`) and the
 mutation list (list of tuples listing the cancer cell index and the mutation ID of each
 tumour cell, `mut_container.p`).
 

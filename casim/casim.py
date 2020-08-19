@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 __author__ = 'Luka Opasic, MD'
 __email__ = 'opasic@evolbio.mpg.de'
-__version__ = '0.0.1'
+__version__ = '1.1.0'
 
 
 from argparse import ArgumentParser
@@ -56,6 +56,7 @@ class CancerSimulatorParameters(object):
                  sampling_fraction=None,
                  plot_tumour_growth=None,
                  export_tumour=None,
+                 sampling_positions=None,
                 ):
         """
         Construct a new CancerSimulationParameters object.
@@ -103,6 +104,9 @@ class CancerSimulatorParameters(object):
         :param sampling_fraction: The fraction of cells to include in a sample. Default: 0.
         :type  sampling_fraction: float  (0 <= sampling_fraction <= 1)
 
+        :param sampling_positions: The positions of cells to include in a sample. Default: Random position.
+        :type  sampling_positions: List (or array) of tuples of ints. E.g.  ([10,20], [2,31]).
+
         :param plot_tumour_growth: Render graph of the tumour size as function
         of time. Default: True.
         :type plot_tumour_growth: bool
@@ -126,6 +130,7 @@ class CancerSimulatorParameters(object):
         self.tumour_multiplicity = tumour_multiplicity
         self.read_depth = read_depth
         self.sampling_fraction = sampling_fraction
+        self.sampling_positions = sampling_positions
         self.plot_tumour_growth = plot_tumour_growth
         self.export_tumour = export_tumour
     
@@ -238,6 +243,26 @@ class CancerSimulatorParameters(object):
         self.__sampling_fraction = check_set_number(val, float, 0.0, 0.0, 1.0)
 
     @property
+    def sampling_positions(self):
+        return self.__sampling_positions
+    @sampling_positions.setter
+    def sampling_positions(self, val):
+        if val is not None:
+            for pos in val:
+                if not hasattr(val, "__iter__"):
+                    raise TypeError("Sampling positions must be list of tuples.")
+                if len(pos) != 2:
+                    raise ValueError("Sampling positions must be list of 2-tuples (x,y coordinates).")
+                for xy in pos:
+                    if not isinstance(xy, int):
+                        raise TypeError("Sampling position must be integer")
+                    if xy < 0 or xy > self.matrix_size:
+                        raise ValueError("Sampling position must be positive integer not larger than the matrix size.")
+
+        self.__sampling_positions = val
+            
+
+    @property
     def plot_tumour_growth(self):
         return self.__plot_tumour_growth
     @plot_tumour_growth.setter
@@ -297,11 +322,11 @@ class CancerSimulator(object):
         self.__mtx = lil_matrix((self.parameters.matrix_size, self.parameters.matrix_size), dtype=int)
         self.__mut_container = None
         self.__xaxis_histogram = None
-        self.__death_list = None
         self.__biopsy_timing = None
         self.__beneficial_mutation = []
         self.__growth_plot_data = None
         self.__s = self.parameters.number_of_mutations_per_division
+
 
         # Keep track of how many steps where performed in previous run if this
         # is a reloaded run.
@@ -434,32 +459,34 @@ class CancerSimulator(object):
 
         biopsy_size=math.ceil(sample_size*len(self.__pool))
 
-        if biopsy_size>1:
+        #look at z-tier neighbours around sample_center
+        for z in range(1,len(self.__pool)):
+            expanded_sample=[]
 
             #look at z-tier neighbours around sample_center
-            for z in range(1,len(self.__pool)):
-                expanded_sample=[]
+            for i in range(-z, z+1):
+                for j in range(-z, z+1):
+                    nc=(sample_center[0]+i, sample_center[1]+j)
 
-                #look at z-tier neighbours around sample_center
-                for i in range(-z, z+1):
-                    for j in range(-z, z+1):
-                        nc=(sample_center[0]-i, sample_center[1]+j)
+                    #if surrounding cell in the pool add it to sample list
+                    if nc in self.__pool:
+                        expanded_sample.append(nc)
 
-                        #if surrounding cell in the pool add it to sample list
-                        if nc in self.__pool:
-                            expanded_sample.append(nc)
+            # if chunk is larger than wanted percentage of total tumour
+            if len(expanded_sample)>biopsy_size:
 
-                # if chunk is larger than wanted percentage of total tumour
-                if len(expanded_sample)>biopsy_size:
+                #remove last value until desired chunk size
+                while len(expanded_sample)>biopsy_size:
+                    expanded_sample=expanded_sample[:-1]
+                break
 
-                    #remove last value until desired chunk size
-                    while len(expanded_sample)>biopsy_size:
-                        expanded_sample=expanded_sample[:-1]
-                    break
+        if len(expanded_sample) == 0:
+            logging.warning("""
+Sample is empty. Consider enlarging the `sampling_fraction` parameter.
+If that does not help, you may be sampling an empty region of the tumour matrix.
+Inspect the tumour matrix data `mtx.p` in the output directory""")
 
-            return expanded_sample
-        else:
-            return [sample_center]
+        return expanded_sample
 
 
     def dump(self):
@@ -495,8 +522,6 @@ class CancerSimulator(object):
 
         - `mtx.p` is the serialized (aka "pickled") 2D tumour matrix in sparse
           matrix format.
-        - `death_list.p` is the serialized (aka "pickled") 2D matrix listing the
-          cell death events on each tumour site.
         - `mut_container.p` is the serialized (aka "pickled") mutation list, a
           list of tuples [t_i]. Each tuple t_i consists of two values, t_i =
           (c_i, m_i). The first element c_i is the cell number in which the i'th mutation
@@ -524,10 +549,7 @@ class CancerSimulator(object):
 
         # Sampling
         # Setup list of coordinates that serve as center of sampling [(x,y)]
-        # Pick a random cell from the pool.
-        # TODO: enter wanted sampling coordinates.
-        random_index = numpy.random.randint(len(self.__pool))
-        samples_coordinates_list=[self.__pool[random_index]]
+        samples_coordinates_list=self.__find_sample_coordinates()
 
         #iterate over each sample from the list of samples
         for center_cell_coordinates in samples_coordinates_list:
@@ -622,19 +644,23 @@ class CancerSimulator(object):
         :type  sample_coordinates: tuple (i,j) of cell indices
         """
 
-        if len(sample_data[0])==2:
-            with open(os.path.join(self.__simdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
-                sample_vaf_ex.write('mutation_id'+'\t'+'frequency'+'\n')
-                for i in sample_data:
-                    sample_vaf_ex.write(str(i[0])+'\t'+str(i[1])+'\n')
+        if len(sample_data) == 0:
+            return
+
+        fname = os.path.join(self.__simdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt')
+        logging.info("Writing sampled tumour data to %s.", fname)
+
+        with open(fname,'w') as sample_vaf_ex:
+            if len(sample_data[0])==2:
+                    sample_vaf_ex.write('mutation_id'+'\t'+'frequency'+'\n')
+                    for i in sample_data:
+                        sample_vaf_ex.write(str(i[0])+'\t'+str(i[1])+'\n')
 
 
-        if len(sample_data[0])==3:
-            with open(os.path.join(self.__simdir, 'sample_out_'+str(sample_coordinates[0])+'_'+str(sample_coordinates[1])+'.txt'),'w') as sample_vaf_ex:
+            elif len(sample_data[0])==3:
                 sample_vaf_ex.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
                 for i in sample_data:
                     sample_vaf_ex.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
-
 
     def export_tumour_matrix(self, tumour_mut_data):
         """ Export (write to disk) the matrix of tumour cells.
@@ -646,28 +672,31 @@ class CancerSimulator(object):
         if not self.parameters.export_tumour:
             return 
 
-        logging.info('Exporting simulation data')
+        fname = os.path.join(self.__simdir, 'mtx_VAF.txt')
+        logging.info('Writing tumour profile to %s.', fname)
         
         # save VAF to text file
-        if len(tumour_mut_data[0])==2:
-            with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vaf_ex:
+        with open(fname,'w') as vaf_ex:
+            if len(tumour_mut_data[0])==2:
                 vaf_ex.write('mutation_id'+'\t'+'frequency'+'\n')
                 for i in tumour_mut_data:
                     vaf_ex.write(str(i[0])+'\t'+str(i[1])+'\n')
 
-        if len(tumour_mut_data[0])==3:
-            with open(os.path.join(self.__simdir, 'mtx_VAF.txt'),'w') as vaf_ex:
+            if len(tumour_mut_data[0])==3:
                 vaf_ex.write('mutation_id'+'\t'+'additional_mut_id'+'\t'+'frequency'+'\n')
                 for i in tumour_mut_data:
                     vaf_ex.write(str(i[0])+'\t'+str(i[2])+'\t'+str(i[1])+'\n')
 
         # Pickle the data.
-        with open(os.path.join(self.__simdir, 'mtx.p'),'wb') as fp:
+        fname = os.path.join(self.__simdir, 'mtx.p')
+        logging.info('Writing simulation matrix to %s.', fname)
+        with open(fname,'wb') as fp:
             pickle.dump(self.__mtx, fp)
-        with open(os.path.join(self.__simdir, 'mut_container.p'),'wb') as fp:
+
+        fname = os.path.join(self.__simdir, 'mut_container.p')
+        logging.info('Writing mutation list to %s.', fname)
+        with open(fname,'wb') as fp:
             pickle.dump(self.__mut_container, fp)
-        with open(os.path.join(self.__simdir, 'death_list.p'),'wb') as fp:
-            pickle.dump(self.__death_list, fp)
 
     def growth_plot(self):
     #Plots number of cancer cells over time and outputs it in .pdf
@@ -1028,6 +1057,17 @@ class CancerSimulator(object):
             self.__mtx[place_to_divide]=self.__mtx[cell]
 
         return mutation_counter
+
+    def __find_sample_coordinates(self):
+        """ """
+        """ Find the sample coordinates based on the list of coordinates given
+        at startup. """
+
+        # If no positions where given, find the center of the matrix.
+        if self.parameters.sampling_positions is None:
+            self.parameters.sampling_positions = [prng.choice(self.__pool)]
+
+        return self.parameters.sampling_positions
 
 def main(arguments):
     """ The entry point for the command line interface.
