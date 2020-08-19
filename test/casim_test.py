@@ -636,6 +636,7 @@ class casim_test(unittest.TestCase):
         # Capture stdout.
         stream = StringIO()
         log = logging.getLogger()
+        old_handlers = [h for h in log.handlers]
         for handler in log.handlers:
            log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
@@ -652,8 +653,11 @@ class casim_test(unittest.TestCase):
         sim_out = stream.getvalue()
 
         # Reset stdout.
+        myhandler.close()
         log.removeHandler(myhandler)
-        handler.close()
+
+        for oh in old_handlers:
+            log.addHandler(oh)
 
         mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         # self.assertRegex(sim_out, mut_container_regex)
