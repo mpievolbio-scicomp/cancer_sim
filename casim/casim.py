@@ -512,6 +512,7 @@ class CancerSimulator(object):
 
         seed=self.__seed
         prng.seed(seed)
+        numpy.random.seed(seed)
 
         #run growth function
         #output variable (true_vaf) is list of tuples with mutation id and frequency of mutation in the tumour [(mut_id, frequency),...]
@@ -783,8 +784,12 @@ class CancerSimulator(object):
         :param int step: The time step in the simulation
 
         """
-        for i in prng.sample(self.__pool, math.floor(self.parameters.death_probability*len(self.__pool))):
-            self.terminate_cell(i, step)
+        for cell in self.__pool:
+            beneficial = self.__mtx[cell] in self.__beneficial_mutation:
+            r = prng.random()
+
+            if (beneficial and r < self.parameters.adv_mutant_death_probability) or r < self.parameters.death_probability:
+                self.terminate_cell(cell, step)
 
 
     def mutation_reconstruction(self,cells_to_reconstruct):
@@ -863,15 +868,11 @@ class CancerSimulator(object):
                 # first condition: if available neighbors
                 if neigh:
                     # if cell has beneficial mutation.
-                    if self.__mtx[cell] in self.__beneficial_mutation:
-                        # cell divides with greater probability.
-                        if prng.random()<self.parameters.adv_mutant_division_probability:
-                            mutation_counter = self.division(cell, True, neigh, step, mutation_counter, temp_pool)
+                    beneficial = self.__mtx[cell] in self.__beneficial_mutation:
+                    r = prng.random()
+                    if (beneficial and r < self.parameters.adv_mutant_division_probability) or r < self.parameters.division_probability:
+                            mutation_counter = self.division(cell, beneficial, neigh, step, mutation_counter, temp_pool)
 
-                    # cell does not have beneficial mutation -> normal division.
-                    else:
-                        if prng.random()<self.parameters.division_probability:
-                            mutation_counter = self.division(cell, False, neigh, step, mutation_counter, temp_pool)
 
             # add new cancer cells to a pool of cells available for division next round
             [self.__pool.append(v) for v in temp_pool]
@@ -962,26 +963,16 @@ class CancerSimulator(object):
         :param list pool: The (temporary) pool of cells.
 
         """
+        # Draw a free neighbor.
+        place_to_divide=prng.choice(neighbors)
+        pool.append(place_to_divide)
+        mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool,place_to_divide, beneficial)
         if beneficial:
-
-            # Draw a free neighbor.
-            place_to_divide=prng.choice(neighbors)
-            pool.append(place_to_divide)
-            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool,place_to_divide, True)
-
-            return mutation_counter
-
-        else:
-            # Draw a free neighbor.
-            place_to_divide=prng.choice(neighbors)
-            pool.append(place_to_divide)
-
             logging.debug('index of the mother cell: %s', str(self.__mtx[cell]))
             logging.debug('random neighbor to divide: %s', str(place_to_divide))
 
-            mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool, place_to_divide, False)
 
-            return mutation_counter
+        return mutation_counter
 
     def mutation(self, *args):
         """ Perform a mutation.
