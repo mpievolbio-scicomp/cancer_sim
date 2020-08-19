@@ -785,7 +785,7 @@ class CancerSimulator(object):
 
         """
         for cell in self.__pool:
-            beneficial = self.__mtx[cell] in self.__beneficial_mutation:
+            beneficial = self.__mtx[cell] in self.__beneficial_mutation
             r = prng.random()
 
             if (beneficial and r < self.parameters.adv_mutant_death_probability) or r < self.parameters.death_probability:
@@ -847,7 +847,7 @@ class CancerSimulator(object):
 
         # Loop over time steps.
         for step in range(self.__init_step, self.__init_step+self.parameters.number_of_generations):
-            logging.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
+            # logging.debug("Cell matrix: \n%s", str(self.__mtx.todense()))
             logging.debug('%d/%d generation started', step+1, self.__init_step + self.parameters.number_of_generations + 1)
 
             # setup a temporary list to store the mutated cells in this iteration.
@@ -856,7 +856,7 @@ class CancerSimulator(object):
             # reshuffle the order of pool to avoid that cells with low number divide always first.
             shuffle(self.__pool)
 
-            logging.debug('list of cancer cells %s', str(self.__pool))
+            # logging.debug('list of cancer cells %s', str(self.__pool))
 
             # Loop over all cells in the pool.
             for cell in self.__pool:
@@ -868,10 +868,10 @@ class CancerSimulator(object):
                 # first condition: if available neighbors
                 if neigh:
                     # if cell has beneficial mutation.
-                    beneficial = self.__mtx[cell] in self.__beneficial_mutation:
+                    beneficial = self.__mtx[cell] in self.__beneficial_mutation
                     r = prng.random()
                     if (beneficial and r < self.parameters.adv_mutant_division_probability) or r < self.parameters.division_probability:
-                            mutation_counter = self.division(cell, beneficial, neigh, step, mutation_counter, temp_pool)
+                        mutation_counter = self.division(cell, beneficial, neigh, step, mutation_counter, temp_pool)
 
 
             # add new cancer cells to a pool of cells available for division next round
@@ -966,11 +966,11 @@ class CancerSimulator(object):
         # Draw a free neighbor.
         place_to_divide=prng.choice(neighbors)
         pool.append(place_to_divide)
-        mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool,place_to_divide, beneficial)
-        if beneficial:
-            logging.debug('index of the mother cell: %s', str(self.__mtx[cell]))
-            logging.debug('random neighbor to divide: %s', str(place_to_divide))
 
+        if beneficial:
+            logging.info("Division of beneficial mutation carrier. Cell index = %s, mutation index = %d, place_to_divide=%s", str(cell), self.__mtx[cell], str(place_to_divide)) 
+
+        mutation_counter = self.mutation(cell, neighbors, step, mutation_counter, pool,place_to_divide, beneficial)
 
         return mutation_counter
 
@@ -1001,17 +1001,18 @@ class CancerSimulator(object):
             # Log
             logging.debug('Neighbor cell has new index %d', self.__mtx[place_to_divide])
             logging.debug("%d, %d", self.__mut_container[self.__mtx[cell]][1], mutation_counter)
-            logging.debug('mut container updated: %s', str(self.__mut_container))
+            # logging.debug('mut container updated: %s', str(self.__mut_container))
 
             if beneficial:
                 self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
+                logging.info("Mutation  of beneficial mutation carrier. Cell index = %s, mutation index = %d, place to divide = %s", cell, self.__mtx[cell], str(place_to_divide))
 
             else:
                 # Decide whether an advantageous mutation occurs.
                 if prng.random()<self.parameters.adv_mutant_mutation_probability \
                         and len(self.__beneficial_mutation)==0 \
                         and step==self.parameters.adv_mutation_wait_time:
-                    logging.debug('new beneficial mutation: %d', int(self.__mtx[place_to_divide]))
+                    logging.info('New beneficial mutation: %d', int(self.__mtx[place_to_divide]))
                     self.__beneficial_mutation.append(int(self.__mtx[place_to_divide]))
 
             # Mother cell mutates
