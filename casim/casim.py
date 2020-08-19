@@ -1099,6 +1099,7 @@ def main(arguments):
                 number_of_initial_mutations=params.number_of_initial_mutations,
                 tumour_multiplicity=params.tumour_multiplicity,
                 sampling_fraction=params.sampling_fraction,
+                sampling_positions=params.sampling_positions,
                 read_depth=params.read_depth,
                 export_tumour=params.export_tumour,
                 plot_tumour_growth=params.plot_tumour_growth,

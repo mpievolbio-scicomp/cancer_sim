@@ -242,6 +242,11 @@ documented example `params.py` is included in the source code (under
     # Fraction of cells to be sampled ([0,1]).
     sampling_fraction = 0.1
         
+    # Sampling position (list of (x,y) coordinates). If blank, random position will
+    # be chosen.
+    # sampling_positions = None # This will randomly set a single sampling position.
+    sampling_positions = [(500,500),(490,490)]
+    
     # Plot the tumour growth curve (True || False).
     plot_tumour_growth = True
         
@@ -259,8 +264,10 @@ the 10th generation (`adv_mutation_wait_time=10`). Mutant cells with advantageou
 (`adv_mutant_death_probability=0`) while healthy cells die with a rate of 0.1
 per generation (`death_probability=0.1`).
 
-A spatial sample containing 10% closely positioned tumour cells
-(`sampling_fraction=0.1`) is sampled and sequenced with a read depth
+Two spatial samples are taken, one from the tumour center and one from a
+slightly more lateral
+position (`sampling_positions = [(500,500),(490,490)]`). Each sample contains 10% closely positioned tumour cells
+(`sampling_fraction=0.1`). The samples are subject to genetic sequencing with a read depth
 of 100 (`read_depth=100`). The data is written to disk (`export_tumour=True`)
 and plots showing the mutation histograms for the whole tumour as well as for the sampled part of the
 tumour are generated. Furthermore, a plot showing the tumour growth over time is
@@ -284,38 +291,53 @@ exists because an earlier run used the same seed, the run will abort.
 This is a safety catch to avoid overwriting data from previous runs.
 
 ### Output
-After the run has finished, you should find the results in
-`cancer_sim_example/cancer_1/simOutput`.
+After the run has finished, you should find the results in the specified output
+directory:
 
-    $> ls cancer_sim_example/cancer_1/simOutput
-    mtx.p        mut_container.p              sample_out_502_488.txt
-    growthCurve.pdf  mtx_VAF.txt  sampleHistogram_502_488.pdf  wholeTumourVAFHistogram.pdf
-   
+    $> ls out/cancer_1/simOutput  
+    growthCurve.pdf  mut_container.p              sample_out_490_490.txt
+    mtx.p            sampleHistogram_490_490.pdf  sample_out_500_500.txt
+    mtx_VAF.txt      sampleHistogram_500_500.pdf  wholeTumourVAFHistogram.pdf   
+    
 Let's take a look at the `.txt`  files. They contain the simulation output:
 `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
 each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
 a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
 
-The file `sample_out_502_488.txt` (the numbers, indicating the x and y
-coordinates of the sampling position, may change) lists all mutations of the artificial sample
+Corresponding to the given sample positions, there is one
+`sample_out_XXX_YYY.txt` and one `sampleHistogram_XXX_YYY.pdf` for each
+position. The `.txt` filel lists all mutations of the artificial sample
 taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
  
-The two `.pdf` files are plots of the whole tumour histogram and the sampled
-tumour histogram, respectively. You should see figures similar to these:
+The `.pdf` files are plots of sampled
+tumour histogram. `wholeTumourVAFHistogram.pdf` is the histogram for the
+complete tumour. You should see figures similar to these:
 
-![Whole tumour histogram](img/example_whole_tumour.png)
-![Sampled tumour histogram](img/example_sampled_tumour.png)
+Whole tumour histogram:  
+![Whole tumour histogram](img/example_whole_tumour.png "Whole tumour histogram")  
+
+Central sample histogram:   
+![Sampled tumour histogram](img/example_sampled_tumour_pos1.png "Center sample histogram")  
+
+Lateral sample histogram:   
+![Sampled tumour histogram](img/example_sampled_tumour_pos2.png "Lateral sample histogram")  
 
 The remaining output files are serialized versions ("pickles") of the tumour
 geometry as a 2D matrix (`mtx.p`) and the
 mutation list (list of tuples listing the cancer cell index and the mutation ID of each
 tumour cell, `mut_container.p`).
 
-### Example notebook
-Another example demonstrating how to parametrize the simulation through the
+### Example notebooks
+An example demonstrating how to parametrize the simulation through the
 `CancerSimulationParameters` API is provided in the accompanying jupyter notebook at
-`docs/source/include/notebooks/quickstart_example.ipynb`. Launch it in
+[quickstart_example.ipynb`](https://github.com/mpievolbio-scicomp/cancer_sim/blob/master/docs/source/include/notebooks/quickstart.ipynb). Launch it in
 [binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+
+In
+[`run_dump_reload_continue.ipynb`](https://github.com/mpievolbio-scicomp/cancer_sim/blob/master/docs/source/include/notebooks/run_dump_reload_continue.ipynb), we
+demonstrate how to use the restart capability to modifiy tumour growth parameters in the
+middle of a run. In this way, one can model different phases of tumour growth,
+e.g. tumour dormancy or onset of cancer therapy.
 
 Community Guidelines
 --------------------
