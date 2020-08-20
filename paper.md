@@ -155,6 +155,9 @@ Parameter name | function | valid options
 `tumour_multiplicity` | Tumour multiplicity  | "single", "double"
 `read_depth` | Sequencing read depth  | read length * number of reads / genome length
 `sampling_fraction` | Fraction of cells to be sampled  | [0,1]
+`sampling_positions` | A list of [(x,y)] coordinates specifying the grid points
+where to take samples from the tumour. If unset or None, a single random
+position is chosen. | [0, matrix_size-1]
 `plot_tumour_growth` | Plot the tumour growth curve  | True, False
 `export_tumour` | Export the tumour growth data to file  | True, False
 
