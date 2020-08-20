@@ -50,10 +50,12 @@ and cancer cell dormancy [@Altrock2015].
 Here, we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
 intratumour genetic heterogeneity and realistic mutational profiles (i.e. order
-of appearance of mutations and their distribution among tumour cells)
-Simulated tumours can be subjected to spatial sampling to obtain mutation profiles 
-from different tumour regions to 
-yield a realistic representation of the sequencing data. 
+of appearance of mutations and their distribution among tumour cells).
+Simulated tumours can be virtually sampled at random or specified positions.
+By binning the frequency of mutations in
+each sample and convolution of the resulting histogram with a beta-binomial
+distribution to add realistic sequencing noise [@Williams2016], the simulation produces mutation profiles 
+from different tumour regions. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
@@ -74,7 +76,7 @@ The tumour is simulated using a two-dimensional, on-lattice, agent-based
 model. The tumour lattice structure is established by a sparse matrix
 whose non-zero elements correspond to the individual cells. Each cell is
 surrounded by eight neighbouring cells (Moore neighbourhood). The value
-of the matrix element is an index pointing to the last mutation cell
+of the matrix element is an index pointing to the last mutation the cell
 acquired in the list of mutations which is updated in each simulation
 step.
 
@@ -89,7 +91,6 @@ at into random cell at the specific time step defined by `adv_mutation_wait_time
 By changing fitness parameters of a mutant cell `adv_mutant_division_probability`
 and `adv_mutant_death_probability` one can model various evolutionary processes
 like emergence of a faster dividing sub-clone or selective effects of a drug treatment.
-
 
 The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
@@ -123,6 +124,14 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
 
+Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
+in a specific spatial pattern. Additionally, the effects of chemotherapy can be
+modelled by the introduction of different modes of cell death. Our model only
+considers sequencing noise for mutated cells. Future improvements of our model
+will also consider other sources of sequencing noise, e.g. read errors from
+non-mutated sites which would lead to false-positive cancer detections.
+
+
 Download and Installation
 -------------------------
 `CancerSim` is written in Python (version \>3.5). We recommend to install
@@ -132,20 +141,6 @@ it directly from the source code hosted at github <https://github.com/mpievolbio
 `conda` environment are given in the online documentation at
 <https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
 After installation, the software is available as a python module `casim`.
-
-Testing
--------
-Although not strictly required, we recommend to run the test suite after
-installation. Simply execute the `run_tests.sh` shell script:
-
-    $> ./run_tests.sh
-
-This will generate a test log named `casim_test@<timestamp>.log` with
-`<timestamp>` being the date and time when the test was run.
-
-The test suite is automatically run after each commit to the code base.
-Results are published on
-[travis-ci.org](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
 
 High--level functionality
 -------------------------
@@ -165,17 +160,23 @@ Parameter name | function | valid options
 `mutation_probability` | Probability of mutations  | [0,1]
 `adv_mutant_mutation_probability` | Mutation probability for the adv. cells  | [0,1]
 `number_of_mutations_per_division` | Number of mutations per cell division  | >=0
-`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >=0
+`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >0
 `number_of_initial_mutations` | Number of mutations present in first cancer cell | >=0
 `tumour_multiplicity` | Tumour multiplicity  | "single", "double"
 `read_depth` | Sequencing read depth  | read length * number of reads / genome length
 `sampling_fraction` | Fraction of cells to be sampled  | [0,1]
+`sampling_positions` | A list of [(x,y)] coordinates specifying the grid points
+where to take samples from the tumour. If unset or None, a single random
+position is chosen. | [0, matrix_size-1]
 `plot_tumour_growth` | Plot the tumour growth curve  | True, False
 `export_tumour` | Export the tumour growth data to file  | True, False
 
 
 The file [`params.py`](https://github.com/mpievolbio-scicomp/cancer_sim/blob/master/params.py) can serve as a 
-template to setup a simulation with all above parameters.
+template to setup a simulation with all above parameters. Users should start with the template
+and adjust the parameters as needed for
+their application by setting experimentally or theoretically known values or by
+calibrating the simulation output against experiments or other models.
 
 ### Run the simulation
 The simulation is started
@@ -188,6 +189,11 @@ For the impatient, we also provide a jupyter notebook with a more condensed
 version of the above example (gridsize 20x20) at
 `docs/source/include/notebooks/quickstart_example.ipynb`. An interactive version
 can be launched on the [Binder service](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+
+A further notebook demonstrates the possibility to dump a simulation to disk,
+reload it and continue the simulation with optionally changed parameters
+(`docs/source/include/notebooks/run_dump_reload_continue.ipynb`). This
+feature could be exploited to simulate cancer dormancy with `CancerSim`.
 
 ### Output
 After the run has finished, all output is found in the specified output
@@ -214,16 +220,18 @@ template parameter file `params.py` on the X-Y grid with
 colors indicating the order in which mutations appear. 0 (deep purple) indicates
 no mutation in this cell.
 
-Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
-in a specific spatial pattern. Additionally, the effects of chemotherapy can be modelled by the introduction of different modes of cell death.
-
-
 Documentation and support
 -------------------------
 
 The API reference manual and community guidelines including directions
 for contributors and bug reports are given in the online documentation at
 <https://cancer-sim.readthedocs.io>. 
+
+Testing and continuous integration
+----------------------------------
+Each commit to the code base triggers a build and test run on
+https://travis-ci.org. The build and test status can be observed at [https://travis-ci.org/mpievolbio-scicomp/cancer_sim](https://travis-ci.org/mpievolbio-scicomp/cancer_sim).
+
 
 References
 ----------
