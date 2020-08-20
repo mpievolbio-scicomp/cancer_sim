@@ -160,7 +160,10 @@ Parameter name | function | valid options
 
 
 The file [`params.py`](https://github.com/mpievolbio-scicomp/cancer_sim/blob/master/params.py) can serve as a 
-template to setup a simulation with all above parameters.
+template to setup a simulation with all above parameters. Users should start with the template
+and adjust the parameters as needed for
+their application by setting experimentally or theoretically known values or by
+calibrating the simulation output against experiments or other models.
 
 ### Run the simulation
 The simulation is started

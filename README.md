@@ -273,6 +273,11 @@ and plots showing the mutation histograms for the whole tumour as well as for th
 tumour are generated. Furthermore, a plot showing the tumour growth over time is
 saved (`plot_tumour_growth=True`).
  
+Users should start with the template
+and adjust the parameters as needed for
+their application by setting experimentally or theoretically known values or by
+calibrating the simulation output against experiments or other models.
+
 ### Run the example
 The simulation is started from the command line. The syntax is
 
