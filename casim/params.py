@@ -48,7 +48,12 @@ read_depth = 100
 
 # Fraction of cells to be sampled ([0,1]).
 sampling_fraction = 0.1
-    
+
+# Sampling position (list of (x,y) coordinates). If left blank or None, random position will
+# be chosen.
+# sampling_positions = None # This will randomly set a single sampling position.
+sampling_positions = [(500,500),(490,490)]
+   
 # Plot the tumour growth curve (True || False).
 plot_tumour_growth = True
     

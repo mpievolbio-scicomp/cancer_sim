@@ -2,7 +2,7 @@
 
 # Import class to be tested.
 from casim import casim
-from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation, LOGGER
+from casim.casim import CancerSimulator, CancerSimulatorParameters, check_set_number, load_cancer_simulation
 
 from collections import namedtuple
 from test_utilities import _remove_test_files
@@ -17,6 +17,8 @@ import unittest
 import pickle
 import pandas
 from tempfile import mkdtemp
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 
 class CancerSimulatorParametersTest(unittest.TestCase):
@@ -64,6 +66,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.tumour_multiplicity, 'single')
         self.assertEqual(parameters.read_depth, 100)
         self.assertEqual(parameters.sampling_fraction, 0.0)
+        self.assertIsNone(parameters.sampling_positions)
         self.assertTrue(parameters.plot_tumour_growth)
         self.assertTrue(parameters.export_tumour)
 
@@ -85,6 +88,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
                                 tumour_multiplicity='single',
                                 read_depth=200,
                                 sampling_fraction=0.3,
+                                sampling_positions=[(13,12), (3,6)],
                                 export_tumour=False,
                                 plot_tumour_growth=False,
                                                 )
@@ -103,6 +107,7 @@ class CancerSimulatorParametersTest(unittest.TestCase):
         self.assertEqual(parameters.tumour_multiplicity, 'single' )
         self.assertEqual(parameters.read_depth, 200 )
         self.assertEqual(parameters.sampling_fraction, 0.3 )
+        self.assertEqual(numpy.linalg.norm(parameters.sampling_positions - numpy.array([[13,12], [3,6]])), 0)
         self.assertFalse(parameters.plot_tumour_growth)
         self.assertFalse(parameters.export_tumour)
 
@@ -199,7 +204,7 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Capture stdout.
         stream = StringIO()
-        log = LOGGER
+        log = logging.getLogger()
         for handler in log.handlers:
            log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
@@ -326,8 +331,6 @@ class CancerSimulatorTest(unittest.TestCase):
         ### Load results and reference data.
         # Reference data.
         ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_50mut', 'cancer_1', 'simOutput')
-        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
-            ref_death_list = pickle.load(fp)
         with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
             ref_mtx = pickle.load(fp)
         with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
@@ -336,15 +339,12 @@ class CancerSimulatorTest(unittest.TestCase):
 
         run_dir = os.path.join('reference_test_out', 'cancer_1', 'simOutput')
         # Run data.
-        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
-            run_death_list = pickle.load(fp)
         with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
             run_mtx = pickle.load(fp)
         with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
             run_mutations = pickle.load(fp)
 
         # Check data is equal.
-        self.assertEqual(ref_death_list, run_death_list)
         self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
         self.assertEqual(ref_mutations, run_mutations)
 
@@ -367,6 +367,7 @@ class CancerSimulatorTest(unittest.TestCase):
                                             number_of_mutations_per_division=1,
                                             tumour_multiplicity=None,
                                             sampling_fraction=0.1,
+                                            sampling_positions=[(501,502)],
                                             )
 
         simulator = CancerSimulator(parameters=parameters, seed=1, outdir="reference_test_out")
@@ -377,8 +378,6 @@ class CancerSimulatorTest(unittest.TestCase):
         ### Load results and reference data.
         # Reference data.
         ref_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_test_data_1mut', 'cancer_1', 'simOutput')
-        with open(os.path.join(ref_dir, 'death_list.p'), 'rb') as fp:
-            ref_death_list = pickle.load(fp)
         with open(os.path.join(ref_dir, 'mtx.p'), 'rb') as fp:
             ref_mtx = pickle.load(fp)
         with open(os.path.join(ref_dir, 'mut_container.p'), 'rb') as fp:
@@ -386,52 +385,48 @@ class CancerSimulatorTest(unittest.TestCase):
 
         run_dir = os.path.join('reference_test_out', 'cancer_1', 'simOutput')
         # Run data.
-        with open(os.path.join(run_dir, 'death_list.p'), 'rb') as fp:
-            run_death_list = pickle.load(fp)
         with open(os.path.join(run_dir, 'mtx.p'), 'rb') as fp:
             run_mtx = pickle.load(fp)
         with open(os.path.join(run_dir, 'mut_container.p'), 'rb') as fp:
             run_mutations = pickle.load(fp)
 
         # Check data is equal.
-        self.assertEqual(ref_death_list, run_death_list)
         self.assertAlmostEqual(numpy.linalg.norm((ref_mtx - run_mtx).toarray()), 0.0)
         self.assertEqual(ref_mutations, run_mutations)
 
     def test_serialize(self):
         """ The the serialization of the entire object. """
         parameters = CancerSimulatorParameters()
-        cancer_sim = CancerSimulator(parameters, seed=1, outdir=mkdtemp())
+        cancer_sim = CancerSimulator(parameters, seed=2, outdir=mkdtemp())
 
         # Cleanup.
         self._test_files.append(cancer_sim.outdir)
 
-        # dump before run.
+        # Dump.
         cancer_sim.dump()
 
         # Reload
         loaded_simulation = load_cancer_simulation(cancer_sim.dumpfile)
-
         self.assertIsInstance(loaded_simulation, CancerSimulator)
 
         # Check parameters.
         loaded_parameters = loaded_simulation.parameters
 
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.matrix_size,                          parameters.matrix_size)
-        self.assertEqual(loaded_parameters.number_of_generations,                parameters.number_of_generations)
-        self.assertEqual(loaded_parameters.division_probability,                 parameters.division_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_division_probability,    parameters.adv_mutant_division_probability)
-        self.assertEqual(loaded_parameters.death_probability,                    parameters.death_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_death_probability,  parameters.adv_mutant_death_probability)
-        self.assertEqual(loaded_parameters.mutation_probability,                        parameters.mutation_probability)
-        self.assertEqual(loaded_parameters.adv_mutant_mutation_probability,    parameters.adv_mutant_mutation_probability)
-        self.assertEqual(loaded_parameters.number_of_mutations_per_division,               parameters.number_of_mutations_per_division)
-        self.assertEqual(loaded_parameters.adv_mutation_wait_time,        parameters.adv_mutation_wait_time)
-        self.assertEqual(loaded_parameters.number_of_initial_mutations,                     parameters.number_of_initial_mutations)
-        self.assertEqual(loaded_parameters.tumour_multiplicity,              parameters.tumour_multiplicity)
-        self.assertEqual(loaded_parameters.read_depth,              parameters.read_depth)
-        self.assertEqual(loaded_parameters.sampling_fraction,              parameters.sampling_fraction)
+        self.assertEqual(loaded_parameters.number_of_generations, parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.matrix_size, parameters.matrix_size)
+        self.assertEqual(loaded_parameters.number_of_generations, parameters.number_of_generations)
+        self.assertEqual(loaded_parameters.division_probability, parameters.division_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_division_probability, parameters.adv_mutant_division_probability)
+        self.assertEqual(loaded_parameters.death_probability, parameters.death_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_death_probability, parameters.adv_mutant_death_probability)
+        self.assertEqual(loaded_parameters.mutation_probability, parameters.mutation_probability)
+        self.assertEqual(loaded_parameters.adv_mutant_mutation_probability, parameters.adv_mutant_mutation_probability)
+        self.assertEqual(loaded_parameters.number_of_mutations_per_division, parameters.number_of_mutations_per_division)
+        self.assertEqual(loaded_parameters.adv_mutation_wait_time, parameters.adv_mutation_wait_time)
+        self.assertEqual(loaded_parameters.number_of_initial_mutations, parameters.number_of_initial_mutations)
+        self.assertEqual(loaded_parameters.tumour_multiplicity, parameters.tumour_multiplicity)
+        self.assertEqual(loaded_parameters.read_depth, parameters.read_depth)
+        self.assertEqual(loaded_parameters.sampling_fraction, parameters.sampling_fraction)
 
         # Check we can run.
         loaded_simulation.run()
@@ -441,9 +436,34 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Load again
         loaded_again_simulation = load_cancer_simulation(loaded_simulation.dumpfile)
+        
+        # Check that the internal state is the same as in the dump.
+        self.assertAlmostEqual(numpy.linalg.norm(loaded_simulation._CancerSimulator__mtx.toarray()
+            - loaded_again_simulation._CancerSimulator__mtx.toarray()), 0.0) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mut_container, loaded_again_simulation._CancerSimulator__mut_container) 
+        self.assertEqual(loaded_simulation._CancerSimulator__xaxis_histogram, loaded_again_simulation._CancerSimulator__xaxis_histogram) 
+        self.assertEqual(loaded_simulation._CancerSimulator__biopsy_timing, loaded_again_simulation._CancerSimulator__biopsy_timing) 
+        self.assertEqual(loaded_simulation._CancerSimulator__beneficial_mutation, loaded_again_simulation._CancerSimulator__beneficial_mutation) 
+        self.assertEqual(loaded_simulation._CancerSimulator__growth_plot_data, loaded_again_simulation._CancerSimulator__growth_plot_data) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mutation_counter, loaded_again_simulation._CancerSimulator__mutation_counter) 
+        self.assertEqual(loaded_simulation._CancerSimulator__s, loaded_again_simulation._CancerSimulator__s) 
+        self.assertEqual(loaded_simulation._CancerSimulator__ploidy, loaded_again_simulation._CancerSimulator__ploidy) 
+        self.assertEqual(loaded_simulation._CancerSimulator__mut_multiplier, loaded_again_simulation._CancerSimulator__mut_multiplier) 
+        self.assertEqual(loaded_simulation._CancerSimulator__pool, loaded_again_simulation._CancerSimulator__pool) 
 
         # Run once more.
         loaded_again_simulation.run()
+
+    def test_init_step_increases(self):
+        """ Check the the internal step counter is propely updated. """
+
+        parameters = CancerSimulatorParameters()
+        cancer_sim = CancerSimulator(parameters, seed=1, outdir = mkdtemp())
+
+        self.assertEqual(cancer_sim._CancerSimulator__init_step, 0)
+        cancer_sim.run()
+        self.assertEqual(cancer_sim._CancerSimulator__init_step, 2)
+
 
     def test_export_tumour_matrix(self):
         """ Test exporting the tumour matrix. """
@@ -454,7 +474,7 @@ class CancerSimulatorTest(unittest.TestCase):
 
         # Check files where created.
         listing = os.listdir(cancer_sim._CancerSimulator__simdir)
-        for f in ['mtx.p', 'mut_container.p', 'death_list.p', 'mtx_VAF.txt']:
+        for f in ['mtx.p', 'mut_container.p', 'mtx_VAF.txt']:
             self.assertIn(f, listing)
 
     def test_sampling_output(self):
@@ -490,6 +510,47 @@ class CancerSimulatorTest(unittest.TestCase):
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sample_out_[0-9]{3}_[0-9]{3}.txt"))
         self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sampleHistogram_[0-9]{3}_[0-9]{3}.pdf"))
         self.assertIn('growthCurve.pdf', os.listdir(simulator._CancerSimulator__simdir))
+
+    def test_sampling_positions(self):
+        """ Check setting the sample positions generates the expected output."""
+
+        # Setup parameters.
+        parameters = CancerSimulatorParameters(
+                                            matrix_size=1000,
+                                            number_of_generations=20,
+                                            division_probability=1,
+                                            adv_mutant_division_probability=1,
+                                            death_probability=0.1,
+                                            adv_mutant_death_probability=0.0,
+                                            mutation_probability=1,
+                                            adv_mutant_mutation_probability=1,
+                                            adv_mutation_wait_time=10,
+                                            number_of_initial_mutations=150,
+                                            number_of_mutations_per_division=1,
+                                            tumour_multiplicity=None,
+                                            sampling_fraction=0.1,
+                                            sampling_positions=[
+                                                [500,500],
+                                                [450,550],
+                                                [450,550],
+                                                [550,450],
+                                                [550,550],
+                                                ],
+                                            plot_tumour_growth=True,
+                                            export_tumour=True,
+                                            )
+
+        simulator = CancerSimulator(parameters=parameters, seed=1, outdir="casim_out")
+        # Cleanup (remove test output).
+        self._test_files.append(simulator.outdir)
+
+        # Run the simulation.
+        simulator.run()
+
+        # Check sampling file was written.
+        self.assertIn("sample_out_500_500.txt", os.listdir(simulator._CancerSimulator__simdir))
+        self.assertIn("sampleHistogram_500_500.pdf", os.listdir(simulator._CancerSimulator__simdir))
+        self.assertRegex(",".join(os.listdir(simulator._CancerSimulator__simdir)), re.compile(r"sampleHistogram_[0-9]{3}_[0-9]{3}.pdf"))
 
 
 class casim_test(unittest.TestCase):
@@ -574,7 +635,8 @@ class casim_test(unittest.TestCase):
 
         # Capture stdout.
         stream = StringIO()
-        log = LOGGER
+        log = logging.getLogger()
+        old_handlers = [h for h in log.handlers]
         for handler in log.handlers:
            log.removeHandler(handler)
         myhandler = logging.StreamHandler(stream)
@@ -591,13 +653,15 @@ class casim_test(unittest.TestCase):
         sim_out = stream.getvalue()
 
         # Reset stdout.
+        myhandler.close()
         log.removeHandler(myhandler)
-        handler.close()
+
+        for oh in old_handlers:
+            log.addHandler(oh)
 
         mut_container_regex = re.compile(r"1 \[\(1, 4.0\), \(2, 2.0\), \(3, 2.0\), \(4, 1.0\), \(5, 1.0\), \(6, 1.0\), \(7, 1.0\)\]")
         # self.assertRegex(sim_out, mut_container_regex)
-
-
+    
 if __name__ == "__main__":
 
     unittest.main()
