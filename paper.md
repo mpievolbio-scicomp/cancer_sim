@@ -50,10 +50,12 @@ and cancer cell dormancy [@Altrock2015].
 Here, we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
 intratumour genetic heterogeneity and realistic mutational profiles (i.e. order
-of appearance of mutations and their distribution among tumour cells)
-Simulated tumours can be subjected to spatial sampling to obtain mutation profiles 
-from different tumour regions to 
-yield a realistic representation of the sequencing data. 
+of appearance of mutations and their distribution among tumour cells).
+Simulated tumours can be virtually sampled at random or specified positions.
+By binning the frequency of mutations in
+each sample and convolution of the resulting histogram with a beta-binomial
+distribution to add realistic sequencing noise [@Williams2016], the simulation produces mutation profiles 
+from different tumour regions. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
@@ -74,7 +76,7 @@ The tumour is simulated using a two-dimensional, on-lattice, agent-based
 model. The tumour lattice structure is established by a sparse matrix
 whose non-zero elements correspond to the individual cells. Each cell is
 surrounded by eight neighbouring cells (Moore neighbourhood). The value
-of the matrix element is an index pointing to the last mutation cell
+of the matrix element is an index pointing to the last mutation the cell
 acquired in the list of mutations which is updated in each simulation
 step.
 
