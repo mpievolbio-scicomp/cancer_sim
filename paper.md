@@ -124,6 +124,14 @@ Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
 
+Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
+in a specific spatial pattern. Additionally, the effects of chemotherapy can be
+modelled by the introduction of different modes of cell death. Our model only
+considers sequencing noise for mutated cells. Future improvements of our model
+will also consider other sources of sequencing noise, e.g. read errors from
+non-mutated sites which would lead to false-positive cancer detections.
+
+
 Download and Installation
 -------------------------
 `CancerSim` is written in Python (version \>3.5). We recommend to install
@@ -152,7 +160,7 @@ Parameter name | function | valid options
 `mutation_probability` | Probability of mutations  | [0,1]
 `adv_mutant_mutation_probability` | Mutation probability for the adv. cells  | [0,1]
 `number_of_mutations_per_division` | Number of mutations per cell division  | >=0
-`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >=0
+`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >0
 `number_of_initial_mutations` | Number of mutations present in first cancer cell | >=0
 `tumour_multiplicity` | Tumour multiplicity  | "single", "double"
 `read_depth` | Sequencing read depth  | read length * number of reads / genome length
@@ -183,7 +191,8 @@ version of the above example (gridsize 20x20) at
 can be launched on the [Binder service](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
 A further notebook demonstrates the possibility to dump a simulation to disk,
-reload it and continue the simulation with optionally changed parameters. This
+reload it and continue the simulation with optionally changed parameters
+(`docs/source/include/notebooks/run_dump_reload_continue.ipynb`). This
 feature could be exploited to simulate cancer dormancy with `CancerSim`.
 
 ### Output
@@ -210,10 +219,6 @@ The figure shows the central part of the tumour matrix that results from the
 template parameter file `params.py` on the X-Y grid with
 colors indicating the order in which mutations appear. 0 (deep purple) indicates
 no mutation in this cell.
-
-Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
-in a specific spatial pattern. Additionally, the effects of chemotherapy can be modelled by the introduction of different modes of cell death.
-
 
 Documentation and support
 -------------------------
