@@ -34,32 +34,37 @@ Summary
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
 [@Kumar2017]. Its high division and mutation rates
-lead to excessive intratumour genetic heterogeneity which makes cancer
-highly adaptable to environmental pressures such as therapy
-[@Turajlic2019]. This process is known as somatic evolution of cancer.
+lead to excessive genetic diversity among tumour cells (intratumour genetic
+heterogeneity). As a consequence, tumours can adapt very efficiently to
+environmental pressures, in particular to cancer therapy [@Turajlic2019].
+This process is known as somatic evolution of cancer.  
+
 Throughout most of its existence a tumour is inaccessible to direct 
-observation and experimental evaluation. Therefore, computational modelling
+observation and experimental evaluation through genetic sequencing of tumour
+samples. Therefore, computational modelling
  can be useful to study many aspects of cancer. Some examples where theoretical 
  models can be of great use include early carcinogenesis, as lesions are clinically
 observable when they already contain millions of cells, seeding of metastases, 
 and cancer cell dormancy [@Altrock2015].
 
-Here, we present CancerSim, a software that simulates somatic evolution of
+Here, we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intratumour genetic heterogeneity and realistic mutational profiles. 
+intratumour genetic heterogeneity and realistic mutational profiles (i.e. order
+of appearance of mutations and their distribution among tumour cells)
 Simulated tumours can be subjected to spatial sampling to obtain mutation profiles 
-from different tumour regions that are realistic representation of the sequencing data. 
+from different tumour regions to 
+yield a realistic representation of the sequencing data. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
-classification of mutations based on their abundance [@Opasic2019]. Target users 
-are scientists working in the field of mathematical oncology. Simplicity of our model 
-in comparison to more advanced models like [@waclaw2015] makes it
-specifically suitable for students with interest in somatic evolution of cancer.
+classification of mutations based on their abundance [@Opasic2019]. Target users
+of `CancerSim` are scientists working in the field of mathematical oncology. Simplicity 
+and accessibility of our model, in comparison to more advanced models (see e.g. Ref. [@waclaw2015]), 
+makes it particularly suitable for students with interest in somatic evolution of cancer.  
 
 Our model is abstract, not specific to any neoplasm type, and does not
-consider a variety of biological features commonly found in neoplasm
-such as vasculature, immune contexture, availability of nutrients, and
+consider a variety of biological features commonly found in the neoplasm
+such as blood vessels, immune cells, availability of nutrients, and
 architecture of the tumour surroundings. It resembles the most to
 superficially spreading tumours like carcinoma in situ, skin cancers, or
 gastric cancers, but it can be used to model any tumour on this abstract
@@ -74,14 +79,19 @@ acquired in the list of mutations which is updated in each simulation
 step.
 
 The simulation advances in discrete time-steps. In each simulation step,
-every tumour cell in the tumour that has an unoccupied neighbour can
+every tumour cell on the lattice that has an unoccupied neighbour can
 divide with a certain probability (controlled through the parameter `division_probability`). The
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
-(`mutation_probability`). Different division probabilities can be introduced in the beginning
-for some cells in order to simulate variability in fitness of cells that
-acquired a beneficial or deleterious mutation. The simulation allows the
-acquisition of more than one mutational event per cell
+(`mutation_probability`). 
+A new mutation that changes death and birth probability of cell can be introduced
+at into random cell at the specific time step defined by `adv_mutation_wait_time`.
+By changing fitness parameters of a mutant cell `adv_mutant_division_probability`
+and `adv_mutant_death_probability` one can model various evolutionary processes
+like emergence of a faster dividing sub-clone or selective effects of a drug treatment.
+
+
+The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
 the output data more biologically realistic. Key parameters
@@ -93,7 +103,7 @@ For neutral tumour evolution, parameter `adv_mutant_division_probability`
 and `adv_mutant_death_probability` must be the same as `division_probability`
 and `death_probability`. 
 
-Throughout the cancer growth phase, CancerSim stores information about
+Throughout the cancer growth phase, `CancerSim` stores information about
 the parent cell and a designation of newly acquired mutations for every
 cell. Complete mutational profiles of cells are reconstructed a
 posteriori based on the stored lineage information.
@@ -102,7 +112,8 @@ The division rules which allow only cells with empty neighbouring nodes
 to divide, cause exclusively peripheral growth and complete absence of
 dynamics in the tumour centre. To allow for variable degree of growth
 inside the tumour, we introduced a death process. At every time step,
-after all cells attempt their division, a number of random cells die and
+after all cells attempt their division, a number of random cells die according
+to `death_probability` and `adv_mutant_death_probability` and
 yield their position to host a new cancer cell in a subsequent time
 step.
 
@@ -114,11 +125,13 @@ can be loaded from file and then subjected to the sampling process.
 
 Download and Installation
 -------------------------
-CancerSim is written in Python (version \>3.5). We recommend to install
+`CancerSim` is written in Python (version \>3.5). We recommend to install
 it directly from the source code hosted at github <https://github.com/mpievolbio-scicomp/cancer_sim>.
 
  Detailed instructions including creation of a
-`conda` environment are given in the online documentation at <https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
+`conda` environment are given in the online documentation at
+<https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
+After installation, the software is available as a python module `casim`.
 
 Testing
 -------
@@ -137,90 +150,73 @@ Results are published on
 High--level functionality
 -------------------------
 ### Setting up the cancer simulation parameters
-The parameters of the cancer simulation are given via a python module or
-programmatically via the `CancerSimulationParameters` class. The file
-`params.py` is a documented parameter module:
+The parameters of the cancer simulation are specified in a python module or
+programmatically via the `CancerSimulationParameters` class. 
+The table below lists all parameters, their function and acceptable values.
 
-```    
-# Number of mesh points in each dimension (>0)
-matrix_size = 1000
+Parameter name | function | valid options
+---------------|----------|--------------
+`matrix_size` | Number of mesh points in each dimension  | >0
+`number_of_generations` | Number of generations to simulate  | >0
+`division_probability` | Probability of cell division per generation  | [0,1]
+`adv_mutant_division_probability` | Probability of division for cells with advantageous mutation  | [0,1]
+`death_probability` | Fraction of cells that die per generation  | [0,1]
+`adv_mutant_death_probability` | Fraction of cells with advantageous mutation that die per generation  | [0,1]
+`mutation_probability` | Probability of mutations  | [0,1]
+`adv_mutant_mutation_probability` | Mutation probability for the adv. cells  | [0,1]
+`number_of_mutations_per_division` | Number of mutations per cell division  | >=0
+`adv_mutation_wait_time` | Number of generations after which adv. mutation occurs  | >=0
+`number_of_initial_mutations` | Number of mutations present in first cancer cell | >=0
+`tumour_multiplicity` | Tumour multiplicity  | "single", "double"
+`read_depth` | Sequencing read depth  | read length * number of reads / genome length
+`sampling_fraction` | Fraction of cells to be sampled  | [0,1]
+`plot_tumour_growth` | Plot the tumour growth curve  | True, False
+`export_tumour` | Export the tumour growth data to file  | True, False
 
-# Number of generations to simulate (>0).
-number_of_generations = 20
 
-# Probability of cell division per generation ([0,1]).
-division_probability = 1
-
-# Probability of division for cells with advantageous mutation ([0,1]).
-adv_mutant_division_probability = 1
-
-# Fraction of cells that die per generation ([0,1]).
-death_probability = 0.1
-
-# Fraction of cells with advantageous mutation that die per generation ([0,1]).
-adv_mutant_death_probability = 0.0
-
-# Probability of mutations ([0,1]).
-mutation_probability = 1
-
-# Mutation probability for the adv. cells ([0,1]).
-adv_mutant_mutation_probability = 1
-
-# Number of mutations per cell division (>=0).
-number_of_mutations_per_division = 10
-
-# Number of generation after which adv. mutation occurs (>=0).
-adv_mutation_wait_time = 10
-
-# Number of mutations present in first cancer cell (>=0).
-number_of_initial_mutations = 150
-
-# Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
-tumour_multiplicity = "single"
-
-# Sequencing read depth (read length * number of reads / genome length).
-read_depth = 100
-
-# Fraction of cells to be sampled ([0,1]).
-sampling_fraction = 0.1
-    
-# Plot the tumour growth curve (True || False).
-plot_tumour_growth = True
-    
-# Export the tumour growth data to file (True || False).
-export_tumour = True
-```
-The example is set to simulate 20 generations of cancer cell divisions in a
-single tumour discretized  on a
-1000x1000 grid where both normal and mutant cancer cells have the same division
-rate but different death rates.
-The first cancer cell carries 150 mutations; both healthy and mutant cells aquire 10 new mutations in
-each generation with a certainty of 100%. The advantageous mutation happens in
-the 10th generation.
-
-Mutant cells with advantageous mutations live on forever while healthy cells die with a rate of 0.1 per generation.
-A spatial sample containing 10% closely positioned tumour cells is sampled and sequenced with a read depth
-of 100. The data is written to disk and plots showing the tumour growth and
-mutation histograms for the whole tumour as well as for the sampled part of the
-tumour are generated.
+The file [`params.py`](https://github.com/mpievolbio-scicomp/cancer_sim/blob/master/params.py) can serve as a 
+template to setup a simulation with all above parameters.
 
 ### Run the simulation
-The simulation is started from the command line. The syntax is
+The simulation is started
+either from the command line, through a python script or from within an
+interactive python session. The command line interface accepts as arguments a
+random seed, a path for the output directory and a log level. More detailed instructions
+are given in the [online documentation](https://cancer-sim.readthedocs.io/en/latest/include/README.html#high-level-functionality) and in the [reference manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
-    $> python -m casim.casim [-h] [-s SEED] [-p PARAMS] [-o DIR]
+For the impatient, we also provide a jupyter notebook with a more condensed
+version of the above example (gridsize 20x20) at
+`docs/source/include/notebooks/quickstart_example.ipynb`. An interactive version
+can be launched on the [Binder service](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
-`SEED` is the random seed. If not given, `SEED` defaults to 1. `PARAMS` should point to
-a python parameter file. If not given, it defaults to `params.py` in the current
-working directory. If that file does not exist, default parameters are assumed.
-`DIR` specifies the directory where to store the
-simulation log and output data. If not given, output will be stored in
-the directory `casim_out` in the current directory. 
-Further details and explanation of the simulation output can be found in the [online
-documentation](https://cancer-sim.readthedocs.io/en/latest/include/README.html#output)
-and in the [reference manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
+### Output
+After the run has finished, all output is found in the specified output
+directory.
+Simulation output consists of the mutation list and a sample file representing
+the sampled portion of the tumour.
+If specified, a two pdf files are generated showing the mutation histograms of
+the whole tumour and the sampled portion, respectively. A third pdf contains the
+tumour growth curve (number of tumour cells over time).
+Furthermore, the output contains serialized versions ("pickles") of the tumour
+geometry as a 2D matrix, the death list, and the
+mutation list. Another directory contains all logged information from the run.
+The amount of logged information depends on the chosen loglevel.
 
-A smaller example (gridsize 20x20) is also provided in the jupyter notebook
-`docs/source/include/notebooks/quickstart_example.ipynb`. Use the following link to [launch it in Binder](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
+As an example and possible starting point for further investigations beyond the
+produced plots, the quickstart example notebook demonstrates how to load the
+tumour matrix into memory and how to visualize the mutational profile as a
+heatmap as shown in figure 1.
+
+![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.]([img mutation_profile png](img/mutation_profile.png))
+
+The figure shows the central part of the tumour matrix that results from the
+template parameter file `params.py` on the X-Y grid with
+colors indicating the order in which mutations appear. 0 (deep purple) indicates
+no mutation in this cell.
+
+Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
+in a specific spatial pattern. Additionally, the effects of chemotherapy can be modelled by the introduction of different modes of cell death.
+
 
 Documentation and support
 -------------------------
