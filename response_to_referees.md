@@ -121,12 +121,7 @@ example now explains the output and renders the produced figures (mutation
 profiles and growth curve.) Related commits:
 3760a0, 4fb51c, 1e1ee0, 61220b .
 > 
->     * [ ]  Having a detailed description of simulation output will also help
-readers to envision how the software can be applied in theoretical modelling
-and, importantly, which related research questions can be addressed e.g. in
-follow-up studies. Please delineate the softwares potential in much more detail,
-by suggestions or elaboration on possible downstream analysis. (Software paper:
-Statement of need). 
+>     * [ ]  Having a detailed description of simulation output will also help readers to envision how the software can be applied in theoretical modelling and, importantly, which related research questions can be addressed e.g. in follow-up studies. Please delineate the softwares potential in much more detail, by suggestions or elaboration on possible downstream analysis. (Software paper: Statement of need). 
 The word limit in JOSS allows us only to give a short discussion on potential
 applications of our software. This has been added to the paper (Summary, last
 paragraph.
