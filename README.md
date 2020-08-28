@@ -100,7 +100,7 @@ frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then be subjected to the sampling process.
 
 
-Installation
+Installation 
 ------------
 `CancerSim` is written in Python (version \>3.5). We recommend to install
 it directly from the source code. To download the code:
@@ -112,8 +112,7 @@ it directly from the source code. To download the code:
 **OR** download the source code archive:
 
     $> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
-    $> unzip master.zip
-    $> mv cancer_sim-master cancer_sim
+    $> unzip master.zip -d cancer_sim
 
 Change into the source code directory
 
