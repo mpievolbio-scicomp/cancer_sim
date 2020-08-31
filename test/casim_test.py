@@ -20,7 +20,6 @@ from tempfile import mkdtemp
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-
 class CancerSimulatorParametersTest(unittest.TestCase):
     """ :class: Test class for the CancerSimulator """
 
