@@ -100,7 +100,7 @@ frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then be subjected to the sampling process.
 
 
-Installation
+Installation 
 ------------
 `CancerSim` is written in Python (version \>3.5). We recommend to install
 it directly from the source code. To download the code:
@@ -112,8 +112,7 @@ it directly from the source code. To download the code:
 **OR** download the source code archive:
 
     $> wget https://github.com/mpievolbio-scicomp/cancer_sim/archive/master.zip
-    $> unzip master.zip
-    $> mv cancer_sim-master cancer_sim
+    $> unzip master.zip -d cancer_sim
 
 Change into the source code directory
 
@@ -227,7 +226,7 @@ documented example `params.py` is included in the source code (under
     # Number of mutations per cell division (>=0).
     number_of_mutations_per_division = 10
 
-    # Number of generations after which adv. mutation occurs (>=0).
+    # Number of generations after which the beneficial mutation occurs (>=1).
     adv_mutation_wait_time = 10
 
     # Number of mutations present in first cancer cell (>=0).
@@ -242,9 +241,9 @@ documented example `params.py` is included in the source code (under
     # Fraction of cells to be sampled ([0,1]).
     sampling_fraction = 0.1
         
-    # Sampling position (list of (x,y) coordinates). If blank, random position will
-    # be chosen.
-    # sampling_positions = None # This will randomly set a single sampling position.
+	# Sampling position (list of (x,y) coordinates in the range [0,matrix_size-1]).
+	# If left blank or None, random position will be chosen.
+	# sampling_positions = None # This will randomly set a single sampling position.
     sampling_positions = [(500,500),(490,490)]
     
     # Plot the tumour growth curve (True || False).
@@ -259,14 +258,15 @@ On average, both healthy and mutant cells divide once per generation
 (`division_probability`). The first cancer cell carries 150 mutations
 (`number_of_initial_mutations=150`); both healthy and mutant cells aquire 10 new
 mutations (`number_of_mutations_per_division=10`) in
-each generation with a certainty of 100% (`mutation_probability=0.1`). The advantageous mutation happens in
+each generation with a certainty of 100% (`mutation_probability=1`). The advantageous mutation happens in
 the 10th generation (`adv_mutation_wait_time=10`). Mutant cells with advantageous mutations live on forever
 (`adv_mutant_death_probability=0`) while healthy cells die with a rate of 0.1
 per generation (`death_probability=0.1`).
 
-Two spatial samples are taken, one from the tumour center and one from a
+After completion of the last generation, two spatial samples are taken, one from the tumour center and one from a
 slightly more lateral
-position (`sampling_positions = [(500,500),(490,490)]`). Each sample contains 10% closely positioned tumour cells
+position (`sampling_positions = [(500,500),(490,490)]`). Each sample contains 10% (with respect to the whole tumour size)
+ closely positioned tumour cells
 (`sampling_fraction=0.1`). The samples are subject to genetic sequencing with a read depth
 of 100 (`read_depth=100`). The data is written to disk (`export_tumour=True`)
 and plots showing the mutation histograms for the whole tumour as well as for the sampled part of the

@@ -12,6 +12,7 @@ Welcome to CancerSim's documentation!
 
    include/README.md
    include/notebooks/quickstart_example
+   include/notebooks/run_dump_reload_continue
    refman.rst
 
 

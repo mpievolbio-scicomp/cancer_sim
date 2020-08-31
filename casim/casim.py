@@ -79,10 +79,10 @@ class CancerSimulatorParameters(object):
         :param adv_mutant_death_probability: The probability for a cell with advantageous mutation to die during one generation.
         :type  adv_mutant_death_probability: float (0.0 <= adv_mutant_death_probability <= 1.0)
 
-        :param mutation_probability: The probalitiy of mutation.
+        :param mutation_probability: The probability of mutation.
         :type  mutation_probability: float (0.0 <= mutation_probability <= 1.0)
 
-        :param adv_mutant_mutation_probability: The rate for an advantageous mutation to occur during one generation.
+        :param adv_mutant_mutation_probability: The probability for a mutation to occur during one generation in a cell with adv. mutation.
         :type  adv_mutant_mutation_probability: float (0.0 <= adv_mutant_mutation_probability <= 1.0)
 
         :param number_of_mutations_per_division: The number of mutations per division
@@ -94,8 +94,7 @@ class CancerSimulatorParameters(object):
         :param number_of_initial_mutations: Number of mutations present in first cancer cell.
         :type  number_of_initial_mutations: int (number_of_initial_mutations >= 0)
 
-        :param tumour_multiplicity: Run in single or double tumour mode (i.e.
-        consider growth of one single tumour or two tumours simultaneously). Possible values: "single", "double".
+        :param tumour_multiplicity: Run in single or double tumour mode (i.e. consider growth of one single tumour or two tumours simultaneously). Possible values: "single", "double".
         :type  tumour_multiplicity: str
 
         :param read_depth: The sequencing read depth (read length * number of reads / genome length). Default: 100.
@@ -107,8 +106,7 @@ class CancerSimulatorParameters(object):
         :param sampling_positions: The positions of cells to include in a sample. Default: Random position.
         :type  sampling_positions: List (or array) of tuples of ints. E.g.  ([10,20], [2,31]).
 
-        :param plot_tumour_growth: Render graph of the tumour size as function
-        of time. Default: True.
+        :param plot_tumour_growth: Render graph of the tumour size as function of time. Default: True.
         :type plot_tumour_growth: bool
 
         :param export_tumour: Dump the tumour data to file. Default: True.
@@ -508,11 +506,11 @@ Inspect the tumour matrix data `mtx.p` in the output directory""")
         several files:
 
         - `mtx_VAF.txt` is a datafile with three columns: `mutation_id` lists the index of
-        each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
-        a given `mutation_id`; `frequency` is the frequency which at a given mutation occurs.
+          each primary mutation, `additional_mut_id` indexes the subsequent mutations that occur in a cell of
+          a given `mutation_id`; `frequency` is the frequency at which a given mutation occurs. 
 
         - `sample_out_XXX_YYY.txt` lists all mutations of the artificial sample
-        taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
+          taken from the whole tumour. Columns are identical to `mtx_VAF.txt`.
          
         - `wholeTumourVAFHistogram.pdf` contains a histogram plot of the
           mutation frequencies for the  whole tumour
@@ -523,9 +521,9 @@ Inspect the tumour matrix data `mtx.p` in the output directory""")
         - `mtx.p` is the serialized (aka "pickled") 2D tumour matrix in sparse
           matrix format.
         - `mut_container.p` is the serialized (aka "pickled") mutation list, a
-          list of tuples [t_i]. Each tuple t_i consists of two values, t_i =
-          (c_i, m_i). The first element c_i is the cell number in which the i'th mutation
-          occurs. The second element, m_i, is the mutation index m_i=i. 
+          list of tuples `[t_i]`. Each tuple `t_i` consists of two values, `t_i =
+          (c_i, m_i)`. The first element `c_i` is the cell number in which the i'th mutation
+          occurs. The second element, `m_i`, is the mutation index `m_i=i`. 
         """ 
         # Setup square matrix.
         matrix_size=self.parameters.matrix_size
@@ -743,7 +741,7 @@ Inspect the tumour matrix data `mtx.p` in the output directory""")
         return mut_count
 
     def simulate_seq_depth(self, extended_vaf):
-        """ Ads a beta binomial noise to sampled mutation frequencies
+        """ Adds a beta binomial noise to sampled mutation frequencies
 
         :param extended_vaf: The list of cells to take a sample from.
         :type  extended_vaf: list
@@ -1145,8 +1143,10 @@ def check_set_number(value, typ, default=None, minimum=None, maximum=None):
 
 def load_cancer_simulation(dumpfile):
     """ Unpickle a cancer simulation from a dill generated dump.
+
     :param dumpfile: Path to the file that contains the dumped object.
     :type  dumpfile: str
+
     """
 
     with open(dumpfile, 'rb') as fp:

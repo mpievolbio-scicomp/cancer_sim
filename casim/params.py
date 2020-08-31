@@ -34,10 +34,10 @@ adv_mutant_mutation_probability = 1
 # Number of mutations per cell division (>=0).
 number_of_mutations_per_division = 10
 
-# Number of generations after which adv. mutation occurs (>=0).
+# Number of generations after which the adv. mutation occurs (>=0).
 adv_mutation_wait_time = 10
 
-# Number of mutations present in first cancer cell (>=0).
+# Number of mutations present in first cancer cell (>=1).
 number_of_initial_mutations = 150
 
 # Tumour multiplicity (one tumour or two tumours simultaneously) ("single" || "double").
@@ -49,8 +49,8 @@ read_depth = 100
 # Fraction of cells to be sampled ([0,1]).
 sampling_fraction = 0.1
 
-# Sampling position (list of (x,y) coordinates). If left blank or None, random position will
-# be chosen.
+# Sampling position (list of (x,y) coordinates in the range [0,matrix_size-1]).
+# If left blank or None, random position will be chosen.
 # sampling_positions = None # This will randomly set a single sampling position.
 sampling_positions = [(500,500),(490,490)]
    

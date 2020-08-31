@@ -42,32 +42,31 @@ This process is known as somatic evolution of cancer.
 Throughout most of its existence a tumour is inaccessible to direct 
 observation and experimental evaluation through genetic sequencing of tumour
 samples. Therefore, computational modelling
- can be useful to study many aspects of cancer. Some examples where theoretical 
- models can be of great use include early carcinogenesis, as lesions are clinically
-observable when they already contain millions of cells, seeding of metastases, 
-and cancer cell dormancy [@Altrock2015].
+ can be useful to study many aspects of cancer. Examples where theoretical 
+ models can be of great use include (i) early carcinogenesis, as lesions are clinically
+observable when they already contain millions of cells, (ii) seeding of metastases, 
+and (iii) cancer cell dormancy [@Altrock2015].
 
 Here, we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intratumour genetic heterogeneity and realistic mutational profiles (i.e. order
+intratumour genetic heterogeneity and realistic mutational profiles (i.e. the order
 of appearance of mutations and their distribution among tumour cells).
-Simulated tumours can be virtually sampled at random or specified positions.
+Simulated tumours can be virtually sampled at random or in specified positions.
 By binning the frequency of mutations in
-each sample and convolution of the resulting histogram with a beta-binomial
-distribution to add realistic sequencing noise [@Williams2016], the simulation produces mutation profiles 
-from different tumour regions. 
+each sample and convoluting the resulting histogram with a beta-binomial
+distribution to add realistic sequencing noise [@Williams2016], the simulation produces mutation profiles from different tumour regions. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
 classification of mutations based on their abundance [@Opasic2019]. Target users
-of `CancerSim` are scientists working in the field of mathematical oncology. Simplicity 
-and accessibility of our model, in comparison to more advanced models (see e.g. Ref. [@waclaw2015]), 
-makes it particularly suitable for students with interest in somatic evolution of cancer.  
+of `CancerSim` are scientists working in the field of mathematical oncology. 
+Simplicity and accessibility of our model, in comparison to more advanced models (see e.g. Ref. [@waclaw2015]), 
+makes it particularly suitable for students with an interest in somatic evolution of cancer.  
 
 Our model is abstract, not specific to any neoplasm type, and does not
-consider a variety of biological features commonly found in the neoplasm
-such as blood vessels, immune cells, availability of nutrients, and
-architecture of the tumour surroundings. It resembles the most to
+consider a variety of biological features commonly found in the neoplasm,
+such as blood vessels, immune cells, nutrient availability, and
+architecture of the tumour surroundings. It resembles the most
 superficially spreading tumours like carcinoma in situ, skin cancers, or
 gastric cancers, but it can be used to model any tumour on this abstract
 level.
@@ -95,7 +94,7 @@ like emergence of a faster dividing sub-clone or selective effects of a drug tre
 The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
 sequencing noise [@Williams2016] can be added to make
-the output data more biologically realistic. Key parameters
+the output data biologically more realistic. The key parameters
 `number_of_generations`, 
 `division_probability` and `death_probability`
 determine the final size of the tumour, while the degree of intratumour heterogeneity can 
