@@ -38,5 +38,5 @@
   "keywords": "stochastic simulation, tumour growth, tumour sampling, cancer biology",
   "license": "MIT",
   "title": "CancerSim",
-  "version": "v1.0.0"
+  "version": "v2.0.1"
 }
