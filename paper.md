@@ -9,7 +9,7 @@ authors:
   - name: Luka Opasic
     orcid: 0000-0001-7595-1722
     affiliation: 1
-  - name: Jacob Scott
+  - name: Jacob G. Scott
     orcid: 0000-0003-2971-7673
     affiliation: 2
   - name: Arne Traulsen
