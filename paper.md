@@ -9,7 +9,7 @@ authors:
   - name: Luka Opasic
     orcid: 0000-0001-7595-1722
     affiliation: 1
-  - name: Jacob Scott
+  - name: Jacob G. Scott
     orcid: 0000-0003-2971-7673
     affiliation: 2
   - name: Arne Traulsen
@@ -164,9 +164,7 @@ Parameter name | function | valid options
 `tumour_multiplicity` | Tumour multiplicity  | "single", "double"
 `read_depth` | Sequencing read depth  | read length * number of reads / genome length
 `sampling_fraction` | Fraction of cells to be sampled  | [0,1]
-`sampling_positions` | A list of [(x,y)] coordinates specifying the grid points
-where to take samples from the tumour. If unset or None, a single random
-position is chosen. | [0, matrix_size-1]
+`sampling_positions` | A list of [(x,y)] coordinates specifying the grid points where to take samples from the tumour. If unset or None, a single random position is chosen. | [0, matrix_size-1]
 `plot_tumour_growth` | Plot the tumour growth curve  | True, False
 `export_tumour` | Export the tumour growth data to file  | True, False
 
@@ -212,7 +210,7 @@ produced plots, the quickstart example notebook demonstrates how to load the
 tumour matrix into memory and how to visualize the mutational profile as a
 heatmap as shown in figure 1.
 
-![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.]([img mutation_profile png](img/mutation_profile.png))
+![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.](img/mutation_profile.png)
 
 The figure shows the central part of the tumour matrix that results from the
 template parameter file `params.py` on the X-Y grid with
