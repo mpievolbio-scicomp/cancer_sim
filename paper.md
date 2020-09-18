@@ -34,7 +34,7 @@ Summary
 Cancer is a group of complex diseases characterized by excessive cell
 proliferation, invasion, and destruction of the surrounding tissue
 [@Kumar2017]. Its high division and mutation rates
-lead to excessive genetic diversity among tumour cells (intratumour genetic
+lead to excessive genetic diversity among tumour cells (intra tumour genetic
 heterogeneity). As a consequence, tumours can adapt very efficiently to
 environmental pressures, in particular to cancer therapy [@Turajlic2019].
 This process is known as somatic evolution of cancer.  
@@ -47,13 +47,13 @@ samples. Therefore, computational modelling
 observable when they already contain millions of cells, (ii) seeding of metastases, 
 and (iii) cancer cell dormancy [@Altrock2015].
 
-Here, we present `CancerSim`, a software that simulates somatic evolution of
+Here we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intratumour genetic heterogeneity and realistic mutational profiles (i.e. the order
+intra tumour genetic heterogeneity and realistic mutational profiles (i.e. the order
 of appearance of mutations and their distribution among tumour cells).
 Simulated tumours can be virtually sampled at random or in specified positions.
 By binning the frequency of mutations in
-each sample and convoluting the resulting histogram with a beta-binomial
+each sample and convolving the resulting histogram with a beta-binomial
 distribution to add realistic sequencing noise [@Williams2016], the simulation produces mutation profiles from different tumour regions. 
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
@@ -67,7 +67,7 @@ Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in the neoplasm,
 such as blood vessels, immune cells, nutrient availability, and
 architecture of the tumour surroundings. It resembles the most
-superficially spreading tumours like carcinoma in situ, skin cancers, or
+superficially spreading tumours like carcinoma *in-situ*, skin cancers, or
 gastric cancers, but it can be used to model any tumour on this abstract
 level.
 
@@ -85,11 +85,11 @@ divide with a certain probability (controlled through the parameter `division_pr
 daughter cell resulting from a cell division inherits all mutations from
 the parent cell and acquires a new mutation with a given probability
 (`mutation_probability`). 
-A new mutation that changes death and birth probability of cell can be introduced
-at into random cell at the specific time step defined by `adv_mutation_wait_time`.
-By changing fitness parameters of a mutant cell `adv_mutant_division_probability`
+A new mutation that changes death and/or birth probabilities can be introduced
+into a random cell at a specific time step defined by `adv_mutation_wait_time`.
+By changing the fitness parameters of a mutant cell `adv_mutant_division_probability`
 and `adv_mutant_death_probability` one can model various evolutionary processes
-like emergence of a faster dividing sub-clone or selective effects of a drug treatment.
+like emergence of a faster dividing sub-clone or selective effects of drug treatment.
 
 The simulation allows the acquisition of more than one mutational event per cell
 (`number_of_mutations_per_division`). In that case, variable amounts of
@@ -97,7 +97,7 @@ sequencing noise [@Williams2016] can be added to make
 the output data biologically more realistic. The key parameters
 `number_of_generations`, 
 `division_probability` and `death_probability`
-determine the final size of the tumour, while the degree of intratumour heterogeneity can 
+determine the final size of the tumour, while the degree of intra tumour heterogeneity can 
 be varied by changing the `mutation_probability` parameter. 
 For neutral tumour evolution, parameter `adv_mutant_division_probability`
 and `adv_mutant_death_probability` must be the same as `division_probability`
@@ -110,7 +110,7 @@ posteriori based on the stored lineage information.
 
 The division rules which allow only cells with empty neighbouring nodes
 to divide, cause exclusively peripheral growth and complete absence of
-dynamics in the tumour centre. To allow for variable degree of growth
+dynamics in the tumour centre. To allow for variable degrees of growth
 inside the tumour, we introduced a death process. At every time step,
 after all cells attempt their division, a number of random cells die according
 to `death_probability` and `adv_mutant_death_probability` and
@@ -147,6 +147,7 @@ High--level functionality
 The parameters of the cancer simulation are specified in a python module or
 programmatically via the `CancerSimulationParameters` class. 
 The table below lists all parameters, their function and acceptable values.
+[.,.] denotes a range of permissive parameter values.
 
 Parameter name | function | valid options
 ---------------|----------|--------------
@@ -183,7 +184,7 @@ random seed, a path for the output directory and a log level. More detailed inst
 are given in the [online documentation](https://cancer-sim.readthedocs.io/en/latest/include/README.html#high-level-functionality) and in the [reference manual](https://cancer-sim.readthedocs.io/en/latest/refman.html#casim.casim.CancerSimulator.run).
 
 For the impatient, we also provide a jupyter notebook with a more condensed
-version of the above example (gridsize 20x20) at
+version of the above example (grid size 20x20) at
 `docs/source/include/notebooks/quickstart_example.ipynb`. An interactive version
 can be launched on the [Binder service](https://mybinder.org/v2/gh/mpievolbio-scicomp/cancer_sim.git/master?filepath=docs%2Fsource%2Finclude%2Fnotebooks%2Fquickstart_example.ipynb).
 
@@ -197,18 +198,19 @@ After the run has finished, all output is found in the specified output
 directory.
 Simulation output consists of the mutation list and a sample file representing
 the sampled portion of the tumour.
-If specified, a two pdf files are generated showing the mutation histograms of
-the whole tumour and the sampled portion, respectively. A third pdf contains the
+Two pdf files are generated showing the mutation histograms of
+the whole tumour and the sampled portion, respectively. If requested by the
+parameter `plot_tumour_growth`, a third pdf is generated showing the
 tumour growth curve (number of tumour cells over time).
 Furthermore, the output contains serialized versions ("pickles") of the tumour
 geometry as a 2D matrix, the death list, and the
 mutation list. Another directory contains all logged information from the run.
-The amount of logged information depends on the chosen loglevel.
+The amount of logged information depends on the chosen log level.
 
 As an example and possible starting point for further investigations beyond the
-produced plots, the quickstart example notebook demonstrates how to load the
+produced plots, the quick start example notebook demonstrates how to load the
 tumour matrix into memory and how to visualize the mutational profile as a
-heatmap as shown in figure 1.
+heat map as shown in Figure 1.
 
 ![Tumour matrix as a 2D grid with colored cells indicating the order in which mutations appear.](img/mutation_profile.png)
 
