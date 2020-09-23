@@ -26,6 +26,12 @@ seeding of metastases, and cancer cell dormancy
 \[[3](#ref-altrock2015)\]
 .
 
+### Statement of Need
+Advanced cancer simulation software [@waclaw2015] often exhibit a prohibitively steep
+learning curve especially for new students in the field of somatic evolution of cancer. A software package that is 
+ accessible, simple to use, and yet covers the essential biological processes of cancer growth is needed to provide an entry
+  point for students and newcomers to mathematical oncology. 
+  
 Here, we present `CancerSim`, a software that simulates somatic evolution
 of tumours. The software produces virtual spatial tumours with variable
 extent of intratumour genetic heterogeneity and realistic mutational
@@ -36,11 +42,8 @@ sampling strategies in clinical cancer diagnostics. An early version of
 this cancer evolution model was used to simulate tumours subjected to
 sampling for classification of mutations based on their abundance
 \[[4](#ref-opasic2019)\].
-Target users of `CancerSim` are scientists working in the field of
-mathematical oncology. Simplicity and accessibility of our model in comparison to more advanced
-models (see e.g.  Ref. \[[5](#ref-waclaw2015)\]) makes it particularly 
-suitable for students with interest in somatic evolution of cancer.
 
+### Cancer growth model
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in neoplasm
 such as vasculature, immune contexture, availability of nutrients, and
@@ -57,6 +60,7 @@ of the matrix element is an index pointing to the last mutation the cell
 acquired in the list of mutations which is updated in each simulation
 step.
 
+### Simulation parameters
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell in the tumour that has an unoccupied neighbour can
 divide with a certain probability (set by the parameter `division_probability`). The
@@ -93,6 +97,7 @@ to `death_probability` and `adv_mutant_death_probability` and
 yield their position to host a new cancer cell in a subsequent time
 step.
 
+### Simulation results
 After the simulation, the tumour matrix, and the lists of lineages and
 frequencies of each mutation in the tumour are exported to files.
 Furthermore, the virtual tumour can be sampled and a histogram over the
