@@ -1,5 +1,5 @@
 ---
-title: 'CancerSim: A Cancer Simulation Package for python3'
+title: 'CancerSim: A Cancer Simulation Package for Python 3'
 tags:
   - stochastic simulation
   - tumour growth
@@ -47,9 +47,16 @@ samples. Therefore, computational modelling
 observable when they already contain millions of cells, (ii) seeding of metastases, 
 and (iii) cancer cell dormancy [@Altrock2015].
 
+### Statement of Need
+Advanced cancer simulation software [@waclaw2015] often exhibit a prohibitively steep
+learning curve especially for new students in the field of somatic evolution of cancer. A software package that is 
+ accessible, simple to use, and yet covers the essential biological processes of cancer growth is needed to provide an entry
+  point for students and newcomers to mathematical oncology. 
+
+### Cancer growth model
 Here we present `CancerSim`, a software that simulates somatic evolution of
 tumours. The software produces virtual spatial tumours with variable extent of
-intra tumour genetic heterogeneity and realistic mutational profiles (i.e. the order
+intra tumour genetic heterogeneity and realistic mutational profiles (i.e., the order
 of appearance of mutations and their distribution among tumour cells).
 Simulated tumours can be virtually sampled at random or in specified positions.
 By binning the frequency of mutations in
@@ -58,10 +65,7 @@ distribution to add realistic sequencing noise [@Williams2016], the simulation p
 This makes the software useful for studying various sampling strategies in clinical cancer
 diagnostics such as needle biopsy sampling or liquid biopsy sampling. An early version of this 
 cancer evolution model was used to simulate tumours subjected to sampling for 
-classification of mutations based on their abundance [@Opasic2019]. Target users
-of `CancerSim` are scientists working in the field of mathematical oncology. 
-Simplicity and accessibility of our model, in comparison to more advanced models (see e.g. Ref. [@waclaw2015]), 
-makes it particularly suitable for students with an interest in somatic evolution of cancer.  
+classification of mutations based on their abundance [@Opasic2019].
 
 Our model is abstract, not specific to any neoplasm type, and does not
 consider a variety of biological features commonly found in the neoplasm,
@@ -79,6 +83,7 @@ of the matrix element is an index pointing to the last mutation the cell
 acquired in the list of mutations which is updated in each simulation
 step.
 
+### Simulation parameters
 The simulation advances in discrete time-steps. In each simulation step,
 every tumour cell on the lattice that has an unoccupied neighbour can
 divide with a certain probability (controlled through the parameter `division_probability`). The
@@ -117,17 +122,19 @@ to `death_probability` and `adv_mutant_death_probability` and
 yield their position to host a new cancer cell in a subsequent time
 step.
 
+### Simulation results
 After the simulation, the tumour matrix, and the lists of lineages and
 frequencies of each mutation in the tumour are exported to files.
 Furthermore, the virtual tumour can be sampled and a histogram over the
 frequency of mutations will be visualised. Alternatively, a saved tumour
 can be loaded from file and then subjected to the sampling process.
 
+### Outlook
 Future investigations and expansions of `CancerSim` will focus on  sampling of tumour specimens
 in a specific spatial pattern. Additionally, the effects of chemotherapy can be
 modelled by the introduction of different modes of cell death. Our model only
 considers sequencing noise for mutated cells. Future improvements of our model
-will also consider other sources of sequencing noise, e.g. read errors from
+will also consider other sources of sequencing noise, e.g., read errors from
 non-mutated sites which would lead to false-positive cancer detections.
 
 
@@ -141,7 +148,7 @@ it directly from the source code hosted at github <https://github.com/mpievolbio
 <https://cancer-sim.readthedocs.io/en/master/include/README.html#installation>.
 After installation, the software is available as a python module `casim`.
 
-High--level functionality
+High-level functionality
 -------------------------
 ### Setting up the cancer simulation parameters
 The parameters of the cancer simulation are specified in a python module or
